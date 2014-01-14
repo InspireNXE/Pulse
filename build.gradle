@@ -1,0 +1,111 @@
+// Default tasks
+defaultTasks 'clean', 'build', 'licenseFormatMain', 'licenseFormatTest', 'shadowJar'
+
+// Apply plugins
+apply plugin: 'application'
+apply plugin: 'java'
+apply plugin: 'license'
+apply plugin: 'shadow'
+
+// Basic project information
+group = 'org.inspirenxe'
+archivesBaseName = 'server'
+version = '1.0.0-SNAPSHOT'
+mainClassName = "org.inspirenxe.server.Main"
+
+// Extended project information
+ext.projectName = 'Pulse'
+ext.inceptionYear = '2014'
+ext.packaging = 'jar'
+ext.url = 'http://inspirenxe.org'
+ext.description = 'Open source, multi-threaded Minecraft server written in Java.'
+ext.organization = 'InspireNXE'
+
+// Minimum version of Java required
+sourceCompatibility = '1.7'
+targetCompatibility = '1.7'
+
+// Configuration settings
+configurations.all {
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds' // Always check for new snapshots
+}
+
+// Plugin repositories and dependencies
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'sonatype-nexus-public'
+            url = 'https://oss.sonatype.org/content/repositories/public/'
+        }
+        maven {
+            name = 'shadow-repo'
+            url = 'http://jcenter.bintray.com'
+        }
+    }
+    dependencies {
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
+    }
+}
+
+// Non-plugin repositories and dependencies
+repositories {
+    mavenLocal()
+    mavenCentral()
+    maven {
+        name = 'sonatype-nexus-public'
+        url = 'https://oss.sonatype.org/content/repositories/public/'
+    }
+}
+dependencies {
+    compile 'com.flowpowered:flow-commons:0.1.0-SNAPSHOT'
+    compile 'com.flowpowered:flow-events:0.1.0-SNAPSHOT'
+    compile 'com.flowpowered:flow-math:0.1.0-SNAPSHOT'
+    compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
+    compile 'junit:junit:4.8.1'
+    compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
+    compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
+    testCompile 'junit:junit:4.8.1'
+}
+
+// Filter, process, and include resources
+processResources {
+    from(rootProject.rootDir) {
+        include 'LICENSE.txt'
+    }
+}
+
+// Include dependencies in final JAR
+shadow {
+    artifactAttached = false
+    baseName = 'pulse'
+    exclude 'junit/**'
+}
+
+// License header formatting
+license {
+    ext.name = projectName
+    ext.organization = organization
+    ext.url = url
+    ext.year = inceptionYear
+    header rootProject.file('HEADER.txt')
+    strictCheck true
+}
+
+// Source compiler configuration
+configure([compileJava, compileTestJava]) {
+    options.compilerArgs << '-Xlint:all'
+    options.compilerArgs << '-Xlint:-path'
+    options.deprecation = true
+}
+
+// JAR manifest configuration
+manifest.mainAttributes(
+        "Main-Class": mainClassName,
+        "Built-By": System.properties['user.name'],
+        "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
+        "Implementation-Title": name,
+        "Implementation-Version": version,
+        "Implementation-Vendor": url)
+
