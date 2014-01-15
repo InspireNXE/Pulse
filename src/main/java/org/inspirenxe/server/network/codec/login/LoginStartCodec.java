@@ -21,30 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message;
+package org.inspirenxe.server.network.codec.login;
 
-import com.flowpowered.networking.Message;
+import java.io.IOException;
 
-public class LoginStartMessage implements Message {
-    private final String username;
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.MessageHandler;
+import com.flowpowered.networking.session.Session;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.server.network.ServerSession;
+import org.inspirenxe.server.network.message.login.LoginStartMessage;
 
-    public LoginStartMessage(String username) {
-        this.username = username;
-    }
+public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<LoginStartMessage> {
+    private static final int OPCODE = 0;
 
-    public String getUsername() {
-        return username;
+    public LoginStartCodec() {
+        super(LoginStartMessage.class, OPCODE);
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
+    public LoginStartMessage decode(ByteBuf buf) throws IOException {
+        final String username = ByteBufUtils.readUTF8(buf);
+        return new LoginStartMessage(username);
     }
 
     @Override
-    public String toString() {
-        return "LoginStartMessage{" +
-                "username='" + username + '\'' +
-                '}';
+    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
+        throw new IOException("The Minecraft client should not receive a login start from the server!");
+    }
+
+    @Override
+    public void handle(Session session, LoginStartMessage message) {
+        ((ServerSession) session).getGame().getLogger().info(message);
     }
 }

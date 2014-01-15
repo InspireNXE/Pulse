@@ -21,31 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.codec;
+package org.inspirenxe.server.network.message.login;
 
-import java.io.IOException;
+import com.flowpowered.networking.Message;
 
-import com.flowpowered.networking.ByteBufUtils;
-import com.flowpowered.networking.Codec;
-import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.message.LoginSuccessMessage;
+public class LoginStartMessage implements Message {
+    private final String username;
 
-public class LoginSuccessCodec extends Codec<LoginSuccessMessage> {
-    private static final int OPCODE = 2;
+    public LoginStartMessage(String username) {
+        this.username = username;
+    }
 
-    public LoginSuccessCodec() {
-        super(LoginSuccessMessage.class, OPCODE);
+    public String getUsername() {
+        return username;
     }
 
     @Override
-    public LoginSuccessMessage decode(ByteBuf buf) throws IOException {
-        throw new IOException("The server should not receive a login success from the Minecraft client!");
+    public boolean isAsync() {
+        return true;
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getUuid());
-        ByteBufUtils.writeUTF8(buf, message.getUsername());
-        return buf;
+    public String toString() {
+        return "LoginStartMessage{" +
+                "username='" + username + '\'' +
+                '}';
     }
 }

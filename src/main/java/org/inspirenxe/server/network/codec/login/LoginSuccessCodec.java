@@ -21,37 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message;
+package org.inspirenxe.server.network.codec.login;
 
-import com.flowpowered.networking.Message;
+import java.io.IOException;
 
-public class LoginSuccessMessage implements Message {
-    private final String uuid;
-    private final String username;
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 
-    public LoginSuccessMessage(String uuid, String username) {
-        this.uuid = uuid;
-        this.username = username;
-    }
+public class LoginSuccessCodec extends Codec<LoginSuccessMessage> {
+    private static final int OPCODE = 2;
 
-    public String getUuid() {
-        return uuid;
-    }
-
-    public String getUsername() {
-        return username;
+    public LoginSuccessCodec() {
+        super(LoginSuccessMessage.class, OPCODE);
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
+    public LoginSuccessMessage decode(ByteBuf buf) throws IOException {
+        throw new IOException("The server should not receive a login success from the Minecraft client!");
     }
 
     @Override
-    public String toString() {
-        return "LoginSuccessMessage{" +
-                "uuid='" + uuid + '\'' +
-                ", username='" + username + '\'' +
-                '}';
+    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buf, message.getUuid());
+        ByteBufUtils.writeUTF8(buf, message.getUsername());
+        return buf;
     }
 }

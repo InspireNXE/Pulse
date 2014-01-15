@@ -24,7 +24,7 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.codec.HandshakeCodec;
+import org.inspirenxe.server.network.codec.handshake.HandshakeCodec;
 
 public class HandshakeProtocol extends ServerProtocol {
     public HandshakeProtocol(Game game) {

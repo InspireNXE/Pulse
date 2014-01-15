@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.codec;
+package org.inspirenxe.server.network.codec.handshake;
 
 import java.io.IOException;
 
@@ -31,7 +31,7 @@ import com.flowpowered.networking.MessageHandler;
 import com.flowpowered.networking.session.Session;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
-import org.inspirenxe.server.network.message.HandshakeMessage;
+import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
 public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHandler<HandshakeMessage> {
     private static final int OPCODE = 0;

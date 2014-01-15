@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message;
+package org.inspirenxe.server.network.message.handshake;
 
 import com.flowpowered.networking.Message;
 import gnu.trove.map.hash.TIntObjectHashMap;

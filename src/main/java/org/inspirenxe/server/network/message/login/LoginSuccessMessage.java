@@ -21,38 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.codec;
+package org.inspirenxe.server.network.message.login;
 
-import java.io.IOException;
+import com.flowpowered.networking.Message;
 
-import com.flowpowered.networking.ByteBufUtils;
-import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.MessageHandler;
-import com.flowpowered.networking.session.Session;
-import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.ServerSession;
-import org.inspirenxe.server.network.message.LoginStartMessage;
+public class LoginSuccessMessage implements Message {
+    private final String uuid;
+    private final String username;
 
-public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<LoginStartMessage> {
-    private static final int OPCODE = 0;
+    public LoginSuccessMessage(String uuid, String username) {
+        this.uuid = uuid;
+        this.username = username;
+    }
 
-    public LoginStartCodec() {
-        super(LoginStartMessage.class, OPCODE);
+    public String getUuid() {
+        return uuid;
+    }
+
+    public String getUsername() {
+        return username;
     }
 
     @Override
-    public LoginStartMessage decode(ByteBuf buf) throws IOException {
-        final String username = ByteBufUtils.readUTF8(buf);
-        return new LoginStartMessage(username);
+    public boolean isAsync() {
+        return true;
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
-        throw new IOException("The Minecraft client should not receive a login start from the server!");
-    }
-
-    @Override
-    public void handle(Session session, LoginStartMessage message) {
-        ((ServerSession) session).getGame().getLogger().info(message);
+    public String toString() {
+        return "LoginSuccessMessage{" +
+                "uuid='" + uuid + '\'' +
+                ", username='" + username + '\'' +
+                '}';
     }
 }

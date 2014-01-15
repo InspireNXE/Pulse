@@ -24,8 +24,8 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.codec.LoginStartCodec;
-import org.inspirenxe.server.network.codec.LoginSuccessCodec;
+import org.inspirenxe.server.network.codec.login.LoginStartCodec;
+import org.inspirenxe.server.network.codec.login.LoginSuccessCodec;
 
 public class LoginProtocol extends ServerProtocol {
     public LoginProtocol(Game game) {
