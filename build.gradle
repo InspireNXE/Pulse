@@ -85,6 +85,11 @@ shadow {
 }
 
 // License header formatting
+import nl.javadude.gradle.plugins.license.License
+tasks.withType(License).each { licenseTask ->
+    licenseTask.exclude 'resources/**'
+    licenseTask.exclude '**/*.xml'
+}
 license {
     ext.name = projectName
     ext.organization = organization

@@ -27,6 +27,7 @@ import com.flowpowered.networking.protocol.AbstractProtocol;
 import com.flowpowered.networking.session.BasicSession;
 import io.netty.channel.Channel;
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.protocol.ServerProtocol;
 
 /**
  * Represents an open connection to a client. All {@link com.flowpowered.networking.Message}s are sent through the session.
