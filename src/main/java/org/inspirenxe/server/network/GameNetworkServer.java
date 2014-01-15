@@ -21,12 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server;
+package org.inspirenxe.server.network;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
-        final Game game = new Game();
-        game.start();
-        game.waitForExit();
+import com.flowpowered.networking.NetworkServer;
+import com.flowpowered.networking.session.Session;
+import io.netty.channel.Channel;
+import org.inspirenxe.server.Game;
+
+public class GameNetworkServer extends NetworkServer {
+    private final Game game;
+
+    public GameNetworkServer(Game game) {
+        this.game = game;
+    }
+
+    @Override
+    public Session newSession(Channel channel) {
+        return null;
+    }
+
+    @Override
+    public void sessionInactivated(Session session) {
+
     }
 }

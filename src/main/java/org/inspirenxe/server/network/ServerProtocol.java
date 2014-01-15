@@ -1,0 +1,99 @@
+/**
+ * This file is part of Pulse, licensed under the MIT License (MIT).
+ *
+ * Copyright (c) 2014 InspireNXE <http://inspirenxe.org/>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ */
+package org.inspirenxe.server.network;
+
+import java.io.IOException;
+
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.Message;
+import com.flowpowered.networking.MessageHandler;
+import com.flowpowered.networking.exception.IllegalOpcodeException;
+import com.flowpowered.networking.exception.UnknownPacketException;
+import com.flowpowered.networking.protocol.keyed.KeyedProtocol;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.inspirenxe.server.Game;
+
+public abstract class ServerProtocol extends KeyedProtocol {
+    protected static final String INBOUND = "INBOUND";
+    protected static final String OUTBOUND = "OUTBOUND";
+    /**
+     * The server's default port.
+     */
+    public static final int DEFAULT_PORT = 25565;
+    /**
+     * The server's protocol version.
+     */
+    public static final int VERSION = 4;
+    private final Game game;
+
+    public ServerProtocol(Game game, String name, int highestOpcode) {
+        super(name, DEFAULT_PORT, highestOpcode + 1);
+        this.game = game;
+    }
+
+    @Override
+    public <T extends Message> MessageHandler<T> getMessageHandle(Class<T> tClass) {
+        return getHandlerLookupService(INBOUND).find(tClass);
+    }
+
+    @Override
+    public Codec<?> readHeader(ByteBuf buf) throws UnknownPacketException {
+        int length = -1;
+        int opcode = -1;
+        try {
+            length = ByteBufUtils.readVarInt(buf);
+            opcode = ByteBufUtils.readVarInt(buf);
+            return getCodecLookupService(INBOUND).find(opcode);
+        } catch (IOException e) {
+            throw new UnknownPacketException("Failed to read packet data (corrupt?)", opcode, length);
+        } catch (IllegalOpcodeException e) {
+            getLogger().error("Illegal opcode sent to the server!", e);
+        }
+        return null;
+    }
+
+    @Override
+    public <M extends Message> Codec<M> getCodec(Class<M> mClass) {
+        return getCodecLookupService(OUTBOUND).find(mClass);
+    }
+
+    @Override
+    public ByteBuf writeHeader(Codec<?> codec, ByteBuf data, ByteBuf out) {
+        //Length -> opCode -> data
+        final int length = data.readableBytes();
+        final int opCode = codec.getOpcode();
+        //Figure out length of opcode, must be included in total length of packet
+        ByteBuf temp = Unpooled.buffer();
+        ByteBufUtils.writeVarInt(temp, opCode);
+        ByteBufUtils.writeVarInt(out, length + temp.readableBytes());
+        ByteBufUtils.writeVarInt(out, opCode);
+        return out;
+    }
+
+    public Game getGame() {
+        return game;
+    }
+}

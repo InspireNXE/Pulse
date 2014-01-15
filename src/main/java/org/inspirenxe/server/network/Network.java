@@ -21,12 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server;
+package org.inspirenxe.server.network;
 
-public class Main {
-    public static void main(String[] args) throws Exception {
-        final Game game = new Game();
-        game.start();
-        game.waitForExit();
+import com.flowpowered.commons.ticking.TickingElement;
+import org.inspirenxe.server.Game;
+
+public class Network extends TickingElement {
+    private static final int TPS = 20;
+    private final Game game;
+
+    public Network(Game game) {
+        super("network", TPS);
+        this.game = game;
+    }
+
+    @Override
+    public void onStart() {
+        game.getLogger().info("Network start");
+    }
+
+    @Override
+    public void onTick(long l) {
+    }
+
+    @Override
+    public void onStop() {
+        game.getLogger().info("Network stop");
     }
 }
