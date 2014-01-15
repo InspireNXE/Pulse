@@ -31,31 +31,28 @@ import com.flowpowered.networking.MessageHandler;
 import com.flowpowered.networking.session.Session;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
-import org.inspirenxe.server.network.message.HandshakeMessage;
+import org.inspirenxe.server.network.message.LoginStartMessage;
 
-public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHandler<HandshakeMessage> {
+public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<LoginStartMessage> {
     private static final int OPCODE = 0;
 
-    public HandshakeCodec() {
-        super(HandshakeMessage.class, OPCODE);
+    public LoginStartCodec() {
+        super(LoginStartMessage.class, OPCODE);
     }
 
     @Override
-    public HandshakeMessage decode(ByteBuf buf) throws IOException {
-        final int version = ByteBufUtils.readVarInt(buf);
-        final String address = ByteBufUtils.readUTF8(buf);
-        final short port = (short) buf.readUnsignedShort();
-        final HandshakeMessage.HandshakeState state = HandshakeMessage.HandshakeState.get(buf.readInt());
-        return new HandshakeMessage(version, address, port, state);
+    public LoginStartMessage decode(ByteBuf buf) throws IOException {
+        final String username = ByteBufUtils.readUTF8(buf);
+        return new LoginStartMessage(username);
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, HandshakeMessage message) throws IOException {
-        throw new IOException("The Minecraft client should not receive a handshake from the server!");
+    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
+        throw new IOException("The Minecraft client should not receive a login start from the server!");
     }
 
     @Override
-    public void handle(Session session, HandshakeMessage message) {
+    public void handle(Session session, LoginStartMessage message) {
         ((ServerSession) session).getGame().getLogger().info(message);
     }
 }

@@ -21,14 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.protocol;
+package org.inspirenxe.server.network.message;
 
-import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.codec.HandshakeCodec;
+import com.flowpowered.networking.Message;
 
-public class HandshakeProtocol extends ServerProtocol {
-    public HandshakeProtocol(Game game) {
-        super(game, "handshake", 0);
-        registerMessage(INBOUND, HandshakeCodec.class, HandshakeCodec.class);
+public class LoginStartMessage implements Message {
+    private final String username;
+
+    public LoginStartMessage(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginStartMessage{" +
+                "username='" + username + '\'' +
+                '}';
     }
 }
