@@ -21,16 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.protocol;
+package org.inspirenxe.server.network.codec;
 
-import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.codec.LoginStartCodec;
-import org.inspirenxe.server.network.codec.LoginSuccessCodec;
+import java.io.IOException;
 
-public class LoginProtocol extends ServerProtocol {
-    public LoginProtocol(Game game) {
-        super(game, "login", 2);
-        registerMessage(INBOUND, LoginStartCodec.class, LoginStartCodec.class);
-        registerMessage(OUTBOUND, LoginSuccessCodec.class, null);
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.server.network.message.LoginSuccessMessage;
+
+public class LoginSuccessCodec extends Codec<LoginSuccessMessage> {
+    private static final int OPCODE = 2;
+
+    public LoginSuccessCodec() {
+        super(LoginSuccessMessage.class, OPCODE);
+    }
+
+    @Override
+    public LoginSuccessMessage decode(ByteBuf buf) throws IOException {
+        throw new IOException("The server should not receive a login success from the Minecraft client!");
+    }
+
+    @Override
+    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buf, message.getUuid());
+        ByteBufUtils.writeUTF8(buf, message.getUsername());
+        return buf;
     }
 }

@@ -21,16 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.protocol;
+package org.inspirenxe.server.network.message;
 
-import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.codec.LoginStartCodec;
-import org.inspirenxe.server.network.codec.LoginSuccessCodec;
+import com.flowpowered.networking.Message;
 
-public class LoginProtocol extends ServerProtocol {
-    public LoginProtocol(Game game) {
-        super(game, "login", 2);
-        registerMessage(INBOUND, LoginStartCodec.class, LoginStartCodec.class);
-        registerMessage(OUTBOUND, LoginSuccessCodec.class, null);
+public class LoginSuccessMessage implements Message {
+    private final String uuid;
+    private final String username;
+
+    public LoginSuccessMessage(String uuid, String username) {
+        this.uuid = uuid;
+        this.username = username;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public boolean isAsync() {
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "LoginSuccessMessage{" +
+                "uuid='" + uuid + '\'' +
+                ", username='" + username + '\'' +
+                '}';
     }
 }
