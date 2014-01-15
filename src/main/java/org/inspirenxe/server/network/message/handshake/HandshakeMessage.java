@@ -23,13 +23,13 @@
  */
 package org.inspirenxe.server.network.message.handshake;
 
-import com.flowpowered.networking.Message;
 import gnu.trove.map.hash.TIntObjectHashMap;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
 /**
  * Server-bound message that initiates the connection process to the server
  */
-public class HandshakeMessage implements Message {
+public class HandshakeMessage extends ChannelMessage {
     private final int version;
     private final String address;
     private final short port;
@@ -83,11 +83,6 @@ public class HandshakeMessage implements Message {
      */
     public HandshakeState getState() {
         return state;
-    }
-
-    @Override
-    public boolean isAsync() {
-        return true;
     }
 
     @Override

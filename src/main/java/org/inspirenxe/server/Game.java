@@ -34,18 +34,18 @@ public class Game {
     private final Network network;
 
     public Game() {
-        logger = LogManager.getLogger("Pulse");
+        logger = LogManager.getLogger("Server");
         network = new Network(this);
     }
 
     private void start() {
-        logger.info("Starting pulse");
+        logger.info("Starting server, please wait a moment");
         network.start();
         running = true;
     }
 
     private void stop() {
-        logger.info("Stopping pulse");
+        logger.info("Stopping server, please wait a moment");
         network.stop();
     }
 

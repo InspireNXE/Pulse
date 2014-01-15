@@ -25,6 +25,8 @@ package org.inspirenxe.server;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        new Game().open();
+        final Game game = new Game();
+        game.getNetwork().bindLocal();
+        game.open();
     }
 }

@@ -23,9 +23,9 @@
  */
 package org.inspirenxe.server.network.message.login;
 
-import com.flowpowered.networking.Message;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
-public class LoginStartMessage implements Message {
+public class LoginStartMessage extends ChannelMessage {
     private final String username;
 
     public LoginStartMessage(String username) {
@@ -34,11 +34,6 @@ public class LoginStartMessage implements Message {
 
     public String getUsername() {
         return username;
-    }
-
-    @Override
-    public boolean isAsync() {
-        return true;
     }
 
     @Override

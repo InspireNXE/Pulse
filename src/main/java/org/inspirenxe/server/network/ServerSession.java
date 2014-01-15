@@ -99,6 +99,7 @@ public class ServerSession extends BasicSession {
 
     @Override
     public void onThrowable(Throwable t) {
+        game.getLogger().fatal(t);
     }
 
     /**

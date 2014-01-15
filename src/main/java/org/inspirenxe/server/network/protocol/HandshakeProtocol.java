@@ -29,6 +29,6 @@ import org.inspirenxe.server.network.codec.handshake.HandshakeCodec;
 public class HandshakeProtocol extends ServerProtocol {
     public HandshakeProtocol(Game game) {
         super(game, "handshake", 0);
-        registerMessage(INBOUND, HandshakeCodec.class, HandshakeCodec.class);
+        registerMessage(INBOUND, HandshakeCodec.class, HandshakeCodec.class, 0);
     }
 }

@@ -27,6 +27,7 @@ import com.flowpowered.networking.NetworkServer;
 import com.flowpowered.networking.session.Session;
 import io.netty.channel.Channel;
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.protocol.HandshakeProtocol;
 
 public class GameNetworkServer extends NetworkServer {
     private final Game game;
@@ -37,11 +38,11 @@ public class GameNetworkServer extends NetworkServer {
 
     @Override
     public Session newSession(Channel channel) {
-        return null;
+        return new ServerSession(game, channel, new HandshakeProtocol(game));
     }
 
     @Override
     public void sessionInactivated(Session session) {
-
+        game.getLogger().info(((ServerSession) session).getUsername() + " left the game.");
     }
 }

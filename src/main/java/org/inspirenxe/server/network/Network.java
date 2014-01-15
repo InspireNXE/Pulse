@@ -23,21 +23,40 @@
  */
 package org.inspirenxe.server.network;
 
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
+import java.util.EnumMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicReference;
+
 import com.flowpowered.commons.ticking.TickingElement;
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.protocol.ServerProtocol;
 
 public class Network extends TickingElement {
     private static final int TPS = 20;
     private final Game game;
+    private final GameNetworkServer server;
+    private final AtomicReference<SocketAddress> bound = new AtomicReference<>();
+    private final Map<ChannelMessage.Channel, ConcurrentLinkedQueue<ChannelMessage>> messageQueue = new EnumMap<>(ChannelMessage.Channel.class);
 
     public Network(Game game) {
         super("network", TPS);
         this.game = game;
+        this.server = new GameNetworkServer(game);
+        messageQueue.put(ChannelMessage.Channel.NETWORK, new ConcurrentLinkedQueue<ChannelMessage>());
     }
 
     @Override
     public void onStart() {
-        game.getLogger().info("Network start");
+        if (bound.get() == null) {
+            throw new RuntimeException("Attempt to start up networking without a bound address set!");
+        }
+        game.getLogger().info("Starting network");
+        server.bind(bound.get());
     }
 
     @Override
@@ -46,6 +65,37 @@ public class Network extends TickingElement {
 
     @Override
     public void onStop() {
-        game.getLogger().info("Network stop");
+        game.exit();
+    }
+
+    /**
+     * Gets the {@link java.util.Iterator} storing the messages for the {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
+     *
+     * @param c See {@link org.inspirenxe.server.network.message.ChannelMessage}
+     * @return The iterator
+     */
+    public Iterator<ChannelMessage> getChannel(ChannelMessage.Channel c) {
+        return messageQueue.get(c).iterator();
+    }
+
+    /**
+     * Offers a {@link org.inspirenxe.server.network.message.ChannelMessage} to a queue mapped to {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
+     *
+     * @param c See {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
+     * @param m See {@link org.inspirenxe.server.network.message.ChannelMessage}
+     */
+    public void offer(ChannelMessage.Channel c, ChannelMessage m) {
+        messageQueue.get(c).offer(m);
+    }
+
+    public void bindLocal() {
+        bind(new InetSocketAddress(ServerProtocol.DEFAULT_PORT));
+    }
+
+    public void bind(SocketAddress address) {
+        if (isRunning()) {
+            throw new RuntimeException("Any attempt to rebind address and port the server is listening on needs to have the Network thread stopped first and then restarted!");
+        }
+        bound.set(address);
     }
 }

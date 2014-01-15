@@ -28,16 +28,14 @@ import java.io.IOException;
 import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import com.flowpowered.networking.MessageHandler;
-import com.flowpowered.networking.session.Session;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
+import org.inspirenxe.server.network.message.ChannelMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 
-public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<LoginStartMessage> {
-    private static final int OPCODE = 0;
-
+public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<ServerSession, LoginStartMessage> {
     public LoginStartCodec() {
-        super(LoginStartMessage.class, OPCODE);
+        super(LoginStartMessage.class);
     }
 
     @Override
@@ -52,7 +50,7 @@ public class LoginStartCodec extends Codec<LoginStartMessage> implements Message
     }
 
     @Override
-    public void handle(Session session, LoginStartMessage message) {
-        ((ServerSession) session).getGame().getLogger().info(message);
+    public void handle(ServerSession session, LoginStartMessage message) {
+        session.getGame().getNetwork().offer(ChannelMessage.Channel.NETWORK, message);
     }
 }

@@ -31,10 +31,8 @@ import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 
 public class LoginSuccessCodec extends Codec<LoginSuccessMessage> {
-    private static final int OPCODE = 2;
-
     public LoginSuccessCodec() {
-        super(LoginSuccessMessage.class, OPCODE);
+        super(LoginSuccessMessage.class);
     }
 
     @Override

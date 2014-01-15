@@ -28,16 +28,13 @@ import java.io.IOException;
 import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import com.flowpowered.networking.MessageHandler;
-import com.flowpowered.networking.session.Session;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
-public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHandler<HandshakeMessage> {
-    private static final int OPCODE = 0;
-
+public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHandler<ServerSession, HandshakeMessage> {
     public HandshakeCodec() {
-        super(HandshakeMessage.class, OPCODE);
+        super(HandshakeMessage.class);
     }
 
     @Override
@@ -55,7 +52,7 @@ public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHa
     }
 
     @Override
-    public void handle(Session session, HandshakeMessage message) {
-        ((ServerSession) session).getGame().getLogger().info(message);
+    public void handle(ServerSession session, HandshakeMessage message) {
+        session.getGame().getLogger().info(message);
     }
 }

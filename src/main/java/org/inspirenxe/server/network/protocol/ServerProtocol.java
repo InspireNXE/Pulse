@@ -36,8 +36,14 @@ import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.inspirenxe.server.Game;
 
-public abstract class ServerProtocol extends KeyedProtocol {
+public class ServerProtocol extends KeyedProtocol {
+    /**
+     * From Client
+     */
     protected static final String INBOUND = "INBOUND";
+    /**
+     * To Client
+     */
     protected static final String OUTBOUND = "OUTBOUND";
     /**
      * The server's default port.
@@ -55,8 +61,8 @@ public abstract class ServerProtocol extends KeyedProtocol {
     }
 
     @Override
-    public <T extends Message> MessageHandler<T> getMessageHandle(Class<T> tClass) {
-        return getHandlerLookupService(INBOUND).find(tClass);
+    public <M extends Message> MessageHandler<?, M> getMessageHandle(Class<M> clazz) {
+        return getHandlerLookupService(INBOUND).find(clazz);
     }
 
     @Override
@@ -66,32 +72,29 @@ public abstract class ServerProtocol extends KeyedProtocol {
         try {
             length = ByteBufUtils.readVarInt(buf);
             opcode = ByteBufUtils.readVarInt(buf);
-            return getCodecLookupService(INBOUND).find(opcode);
+            return getCodecLookupService(INBOUND).find(opcode).getCodec();
         } catch (IOException e) {
             throw new UnknownPacketException("Failed to read packet data (corrupt?)", opcode, length);
         } catch (IllegalOpcodeException e) {
-            getLogger().error("Illegal opcode sent to the server!", e);
+            throw new UnknownPacketException("Opcode received is not a registered codec on the server!", opcode, length);
         }
-        return null;
     }
 
     @Override
-    public <M extends Message> Codec<M> getCodec(Class<M> mClass) {
-        return getCodecLookupService(OUTBOUND).find(mClass);
+    public <M extends Message> Codec.CodecRegistration getCodecRegistration(Class<M> clazz) {
+        return getCodecLookupService(OUTBOUND).find(clazz);
     }
 
     @Override
-    public ByteBuf writeHeader(Codec<?> codec, ByteBuf data, ByteBuf out) {
-        //Length -> opCode -> data
+    public ByteBuf writeHeader(Codec.CodecRegistration codec, ByteBuf data, ByteBuf out) {
         final int length = data.readableBytes();
-        final int opCode = codec.getOpcode();
-        //Figure out length of opcode, must be included in total length of packet
-        ByteBuf temp = Unpooled.buffer();
-        ByteBufUtils.writeVarInt(temp, opCode);
-        ByteBufUtils.writeVarInt(out, length + temp.readableBytes());
-        ByteBufUtils.writeVarInt(out, opCode);
+        final ByteBuf opcodeBuffer = Unpooled.buffer();
+        ByteBufUtils.writeVarInt(opcodeBuffer, codec.getOpcode());
+        ByteBufUtils.writeVarInt(out, length + opcodeBuffer.readableBytes());
+        ByteBufUtils.writeVarInt(out, codec.getOpcode());
         return out;
     }
+
 
     public Game getGame() {
         return game;
