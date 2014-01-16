@@ -23,10 +23,20 @@
  */
 package org.inspirenxe.server;
 
+import java.net.InetSocketAddress;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.Parameter;
+
 public class Main {
+    @Parameter(names = {"-port", "--port", "-p", "--p"}, description = "Specify the port to use")
+    public static int port = 25565;
+
     public static void main(String[] args) throws Exception {
+        final Main main = new Main();
+        final JCommander params = new JCommander(main);
         final Game game = new Game();
-        game.getNetwork().bindLocal();
+        params.parse(args);
+        game.getNetwork().bind(new InetSocketAddress(port));
         game.open();
     }
 }

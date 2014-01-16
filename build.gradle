@@ -40,7 +40,7 @@ buildscript {
         }
         maven {
             name = 'shadow-repo'
-            url = 'http://jcenter.bintray.com'
+            url = 'http://jcenter.bintray.com/'
         }
     }
     dependencies {
@@ -59,6 +59,7 @@ repositories {
     }
 }
 dependencies {
+    compile 'com.beust:jcommander:1.32'
     compile 'com.flowpowered:flow-commons:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-events:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-math:0.1.0-SNAPSHOT'

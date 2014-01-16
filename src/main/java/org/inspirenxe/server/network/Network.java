@@ -57,6 +57,7 @@ public class Network extends TickingElement {
         }
         game.getLogger().info("Starting network");
         server.bind(bound.get());
+        game.getLogger().info("Listening on " + bound.get());
     }
 
     @Override
@@ -86,10 +87,6 @@ public class Network extends TickingElement {
      */
     public void offer(ChannelMessage.Channel c, ChannelMessage m) {
         messageQueue.get(c).offer(m);
-    }
-
-    public void bindLocal() {
-        bind(new InetSocketAddress(ServerProtocol.DEFAULT_PORT));
     }
 
     public void bind(SocketAddress address) {
