@@ -38,10 +38,7 @@ buildscript {
             name = 'sonatype-nexus-public'
             url = 'https://oss.sonatype.org/content/repositories/public/'
         }
-        maven {
-            name = 'shadow-repo'
-            url = 'http://jcenter.bintray.com/'
-        }
+        jcenter()
     }
     dependencies {
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
@@ -66,10 +63,10 @@ dependencies {
     compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-noise:0.1.0-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'junit:junit:4.8.1'
+    compile 'junit:junit:4.8.2'
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
-    testCompile 'junit:junit:4.8.1'
+    testCompile 'junit:junit:4.8.2'
 }
 
 // Filter, process, and include resources
@@ -91,6 +88,7 @@ import nl.javadude.gradle.plugins.license.License
 tasks.withType(License).each { licenseTask ->
     licenseTask.exclude 'resources/**'
     licenseTask.exclude '**/*.xml'
+    licenseTask.exclude '**/*.json'
 }
 license {
     ext.name = projectName
