@@ -29,6 +29,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.inspirenxe.server.network.Network;
+import org.inspirenxe.server.nterface.Interface;
 
 public class Game {
     // A semaphore with no permits, so that the first acquire() call blocks
@@ -36,21 +37,25 @@ public class Game {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Configuration configuration;
     private final Logger logger;
+    private final Interface nterface;
     private final Network network;
 
     public Game(Configuration configuration) {
         this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
+        nterface = new Interface(this);
         network = new Network(this);
     }
 
     private void start() {
         logger.info("Starting server, please wait a moment");
+        nterface.start();
         network.start();
     }
 
     private void stop() {
         logger.info("Stopping server, please wait a moment");
+        nterface.stop();
         network.stop();
     }
 
