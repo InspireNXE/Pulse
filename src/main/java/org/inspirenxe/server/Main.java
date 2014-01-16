@@ -23,24 +23,35 @@
  */
 package org.inspirenxe.server;
 
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 
 public class Main {
     @Parameter (names = {"-port", "--port", "-p", "--p"}, description = "Specify the port to use")
     private static int port = 25565;
 
     public static void main(String[] args) throws Exception {
+        deploy();
         new JCommander(new Main()).parse(args);
         final Game game = new Game();
         game.getNetwork().setAddress(new InetSocketAddress(port));
         game.open();
+    }
+
+    public static void deploy() throws IOException {
+        final Path configPath = Paths.get("config.json");
+        if (Files.notExists(configPath)) {
+            Files.copy(Main.class.getResourceAsStream("/config.json"), configPath);
+        }
+        final Path worldsPath = Paths.get("worlds");
+        if (Files.notExists(worldsPath)) {
+            Files.createDirectories(worldsPath);
+        }
     }
 }

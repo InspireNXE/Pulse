@@ -26,11 +26,11 @@ package org.inspirenxe.server;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -45,11 +45,10 @@ public class Game {
     private final Network network;
 
     public Game() throws IOException {
-        logger = LogManager.getLogger("Server");
-        try (final Reader reader = new InputStreamReader(Main.class.getResourceAsStream("/server.json"), StandardCharsets.UTF_8)) {
-            final Gson gson = new GsonBuilder().create();
-            configuration = gson.fromJson(reader, Configuration.class);
+        try (final Reader reader = new InputStreamReader(Files.newInputStream(Paths.get("config.json")))) {
+            configuration = new GsonBuilder().create().fromJson(reader, Configuration.class);
         }
+        logger = LogManager.getLogger(configuration.getName());
         network = new Network(this);
     }
 
@@ -66,6 +65,10 @@ public class Game {
 
     public Logger getLogger() {
         return logger;
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
     }
 
     public Network getNetwork() {

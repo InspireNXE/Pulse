@@ -46,17 +46,13 @@ public class ServerProtocol extends KeyedProtocol {
      */
     protected static final String OUTBOUND = "OUTBOUND";
     /**
-     * The server's default port.
-     */
-    public static final int DEFAULT_PORT = 25565;
-    /**
      * The server's protocol version.
      */
     public static final int VERSION = 4;
     private final Game game;
 
     public ServerProtocol(Game game, String name, int highestOpcode) {
-        super(name, DEFAULT_PORT, highestOpcode + 1);
+        super(name, game.getConfiguration().getPort(), highestOpcode + 1);
         this.game = game;
     }
 
