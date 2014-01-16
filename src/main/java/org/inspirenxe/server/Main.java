@@ -32,11 +32,9 @@ public class Main {
     private static int port = 25565;
 
     public static void main(String[] args) throws Exception {
-        final Main main = new Main();
-        final JCommander params = new JCommander(main);
+        new JCommander(new Main()).parse(args);
         final Game game = new Game();
-        params.parse(args);
-        game.getNetwork().bind(new InetSocketAddress(port));
+        game.getNetwork().setAddress(new InetSocketAddress(port));
         game.open();
     }
 }

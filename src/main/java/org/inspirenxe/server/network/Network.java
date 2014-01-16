@@ -89,7 +89,7 @@ public class Network extends TickingElement {
         messageQueue.get(c).offer(m);
     }
 
-    public void bind(SocketAddress address) {
+    public void setAddress(SocketAddress address) {
         if (isRunning()) {
             throw new RuntimeException("Any attempt to rebind address and port the server is listening on needs to have the Network thread stopped first and then restarted!");
         }
