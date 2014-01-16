@@ -23,15 +23,9 @@
  */
 package org.inspirenxe.server;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.inspirenxe.server.network.Network;
@@ -40,21 +34,18 @@ public class Game {
     // A semaphore with no permits, so that the first acquire() call blocks
     private final Semaphore semaphore = new Semaphore(0);
     private final AtomicBoolean running = new AtomicBoolean(false);
-    private final Logger logger;
     private final Configuration configuration;
+    private final Logger logger;
     private final Network network;
 
-    public Game() throws IOException {
-        try (final Reader reader = new InputStreamReader(Files.newInputStream(Paths.get("config.json")))) {
-            configuration = new GsonBuilder().create().fromJson(reader, Configuration.class);
-        }
+    public Game(Configuration configuration) {
+        this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
         network = new Network(this);
     }
 
     private void start() {
         logger.info("Starting server, please wait a moment");
-        logger.info(configuration);
         network.start();
     }
 
@@ -63,12 +54,12 @@ public class Game {
         network.stop();
     }
 
-    public Logger getLogger() {
-        return logger;
-    }
-
     public Configuration getConfiguration() {
         return configuration;
+    }
+
+    public Logger getLogger() {
+        return logger;
     }
 
     public Network getNetwork() {

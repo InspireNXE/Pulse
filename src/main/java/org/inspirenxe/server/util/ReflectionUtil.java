@@ -21,33 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server;
+package org.inspirenxe.server.util;
 
-public class Configuration {
-    private String name;
-    private String address;
-    private int port;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 
-    protected Configuration() {}
+public class ReflectionUtil {
+    public static void setFinal(Class<?> clazz, String fieldName, Object instance, Object newValue) throws Exception {
+        final Field field = clazz.getDeclaredField(fieldName);
+        field.setAccessible(true);
 
-    public String getName() {
-        return name;
-    }
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL);
 
-    public String getAddress() {
-        return address;
-    }
-
-    public int getPort() {
-        return port;
-    }
-
-    @Override
-    public String toString() {
-        return "Configuration{" +
-                "name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", port=" + port +
-                '}';
+        field.set(instance, newValue);
     }
 }

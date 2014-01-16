@@ -24,23 +24,34 @@
 package org.inspirenxe.server;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
+import com.google.gson.GsonBuilder;
+import org.inspirenxe.server.util.ReflectionUtil;
 
 public class Main {
+    @Parameter (names = {"-name", "--name", "-n", "--n"}, description = "Specify the name to use")
+    private static String NAME;
+    @Parameter (names = {"-address", "--address", "-a", "--a"}, description = "Specify the address to use")
+    private static String ADDRESS;
     @Parameter (names = {"-port", "--port", "-p", "--p"}, description = "Specify the port to use")
-    private static int port = 25565;
+    private static Integer PORT;
 
     public static void main(String[] args) throws Exception {
-        deploy();
         new JCommander(new Main()).parse(args);
-        final Game game = new Game();
-        game.getNetwork().setAddress(new InetSocketAddress(port));
+        deploy();
+        final Configuration configuration;
+        try (final Reader reader = new InputStreamReader(Files.newInputStream(Paths.get("config.json")))) {
+            configuration = new GsonBuilder().create().fromJson(reader, Configuration.class);
+        }
+        reflectSetParams(configuration);
+        final Game game = new Game(configuration);
         game.open();
     }
 
@@ -52,6 +63,18 @@ public class Main {
         final Path worldsPath = Paths.get("worlds");
         if (Files.notExists(worldsPath)) {
             Files.createDirectories(worldsPath);
+        }
+    }
+
+    public static void reflectSetParams(Configuration configuration) throws Exception {
+        if (NAME != null && !NAME.isEmpty()) {
+            ReflectionUtil.setFinal(Configuration.class, "name", configuration, NAME);
+        }
+        if (ADDRESS != null && !ADDRESS.isEmpty()) {
+            ReflectionUtil.setFinal(Configuration.class, "address", configuration, ADDRESS);
+        }
+        if (PORT != null && PORT > 0) {
+            ReflectionUtil.setFinal(Configuration.class, "port", configuration, PORT);
         }
     }
 }
