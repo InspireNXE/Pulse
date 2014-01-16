@@ -23,7 +23,6 @@
  */
 package org.inspirenxe.server.network;
 
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
 import java.util.EnumMap;
 import java.util.Iterator;
@@ -34,7 +33,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import com.flowpowered.commons.ticking.TickingElement;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.message.ChannelMessage;
-import org.inspirenxe.server.network.protocol.ServerProtocol;
 
 public class Network extends TickingElement {
     private static final int TPS = 20;
@@ -66,7 +64,7 @@ public class Network extends TickingElement {
 
     @Override
     public void onStop() {
-        game.exit();
+        game.getLogger().info("Stopping network");
     }
 
     /**

@@ -95,7 +95,6 @@ public class ServerProtocol extends KeyedProtocol {
         return out;
     }
 
-
     public Game getGame() {
         return game;
     }

@@ -23,25 +23,40 @@
  */
 package org.inspirenxe.server;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.inspirenxe.server.network.Network;
 
 public class Game {
-    private volatile boolean running = false;
-    private final Object wait = new Object();
+    // A semaphore with no permits, so that the first acquire() call blocks
+    private final Semaphore semaphore = new Semaphore(0);
+    private final AtomicBoolean running = new AtomicBoolean(false);
     private final Logger logger;
+    private final Configuration configuration;
     private final Network network;
 
-    public Game() {
+    public Game() throws IOException {
         logger = LogManager.getLogger("Server");
+        try (final Reader reader = new InputStreamReader(Main.class.getResourceAsStream("/server.json"), StandardCharsets.UTF_8)) {
+            final Gson gson = new GsonBuilder().create();
+            configuration = gson.fromJson(reader, Configuration.class);
+        }
         network = new Network(this);
     }
 
     private void start() {
         logger.info("Starting server, please wait a moment");
+        logger.info(configuration);
         network.start();
-        running = true;
     }
 
     private void stop() {
@@ -58,30 +73,31 @@ public class Game {
     }
 
     /**
-     * Starts the game and causes the current thread to wait until the {@link #exit()} method is called. When this happens, the thread resumes and the game is stopped. Interrupting the thread will not
-     * cause it to exit, only calling {@link #exit()} will.
+     * Starts the game and causes the current thread to wait until the {@link #close()} method is called. When this happens, the thread resumes and the game is stopped. Interrupting the thread will
+     * not cause it to close, only calling {@link #close()} will. Calls to {@link #close()} before open() are not counted.
      */
     public void open() {
-        start();
-        running = true;
-        synchronized (wait) {
-            while (isRunning()) {
-                try {
-                    wait.wait();
-                } catch (InterruptedException ignored) {
-                }
-            }
+        // Only start the game if running has a value of false, in which case it's set to true and the if statement passes
+        if (running.compareAndSet(false, true)) {
+            // Start the threads, which might release permits by calling close() before all are started
+            start();
+            // Attempts to acquire a permit, but since none are available (except for the situation stated above), the thread blocks
+            semaphore.acquireUninterruptibly();
+            // A permit was acquired, which means close() was called; so we stop game. The available permit count returns to zero
+            stop();
         }
-        stop();
     }
 
     /**
-     * Wakes up the thread waiting for the game to exit (by having called {@link #open()}) and allows it to resume it's activity to trigger the end of the game.
+     * Wakes up the thread that has opened the game (by having called {@link #open()}) and allows it to resume it's activity to trigger the end of the game.
      */
-    public void exit() {
-        running = false;
-        synchronized (wait) {
-            wait.notifyAll();
+    public void close() {
+        // Only stop the game if running has a value of true, in which case it's set to false and the if statement passes
+        if (running.compareAndSet(true, false)) {
+            // Release a permit (which doesn't need to be held by the thread in the first place),
+            // allowing the main thread to acquire one and resume to close the game
+            semaphore.release();
+            // The available permit count is now non-zero
         }
     }
 
@@ -91,6 +107,6 @@ public class Game {
      * @return Whether or not the game is running
      */
     public boolean isRunning() {
-        return running;
+        return running.get();
     }
 }
