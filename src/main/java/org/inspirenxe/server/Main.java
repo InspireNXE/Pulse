@@ -29,7 +29,7 @@ import com.beust.jcommander.Parameter;
 
 public class Main {
     @Parameter(names = {"-port", "--port", "-p", "--p"}, description = "Specify the port to use")
-    public static int port = 25565;
+    private static int port = 25565;
 
     public static void main(String[] args) throws Exception {
         final Main main = new Main();
