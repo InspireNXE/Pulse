@@ -9,6 +9,8 @@ install: ./gradlew build -PbuildNumber=$TRAVIS_BUILD_NUMBER -PciSystem=travis -P
 after_success:
   # Generate Cobertura report for Coveralls.io
   - "./gradlew cobertura coveralls -PserviceJobId=$TRAVIS_JOB_ID"
+  # Check if commit s not a pull request, if git repo is official, and if branch is master. If checks pass, add libs and deploy artifacts to Maven repository.
+  - "[[ $TRAVIS_PULL_REQUEST == false ]] && [[ $TRAVIS_REPO_SLUG == Spoutcraft/SpoutcraftMod ]] && [[ $TRAVIS_BRANCH == master ]] && ./gradlew build shadowJar uploadArchives"
 
 # Notification services
 notifications:
@@ -23,3 +25,6 @@ env:
   global:
     # Make the log output cleaner
     - TERM=dumb
+    # Secure environment variables
+    - secure: "hB+ZyP94kVeIDf3Wy6DPeVXiXkP/yvnfFq5r+bX+xw+x2DHf51px3PrpupOxlP/3cg3t8XnM3yezOTsqQVJwfHeSqx5ZZeXs+YIhKZxAg1Dxbz/MQ/770/TYtW4MtQPAPGUG2HMhQN3p3sQ20w+xpK237JZMFrpm1T296DrS5ek="
+    - secure: "MQtD4nOQZIP0FHdA12UyN2KDH7BxS22RD2XTGoBs4yNXs2/BCOlHq4WkfzMrUhfAHMI+u2o84yfygHgZhwZCsKdN2pkVdDa8BjO1ceLjB+dg877ESb4FrBF+NIp6PLtBF8LP+5ctkvPebU3bdSNZJNe4kBiFFNGIynGtoCZ83nU="
