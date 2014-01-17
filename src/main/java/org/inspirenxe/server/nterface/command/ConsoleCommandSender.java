@@ -97,4 +97,8 @@ public class ConsoleCommandSender implements CommandSender {
     public Set<String> getGroups(PermissionDomain domain) {
         return Collections.emptySet();
     }
+
+    public Game getGame() {
+        return game;
+    }
 }
