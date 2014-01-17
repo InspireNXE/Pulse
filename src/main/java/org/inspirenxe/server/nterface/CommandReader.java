@@ -29,7 +29,7 @@ import com.flowpowered.commons.ticking.TickingElement;
 import org.inspirenxe.server.Game;
 
 public class CommandReader extends TickingElement {
-    private static final int TPS = 20;
+    private static final int TPS = 1;
     private final Game game;
 
     public CommandReader(Game game) {
@@ -39,7 +39,7 @@ public class CommandReader extends TickingElement {
 
     @Override
     public void onStart() {
-
+        game.getLogger().info("Starting command");
     }
 
     @Override
@@ -60,6 +60,6 @@ public class CommandReader extends TickingElement {
 
     @Override
     public void onStop() {
-
+        game.getLogger().info("Stopping command");
     }
 }

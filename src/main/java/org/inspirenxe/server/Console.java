@@ -38,13 +38,13 @@ import org.inspirenxe.server.nterface.command.ServerCommands;
 public class Console implements CommandCallback {
     private final Game game;
     private final ConsoleReader reader;
-    private final CommandManager manager;
     private final ConsoleCommandSender sender;
+    private final CommandReader commandReader;
 
     public Console(Game game) throws IOException {
         this.game = game;
         reader = new ConsoleReader(System.in, System.out);
-        manager = new CommandManager(false);
+        final CommandManager manager = new CommandManager(false);
         final CommandProvider provider = new CommandProvider() {
             @Override
             public String getName() {
@@ -55,6 +55,7 @@ public class Console implements CommandCallback {
         sender = new ConsoleCommandSender(game, manager);
         final AnnotatedCommandExecutorFactory factory = new AnnotatedCommandExecutorFactory(manager, provider);
         factory.create(ServerCommands.class);
+        commandReader = new CommandReader(game);
     }
 
     public ConsoleReader getReader() {
@@ -62,16 +63,23 @@ public class Console implements CommandCallback {
     }
 
     protected void acceptInput() {
-        final CommandReader reader = new CommandReader(game);
-        reader.start();
+        commandReader.start();
+    }
+
+    protected void refuseInput() {
+        try {
+            reader.killLine();
+            reader.flush();
+        } catch (IOException e) {
+            game.getLogger().fatal("Exception caught while refusing console input!", e);
+        }
+        commandReader.stop();
     }
 
     @Override
     public void handleCommand(String command) {
-        game.getLogger().info(sender);
-        game.getLogger().info(command);
         try {
-            manager.executeCommand(sender, command);
+            sender.processCommand(command);
         } catch (CommandException e) {
             game.getLogger().error("Exception caught processing command [" + command + "]", e);
         }

@@ -55,6 +55,7 @@ public class Game {
     private void stop() {
         logger.info("Stopping server, please wait a moment");
         network.stop();
+        console.refuseInput();
     }
 
     public Configuration getConfiguration() {
