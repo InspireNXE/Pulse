@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server;
+package org.inspirenxe.server.input;
 
 import java.io.IOException;
 
@@ -30,20 +30,27 @@ import com.flowpowered.commands.CommandManager;
 import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
 import com.flowpowered.commons.console.CommandCallback;
+import com.flowpowered.commons.ticking.TickingElement;
 import jline.console.ConsoleReader;
-import org.inspirenxe.server.nterface.CommandReader;
-import org.inspirenxe.server.nterface.command.ConsoleCommandSender;
-import org.inspirenxe.server.nterface.command.ServerCommands;
+import org.inspirenxe.server.Game;
+import org.inspirenxe.server.input.command.Commands;
+import org.inspirenxe.server.input.command.ConsoleCommandSender;
 
-public class Console implements CommandCallback {
+public class Input extends TickingElement {
+    private static final int TPS = 20;
     private final Game game;
     private final ConsoleReader reader;
     private final ConsoleCommandSender sender;
-    private final CommandReader commandReader;
+    private final GameCommandCallback callback;
 
-    public Console(Game game) throws IOException {
+    public Input(Game game) {
+        super("input", TPS);
         this.game = game;
-        reader = new ConsoleReader(System.in, System.out);
+        try {
+            reader = new ConsoleReader(System.in, System.out);
+        } catch (IOException e) {
+            throw new RuntimeException("Exception caught creating the console reader!", e);
+        }
         final CommandManager manager = new CommandManager(false);
         final CommandProvider provider = new CommandProvider() {
             @Override
@@ -53,35 +60,45 @@ public class Console implements CommandCallback {
         };
         manager.setRootCommand(manager.getCommand(provider, "root"));
         sender = new ConsoleCommandSender(game, manager);
-        final AnnotatedCommandExecutorFactory factory = new AnnotatedCommandExecutorFactory(manager, provider);
-        factory.create(ServerCommands.class);
-        commandReader = new CommandReader(game);
-    }
-
-    public ConsoleReader getReader() {
-        return reader;
-    }
-
-    protected void acceptInput() {
-        commandReader.start();
-    }
-
-    protected void refuseInput() {
-        try {
-            reader.killLine();
-            reader.flush();
-        } catch (IOException e) {
-            game.getLogger().fatal("Exception caught while refusing console input!", e);
-        }
-        commandReader.stop();
+        new AnnotatedCommandExecutorFactory(manager, provider).create(Commands.class);
+        callback = new GameCommandCallback();
     }
 
     @Override
-    public void handleCommand(String command) {
+    public void onStart() {
+        game.getLogger().info("Starting input");
+    }
+
+    @Override
+    public void onTick(long l) {
+        String command;
         try {
-            sender.processCommand(command);
-        } catch (CommandException e) {
-            game.getLogger().error("Exception caught processing command [" + command + "]", e);
+            command = reader.readLine();
+
+            if (command == null || command.trim().length() == 0) {
+                return;
+            }
+        } catch (IOException e) {
+            game.getLogger().fatal("Failed to read console input!", e);
+            return;
+        }
+        callback.handleCommand(command);
+    }
+
+    @Override
+    public void onStop() {
+        reader.shutdown();
+        game.getLogger().info("Stopping input");
+    }
+
+    private class GameCommandCallback implements CommandCallback {
+        @Override
+        public void handleCommand(String command) {
+            try {
+                sender.processCommand(command);
+            } catch (CommandException e) {
+                game.getLogger().error("Exception caught handling command [" + command + "]!", e);
+            }
         }
     }
 }

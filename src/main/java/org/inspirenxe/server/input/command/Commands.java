@@ -21,45 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.nterface;
+package org.inspirenxe.server.input.command;
 
-import java.io.IOException;
+import com.flowpowered.commands.CommandArguments;
+import com.flowpowered.commands.CommandSender;
+import com.flowpowered.commands.annotated.CommandDescription;
 
-import com.flowpowered.commons.ticking.TickingElement;
-import org.inspirenxe.server.Game;
-
-public class CommandReader extends TickingElement {
-    private static final int TPS = 1;
-    private final Game game;
-
-    public CommandReader(Game game) {
-        super("command", TPS);
-        this.game = game;
-    }
-
-    @Override
-    public void onStart() {
-        game.getLogger().info("Starting command");
-    }
-
-    @Override
-    public void onTick(long l) {
-        String command;
-        try {
-            command = game.getConsole().getReader().readLine();
-
-            if (command == null || command.trim().length() == 0) {
-                return;
-            }
-        } catch (IOException e) {
-            game.getLogger().fatal("Failed to read console input!", e);
-            return;
-        }
-        game.getConsole().handleCommand(command);
-    }
-
-    @Override
-    public void onStop() {
-        game.getLogger().info("Stopping command");
+public class Commands {
+    @CommandDescription (name = "stop", usage = "stop", desc = "Stops the game", help = "Use this command only when you want to stop the game!")
+    private static void onCommandStop(CommandSender sender, CommandArguments args) {
+        ((ConsoleCommandSender) sender).getGame().close();
     }
 }

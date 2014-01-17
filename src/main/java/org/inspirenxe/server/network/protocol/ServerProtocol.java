@@ -34,7 +34,6 @@ import com.flowpowered.networking.exception.UnknownPacketException;
 import com.flowpowered.networking.protocol.keyed.KeyedProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import org.inspirenxe.server.Configuration;
 import org.inspirenxe.server.Game;
 
 public class ServerProtocol extends KeyedProtocol {

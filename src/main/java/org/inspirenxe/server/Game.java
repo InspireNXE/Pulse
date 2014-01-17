@@ -23,11 +23,13 @@
  */
 package org.inspirenxe.server;
 
+import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.inspirenxe.server.input.Input;
 import org.inspirenxe.server.network.Network;
 
 public class Game {
@@ -36,26 +38,26 @@ public class Game {
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final Configuration configuration;
     private final Logger logger;
-    private final Console console;
+    private final Input input;
     private final Network network;
 
     public Game(Configuration configuration) throws Exception {
         this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
-        console = new Console(this);
+        input = new Input(this);
         network = new Network(this);
     }
 
     private void start() {
         logger.info("Starting server, please wait a moment");
+        input.start();
         network.start();
-        console.acceptInput();
     }
 
     private void stop() {
         logger.info("Stopping server, please wait a moment");
+        input.stop();
         network.stop();
-        console.refuseInput();
     }
 
     public Configuration getConfiguration() {
@@ -66,8 +68,8 @@ public class Game {
         return logger;
     }
 
-    public Console getConsole() {
-        return console;
+    public Input getInput() {
+        return input;
     }
 
     public Network getNetwork() {

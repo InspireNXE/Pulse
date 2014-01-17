@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.nterface.command;
+package org.inspirenxe.server.input.command;
 
 import java.util.Collections;
 import java.util.Set;

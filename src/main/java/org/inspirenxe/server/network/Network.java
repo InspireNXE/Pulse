@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
-import org.inspirenxe.server.Configuration;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.message.ChannelMessage;
 
