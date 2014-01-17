@@ -4,6 +4,8 @@ defaultTasks 'clean', 'build', 'licenseFormatMain', 'licenseFormatTest', 'shadow
 // Apply plugins
 apply plugin: 'application'
 apply plugin: 'java'
+apply plugin: 'cobertura'
+apply plugin: 'coveralls'
 apply plugin: 'license'
 apply plugin: 'shadow'
 
@@ -25,6 +27,11 @@ ext.organization = 'InspireNXE'
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
 
+// Define variables
+ext.buildNumber = '0'
+ext.ciSystem = 'unknown'
+ext.commit = 'unknown'
+
 // Configuration settings
 configurations.all {
     resolutionStrategy.cacheChangingModulesFor 0, 'seconds' // Always check for new snapshots
@@ -41,8 +48,10 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
         classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
+        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' // Coveralls plugin dependency
+        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.1'
     }
 }
 
@@ -114,6 +123,8 @@ manifest.mainAttributes(
         "Built-By": System.properties['user.name'],
         "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
         "Implementation-Title": name,
-        "Implementation-Version": version,
+        "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
         "Implementation-Vendor": url)
 
+// Coveralls report configuration
+cobertura.coverageFormats = [ 'html', 'xml' ] // Coveralls requires xml format
