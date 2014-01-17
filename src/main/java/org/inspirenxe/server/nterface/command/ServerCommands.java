@@ -26,10 +26,16 @@ package org.inspirenxe.server.nterface.command;
 import com.flowpowered.commands.CommandArguments;
 import com.flowpowered.commands.CommandSender;
 import com.flowpowered.commands.annotated.CommandDescription;
+import org.inspirenxe.server.Game;
 
 public class ServerCommands {
-    @CommandDescription(name = "stop", usage = "stop", desc = "Stops the server", help = "Stop will halt the server and save all worlds. All sessions will be kicked")
-    public void onCommandStop(CommandSender sender, CommandArguments arguments) {
+    private final Game game;
+
+    public ServerCommands(Game game) {
+        this.game = game;
+    }
+    @CommandDescription(name = "stop", usage = "stop", desc = "Stops the server", help = "Stop will halt the server and save all worlds. All sessions will be kicked", parseFlags = false)
+    private void onCommandStop(CommandSender sender, CommandArguments arguments) {
         ((ConsoleCommandSender) sender).getGame().getLogger().info("Stop command fired!");
     }
 }

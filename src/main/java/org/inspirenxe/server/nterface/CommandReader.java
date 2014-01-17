@@ -28,12 +28,12 @@ import java.io.IOException;
 import com.flowpowered.commons.ticking.TickingElement;
 import org.inspirenxe.server.Game;
 
-public class Interface extends TickingElement {
+public class CommandReader extends TickingElement {
     private static final int TPS = 20;
     private final Game game;
 
-    public Interface(Game game) {
-        super("interface", TPS);
+    public CommandReader(Game game) {
+        super("command", TPS);
         this.game = game;
     }
 
@@ -46,7 +46,7 @@ public class Interface extends TickingElement {
     public void onTick(long l) {
         String command;
         try {
-            command = game.getConsole().getReader().get().readLine(">", null);
+            command = game.getConsole().getReader().readLine();
 
             if (command == null || command.trim().length() == 0) {
                 return;

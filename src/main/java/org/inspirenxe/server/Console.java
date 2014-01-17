@@ -24,7 +24,6 @@
 package org.inspirenxe.server;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicReference;
 
 import com.flowpowered.commands.CommandException;
 import com.flowpowered.commands.CommandManager;
@@ -32,42 +31,44 @@ import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
 import com.flowpowered.commons.console.CommandCallback;
 import jline.console.ConsoleReader;
-import org.inspirenxe.server.nterface.Interface;
+import org.inspirenxe.server.nterface.CommandReader;
 import org.inspirenxe.server.nterface.command.ConsoleCommandSender;
 import org.inspirenxe.server.nterface.command.ServerCommands;
 
 public class Console implements CommandCallback {
     private final Game game;
-    private final AtomicReference<ConsoleReader> reader;
+    private final ConsoleReader reader;
     private final CommandManager manager;
     private final ConsoleCommandSender sender;
 
     public Console(Game game) throws IOException {
         this.game = game;
-        reader = new AtomicReference<>(new ConsoleReader(System.in, System.out));
-        manager = new CommandManager();
-        sender = new ConsoleCommandSender(game, manager);
-        final AnnotatedCommandExecutorFactory factory = new AnnotatedCommandExecutorFactory(manager, new CommandProvider() {
+        reader = new ConsoleReader(System.in, System.out);
+        manager = new CommandManager(false);
+        final CommandProvider provider = new CommandProvider() {
             @Override
             public String getName() {
                 return "server";
             }
-        });
+        };
+        manager.setRootCommand(manager.getCommand(provider, "root"));
+        sender = new ConsoleCommandSender(game, manager);
+        final AnnotatedCommandExecutorFactory factory = new AnnotatedCommandExecutorFactory(manager, provider);
         factory.create(ServerCommands.class);
     }
 
-    public AtomicReference<ConsoleReader> getReader() {
+    public ConsoleReader getReader() {
         return reader;
     }
 
     protected void acceptInput() {
-        final Interface nterface = new Interface(game);
-        nterface.start();
+        final CommandReader reader = new CommandReader(game);
+        reader.start();
     }
 
-    //TODO Command handling on another thread besides main?
     @Override
     public void handleCommand(String command) {
+        game.getLogger().info(sender);
         game.getLogger().info(command);
         try {
             manager.executeCommand(sender, command);
