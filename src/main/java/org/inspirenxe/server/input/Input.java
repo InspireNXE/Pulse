@@ -60,7 +60,7 @@ public class Input extends TickingElement {
         };
         manager.setRootCommand(manager.getCommand(provider, "root"));
         sender = new ConsoleCommandSender(game, manager);
-        new AnnotatedCommandExecutorFactory(manager, provider).create(Commands.class);
+        new AnnotatedCommandExecutorFactory(manager, provider).create(new Commands(game));
         callback = new GameCommandCallback();
     }
 

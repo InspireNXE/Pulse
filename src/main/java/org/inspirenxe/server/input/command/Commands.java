@@ -26,10 +26,18 @@ package org.inspirenxe.server.input.command;
 import com.flowpowered.commands.CommandArguments;
 import com.flowpowered.commands.CommandSender;
 import com.flowpowered.commands.annotated.CommandDescription;
+import com.flowpowered.commons.console.CommandCallback;
+import org.inspirenxe.server.Game;
 
 public class Commands {
+    private final Game game;
+
+    public Commands(Game game) {
+        this.game = game;
+    }
+
     @CommandDescription (name = "stop", usage = "stop", desc = "Stops the game", help = "Use this command only when you want to stop the game!")
-    private static void onCommandStop(CommandSender sender, CommandArguments args) {
-        ((ConsoleCommandSender) sender).getGame().close();
+    private void onCommandStop(CommandSender sender, CommandArguments args) {
+        game.close();
     }
 }
