@@ -7,7 +7,9 @@ apply plugin: 'java'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
 apply plugin: 'license'
+apply plugin: 'maven'
 apply plugin: 'shadow'
+apply plugin: 'signing'
 
 // Basic project information
 group = 'org.inspirenxe'
@@ -144,13 +146,10 @@ uploadArchives {
             from sourceSets.main.java.srcDirs
         }
 
-        task jar(type: Jar) {
-            from 'build/distributions/'
-        }
-
         // Set all artifacts
         artifacts {
-            archives jar, javadocJar, sourcesJar
+            archives file: file('build/distributions/${projectName}-${version}.jar'), type: jar
+            archives javadocJar, sourcesJar
         }
 
         // Tasks and variables based on if release or snapshot
