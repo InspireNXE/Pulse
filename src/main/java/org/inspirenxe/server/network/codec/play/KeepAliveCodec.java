@@ -31,10 +31,7 @@ import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.play.KeepAliveMessage;
 
-public class KeepAliveCodec extends Codec<KeepAliveMessage> implements MessageHandler<ServerSession, KeepAliveMessage> {
-    public KeepAliveCodec() {
-        super(KeepAliveMessage.class);
-    }
+public class KeepAliveCodec implements MessageHandler<ServerSession, KeepAliveMessage>, Codec<KeepAliveMessage> {
 
     @Override
     public KeepAliveMessage decode(ByteBuf buf) throws IOException {

@@ -33,10 +33,7 @@ import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.ChannelMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 
-public class LoginStartCodec extends Codec<LoginStartMessage> implements MessageHandler<ServerSession, LoginStartMessage> {
-    public LoginStartCodec() {
-        super(LoginStartMessage.class);
-    }
+public class LoginStartCodec implements MessageHandler<ServerSession, LoginStartMessage>, Codec<LoginStartMessage> {
 
     @Override
     public LoginStartMessage decode(ByteBuf buf) throws IOException {

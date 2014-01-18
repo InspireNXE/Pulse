@@ -30,11 +30,7 @@ import com.flowpowered.networking.Codec;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 
-public class LoginSuccessCodec extends Codec<LoginSuccessMessage> {
-    public LoginSuccessCodec() {
-        super(LoginSuccessMessage.class);
-    }
-
+public class LoginSuccessCodec implements Codec<LoginSuccessMessage> {
     @Override
     public LoginSuccessMessage decode(ByteBuf buf) throws IOException {
         throw new IOException("The server should not receive a login success from the Minecraft client!");

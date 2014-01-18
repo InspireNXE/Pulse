@@ -32,10 +32,7 @@ import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
-public class HandshakeCodec extends Codec<HandshakeMessage> implements MessageHandler<ServerSession, HandshakeMessage> {
-    public HandshakeCodec() {
-        super(HandshakeMessage.class);
-    }
+public class HandshakeCodec implements Codec<HandshakeMessage>, MessageHandler<ServerSession, HandshakeMessage> {
 
     @Override
     public HandshakeMessage decode(ByteBuf buf) throws IOException {
