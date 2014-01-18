@@ -29,10 +29,10 @@ import gnu.trove.map.hash.TIntObjectHashMap;
  * An enum of the game difficulties.
  */
 public enum Difficulty {
-    EASY(0),
-    HARD(3),
+    PEACEFUL(0),
+    EASY(1),
     NORMAL(2),
-    PEACEFUL(1);
+    HARD(3);
     private final int value;
     private static final TIntObjectHashMap<Difficulty> map = new TIntObjectHashMap<>();
 
