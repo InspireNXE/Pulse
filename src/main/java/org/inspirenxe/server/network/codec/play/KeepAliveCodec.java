@@ -32,7 +32,6 @@ import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.play.KeepAliveMessage;
 
 public class KeepAliveCodec implements MessageHandler<ServerSession, KeepAliveMessage>, Codec<KeepAliveMessage> {
-
     @Override
     public KeepAliveMessage decode(ByteBuf buf) throws IOException {
         final int id = buf.readInt();

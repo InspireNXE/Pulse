@@ -26,7 +26,6 @@ package org.inspirenxe.server.input.command;
 import com.flowpowered.commands.CommandArguments;
 import com.flowpowered.commands.CommandSender;
 import com.flowpowered.commands.annotated.CommandDescription;
-import com.flowpowered.commons.console.CommandCallback;
 import org.inspirenxe.server.Game;
 
 public class Commands {

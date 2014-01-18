@@ -34,7 +34,6 @@ import org.inspirenxe.server.network.message.ChannelMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 
 public class LoginStartCodec implements MessageHandler<ServerSession, LoginStartMessage>, Codec<LoginStartMessage> {
-
     @Override
     public LoginStartMessage decode(ByteBuf buf) throws IOException {
         final String username = ByteBufUtils.readUTF8(buf);

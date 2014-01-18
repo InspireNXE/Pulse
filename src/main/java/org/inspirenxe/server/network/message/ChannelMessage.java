@@ -28,8 +28,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import com.flowpowered.networking.Message;
 
 /**
- * Represents a message found in one or more channels. Stores which channels have marked the message as read. When constructing a channel message, the list of channels that have to read
- * is given in the constructor.
+ * Represents a message found in one or more channels. Stores which channels have marked the message as read. When constructing a channel message, the list of channels that have to read is given in
+ * the constructor.
  */
 public abstract class ChannelMessage implements Message {
     private AtomicInteger read = new AtomicInteger(0);

@@ -33,7 +33,6 @@ import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
 public class HandshakeCodec implements Codec<HandshakeMessage>, MessageHandler<ServerSession, HandshakeMessage> {
-
     @Override
     public HandshakeMessage decode(ByteBuf buf) throws IOException {
         final int version = ByteBufUtils.readVarInt(buf);

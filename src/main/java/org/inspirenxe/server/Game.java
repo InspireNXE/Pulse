@@ -23,7 +23,6 @@
  */
 package org.inspirenxe.server;
 
-import java.io.IOException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 

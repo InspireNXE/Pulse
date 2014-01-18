@@ -7,8 +7,8 @@
 		<RollingRandomAccessFile name="Log" fileName="logs/current.log" filePattern="logs/%d{MM.dd.yyyy}-%i.log.gz">
 			<PatternLayout pattern="[%t] [%logger{36}/%-4level]: %msg%n"/>
 			<Policies>
-				<OnStartupTriggeringPolicy />
-				<TimeBasedTriggeringPolicy />
+				<OnStartupTriggeringPolicy/>
+				<TimeBasedTriggeringPolicy/>
 			</Policies>
 		</RollingRandomAccessFile>
 	</Appenders>
