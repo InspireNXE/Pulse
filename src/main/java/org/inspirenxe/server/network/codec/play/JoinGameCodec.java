@@ -21,25 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message.play;
+package org.inspirenxe.server.network.codec.play;
 
-import org.inspirenxe.server.network.message.ChannelMessage;
+import java.io.IOException;
 
-public class KeepAliveMessage extends ChannelMessage {
-    private final int id;
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.server.network.message.play.JoinGameMessage;
 
-    public KeepAliveMessage(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return id;
+public class JoinGameCodec implements Codec<JoinGameMessage> {
+    @Override
+    public JoinGameMessage decode(ByteBuf buf) throws IOException {
+        throw new IOException("The server should not receive a join game from the Minecraft client!");
     }
 
     @Override
-    public String toString() {
-        return "KeepAliveMessage{" +
-                "id=" + id +
-                '}';
+    public ByteBuf encode(ByteBuf buf, JoinGameMessage message) throws IOException {
+        buf.writeInt(message.getPlayerId());
+        buf.writeShort(message.getGameMode().value());
+        buf.writeByte(message.getDimension().value());
+        buf.writeShort(message.getDifficulty().value());
+        buf.writeShort(message.getMaxPlayers());
+        ByteBufUtils.writeUTF8(buf, message.getLevelType().name());
+        return buf;
     }
 }
