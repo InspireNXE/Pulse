@@ -33,19 +33,25 @@ import org.inspirenxe.server.network.message.ChannelMessage;
 
 public class JoinGameMessage extends ChannelMessage {
     private final int playerId;
+    private final boolean hardcore;
     private final GameMode gameMode;
     private final Dimension dimension;
     private final Difficulty difficulty;
     private final short maxPlayers;
     private final LevelType levelType;
 
-    public JoinGameMessage(int playerId, GameMode gameMode, Dimension dimension, Difficulty difficulty, short maxPlayers, LevelType levelType) {
+    public JoinGameMessage(int playerId, boolean hardcore, GameMode gameMode, Dimension dimension, Difficulty difficulty, short maxPlayers, LevelType levelType) {
         this.playerId = playerId;
+        this.hardcore = hardcore;
         this.gameMode = gameMode;
         this.dimension = dimension;
         this.difficulty = difficulty;
         this.maxPlayers = maxPlayers;
         this.levelType = levelType;
+    }
+
+    public boolean isHardcore() {
+        return hardcore;
     }
 
     public LevelType getLevelType() {
@@ -76,6 +82,7 @@ public class JoinGameMessage extends ChannelMessage {
     public String toString() {
         return "JoinGameMessage{" +
                 "playerId=" + playerId +
+                ", hardcore=" + hardcore +
                 ", gameMode=" + gameMode +
                 ", dimension=" + dimension +
                 ", difficulty=" + difficulty +
