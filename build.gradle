@@ -13,7 +13,7 @@ apply plugin: 'signing'
 
 // Basic project information
 group = 'org.inspirenxe'
-archivesBaseName = 'server'
+archivesBaseName = 'pulse'
 version = '1.0.0-SNAPSHOT'
 mainClassName = "org.inspirenxe.server.Main"
 
@@ -92,7 +92,6 @@ processResources {
 // Include dependencies in final JAR
 shadow {
     artifactAttached = false
-    baseName = 'pulse'
     exclude 'junit/**'
 }
 
@@ -148,7 +147,7 @@ uploadArchives {
 
         // Set all artifacts
         artifacts {
-            archives file: file('build/distributions/${projectName}-${version}.jar'), type: jar
+            archives file: file("build/distributions/" + archivesBaseName + "-" + version + ".jar"), type: jar
             archives javadocJar, sourcesJar
         }
 
