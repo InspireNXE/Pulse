@@ -36,6 +36,7 @@ import jline.console.ConsoleReader;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.input.command.Commands;
 import org.inspirenxe.server.input.command.ConsoleCommandSender;
+import org.inspirenxe.server.util.TimeoutInputStream;
 
 public class Input extends TickingElement {
     private static final int TPS = 5;
@@ -83,7 +84,11 @@ public class Input extends TickingElement {
     @Override
     public void onStop() {
         game.getLogger().info("Stopping input");
-        readerThread.setRunning(false);
+        readerThread.interrupt();
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public ConcurrentLinkedQueue<String> getCommandQueue() {
@@ -92,17 +97,15 @@ public class Input extends TickingElement {
 }
 
 class ConsoleReaderThread extends Thread {
-    private volatile boolean running = false;
     private final ConsoleReader reader;
     private final Input input;
 
     public ConsoleReaderThread(Input input) {
         super("command");
-        setDaemon(true);
         this.input = input;
 
         try {
-            reader = new ConsoleReader(System.in, System.out);
+            reader = new ConsoleReader(new TimeoutInputStream(System.in, 50), System.out);
         } catch (IOException e) {
             throw new RuntimeException("Exception caught creating the console reader!", e);
         }
@@ -110,10 +113,8 @@ class ConsoleReaderThread extends Thread {
 
     @Override
     public void run() {
-        running = true;
-
         try {
-            while (running) {
+            while (true) {
                 String command;
                 command = reader.readLine();
 
@@ -123,12 +124,8 @@ class ConsoleReaderThread extends Thread {
 
                 input.getCommandQueue().offer(command);
             }
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            reader.shutdown();
         }
-        reader.shutdown();
-    }
-
-    public void setRunning(boolean running) {
-        this.running = running;
     }
 }
