@@ -61,6 +61,7 @@ public class Network extends TickingElement {
     @Override
     public void onStop() {
         game.getLogger().info("Stopping network");
+        server.shutdown();
     }
 
     /**

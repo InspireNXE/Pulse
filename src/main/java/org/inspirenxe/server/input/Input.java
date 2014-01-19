@@ -24,12 +24,13 @@
 package org.inspirenxe.server.input;
 
 import java.io.IOException;
+import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commands.CommandException;
 import com.flowpowered.commands.CommandManager;
 import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
-import com.flowpowered.commons.console.CommandCallback;
 import com.flowpowered.commons.ticking.TickingElement;
 import jline.console.ConsoleReader;
 import org.inspirenxe.server.Game;
@@ -37,20 +38,15 @@ import org.inspirenxe.server.input.command.Commands;
 import org.inspirenxe.server.input.command.ConsoleCommandSender;
 
 public class Input extends TickingElement {
-    private static final int TPS = 20;
+    private static final int TPS = 5;
     private final Game game;
-    private final ConsoleReader reader;
     private final ConsoleCommandSender sender;
-    private final GameCommandCallback callback;
+    private final ConsoleReaderThread readerThread;
+    private final ConcurrentLinkedQueue<String> commandRawQueue = new ConcurrentLinkedQueue<>();
 
     public Input(Game game) {
         super("input", TPS);
         this.game = game;
-        try {
-            reader = new ConsoleReader(System.in, System.out);
-        } catch (IOException e) {
-            throw new RuntimeException("Exception caught creating the console reader!", e);
-        }
         final CommandManager manager = new CommandManager(false);
         final CommandProvider provider = new CommandProvider() {
             @Override
@@ -61,44 +57,78 @@ public class Input extends TickingElement {
         manager.setRootCommand(manager.getCommand(provider, "root"));
         sender = new ConsoleCommandSender(game, manager);
         new AnnotatedCommandExecutorFactory(manager, provider).create(new Commands(game));
-        callback = new GameCommandCallback();
+        readerThread = new ConsoleReaderThread(this);
     }
 
     @Override
     public void onStart() {
         game.getLogger().info("Starting input");
+        readerThread.start();
     }
 
     @Override
     public void onTick(long l) {
-        String command;
-        try {
-            command = reader.readLine();
-
-            if (command == null || command.trim().length() == 0) {
-                return;
+        final Iterator<String> iterator = commandRawQueue.iterator();
+        while (iterator.hasNext()) {
+            final String command = iterator.next();
+            try {
+                sender.processCommand(command);
+            } catch (CommandException e) {
+                game.getLogger().error("Exception caught processing command [" + command + "]", e);
             }
-        } catch (IOException e) {
-            game.getLogger().fatal("Failed to read console input!", e);
-            return;
+            iterator.remove();
         }
-        callback.handleCommand(command);
     }
 
     @Override
     public void onStop() {
-        reader.shutdown();
         game.getLogger().info("Stopping input");
+        readerThread.setRunning(false);
     }
 
-    private class GameCommandCallback implements CommandCallback {
-        @Override
-        public void handleCommand(String command) {
-            try {
-                sender.processCommand(command);
-            } catch (CommandException e) {
-                game.getLogger().error("Exception caught handling command [" + command + "]!", e);
-            }
+    public ConcurrentLinkedQueue<String> getCommandQueue() {
+        return commandRawQueue;
+    }
+}
+
+class ConsoleReaderThread extends Thread {
+    private volatile boolean running = false;
+    private final ConsoleReader reader;
+    private final Input input;
+
+    public ConsoleReaderThread(Input input) {
+        super("command");
+        setDaemon(true);
+        this.input = input;
+
+        try {
+            reader = new ConsoleReader(System.in, System.out);
+        } catch (IOException e) {
+            throw new RuntimeException("Exception caught creating the console reader!", e);
         }
+    }
+
+    @Override
+    public void run() {
+        running = true;
+
+        try {
+            while (running) {
+                String command;
+                command = reader.readLine();
+
+                if (command == null || command.trim().length() == 0) {
+                    continue;
+                }
+
+                input.getCommandQueue().offer(command);
+            }
+        } catch (Exception ignored) {
+        }
+        reader.shutdown();
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
     }
 }
