@@ -51,7 +51,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
-        classpath 'net.saliman:gradle-cobertura-plugin:2.0.0' // Coveralls plugin dependency
+        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2' // Coveralls plugin dependency
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.6.0'
         classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.1'
     }
@@ -147,7 +147,7 @@ uploadArchives {
 
         // Set all artifacts
         artifacts {
-            archives file: file("build/distributions/" + archivesBaseName + "-" + version + ".jar"), type: jar
+            archives file("build/distributions/" + archivesBaseName + "-" + version + ".jar")
             archives javadocJar, sourcesJar
         }
 
