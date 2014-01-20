@@ -33,16 +33,16 @@ import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
 import com.flowpowered.commons.ticking.TickingElement;
 import jline.console.ConsoleReader;
+import jline.internal.NonBlockingInputStream;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.input.command.Commands;
 import org.inspirenxe.server.input.command.ConsoleCommandSender;
-import org.inspirenxe.server.util.TimeoutInputStream;
 
 public class Input extends TickingElement {
+    private static final ConsoleReaderThread readerThread = new ConsoleReaderThread();
     private static final int TPS = 5;
     private final Game game;
     private final ConsoleCommandSender sender;
-    private final ConsoleReaderThread readerThread;
     private final ConcurrentLinkedQueue<String> commandRawQueue = new ConcurrentLinkedQueue<>();
 
     public Input(Game game) {
@@ -58,13 +58,15 @@ public class Input extends TickingElement {
         manager.setRootCommand(manager.getCommand(provider, "root"));
         sender = new ConsoleCommandSender(game, manager);
         new AnnotatedCommandExecutorFactory(manager, provider).create(new Commands(game));
-        readerThread = new ConsoleReaderThread(this);
     }
 
     @Override
     public void onStart() {
         game.getLogger().info("Starting input");
-        readerThread.start();
+        readerThread.setInput(this);
+        if (!readerThread.isAlive()) {
+            readerThread.start();
+        }
     }
 
     @Override
@@ -84,7 +86,7 @@ public class Input extends TickingElement {
     @Override
     public void onStop() {
         game.getLogger().info("Stopping input");
-        readerThread.interrupt();
+        readerThread.setInput(null);
     }
 
     public Game getGame() {
@@ -98,15 +100,15 @@ public class Input extends TickingElement {
 
 class ConsoleReaderThread extends Thread {
     private final ConsoleReader reader;
-    private final Input input;
+    private Input input;
 
-    public ConsoleReaderThread(Input input) {
+    public ConsoleReaderThread() {
         super("command");
-        this.input = input;
+        setDaemon(true);
 
         try {
-            reader = new ConsoleReader(new TimeoutInputStream(System.in, 50), System.out);
-        } catch (IOException e) {
+            reader = new ConsoleReader(new NonBlockingInputStream(System.in, true), System.out);
+        } catch (Exception e) {
             throw new RuntimeException("Exception caught creating the console reader!", e);
         }
     }
@@ -115,6 +117,9 @@ class ConsoleReaderThread extends Thread {
     public void run() {
         try {
             while (true) {
+                if (input == null) {
+                    continue;
+                }
                 String command;
                 command = reader.readLine();
 
@@ -124,8 +129,12 @@ class ConsoleReaderThread extends Thread {
 
                 input.getCommandQueue().offer(command);
             }
-        } catch (Exception e) {
+        } catch (IOException e) {
             reader.shutdown();
         }
+    }
+
+    public void setInput(Input input) {
+        this.input = input;
     }
 }
