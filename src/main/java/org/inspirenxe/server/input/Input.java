@@ -91,6 +91,10 @@ public class Input extends TickingElement {
         return game;
     }
 
+    public void clear() throws IOException {
+        readerThread.getConsole().clearScreen();
+    }
+
     private static class ConsoleReaderThread extends Thread {
         private volatile boolean running = false;
         private final ConsoleReader reader;
@@ -105,7 +109,6 @@ public class Input extends TickingElement {
             } catch (Exception e) {
                 throw new RuntimeException("Exception caught creating the console reader!", e);
             }
-            reader.setPrompt("> ");
         }
 
         @Override
@@ -124,6 +127,10 @@ public class Input extends TickingElement {
             } catch (IOException e) {
                 reader.shutdown();
             }
+        }
+
+        public ConsoleReader getConsole() {
+            return reader;
         }
 
         public ConcurrentLinkedQueue<String> getRawCommandQueue() {

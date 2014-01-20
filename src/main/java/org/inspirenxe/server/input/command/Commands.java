@@ -23,6 +23,8 @@
  */
 package org.inspirenxe.server.input.command;
 
+import java.io.IOException;
+
 import com.flowpowered.commands.CommandArguments;
 import com.flowpowered.commands.CommandSender;
 import com.flowpowered.commands.annotated.CommandDescription;
@@ -43,5 +45,14 @@ public class Commands {
     @CommandDescription (name = "version", usage = "version", desc = "Displays the game version", help = "Use this command to display the game version.")
     private void onCommandVersion(CommandSender sender, CommandArguments args) {
         sender.sendMessage("Running version " + game.getVersion());
+    }
+
+    @CommandDescription (name = "clear", usage = "clear", desc = "Clears the game console", help = "Use this command to clear the game console. This does not remove the text from the logs.")
+    private void onCommandClear(CommandSender sender, CommandArguments args) {
+        try {
+            game.getInput().clear();
+        } catch (IOException e) {
+            game.getLogger().error("Failed to clear the console!", e);
+        }
     }
 }
