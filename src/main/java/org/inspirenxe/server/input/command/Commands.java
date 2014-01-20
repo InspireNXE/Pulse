@@ -26,6 +26,7 @@ package org.inspirenxe.server.input.command;
 import java.io.IOException;
 
 import com.flowpowered.commands.CommandArguments;
+import com.flowpowered.commands.CommandException;
 import com.flowpowered.commands.CommandSender;
 import com.flowpowered.commands.annotated.CommandDescription;
 import org.inspirenxe.server.Game;
@@ -38,21 +39,21 @@ public class Commands {
     }
 
     @CommandDescription (name = "stop", usage = "stop", desc = "Stops the game", help = "Use this command only when you want to stop the game!")
-    private void onCommandStop(CommandSender sender, CommandArguments args) {
+    private void onCommandStop(CommandSender sender, CommandArguments args) throws CommandException {
         game.close();
     }
 
     @CommandDescription (name = "version", usage = "version", desc = "Displays the game version", help = "Use this command to display the game version.")
-    private void onCommandVersion(CommandSender sender, CommandArguments args) {
+    private void onCommandVersion(CommandSender sender, CommandArguments args) throws CommandException {
         sender.sendMessage("Running version " + game.getVersion());
     }
 
     @CommandDescription (name = "clear", usage = "clear", desc = "Clears the game console", help = "Use this command to clear the game console. This does not remove the text from the logs.")
-    private void onCommandClear(CommandSender sender, CommandArguments args) {
+    private void onCommandClear(CommandSender sender, CommandArguments args) throws CommandException {
         try {
             game.getInput().clear();
         } catch (IOException e) {
-            game.getLogger().error("Failed to clear the console!", e);
+            throw new CommandException(e);
         }
     }
 }
