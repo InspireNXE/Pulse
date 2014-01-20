@@ -40,8 +40,8 @@ public class Commands {
         game.close();
     }
 
-    @CommandDescription (name = "version", usage = "version", desc = "Displays the server version", help = "Use this command to display the server version.")
+    @CommandDescription (name = "version", usage = "version", desc = "Displays the game version", help = "Use this command to display the game version.")
     private void onCommandVersion(CommandSender sender, CommandArguments args) {
-        sender.sendMessage("Running server version " + game.getVersion());
+        sender.sendMessage("Running version " + game.getVersion());
     }
 }
