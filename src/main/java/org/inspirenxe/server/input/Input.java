@@ -42,7 +42,6 @@ public class Input extends TickingElement {
     private static final int TPS = 5;
     private final Game game;
     private final ConsoleCommandSender sender;
-    private final ConcurrentLinkedQueue<String> commandRawQueue = new ConcurrentLinkedQueue<>();
 
     public Input(Game game) {
         super("input", TPS);
@@ -62,15 +61,16 @@ public class Input extends TickingElement {
     @Override
     public void onStart() {
         game.getLogger().info("Starting input");
-        readerThread.setInput(this);
         if (!readerThread.isAlive()) {
             readerThread.start();
+        } else {
+            readerThread.getRawCommandQueue().clear();
         }
     }
 
     @Override
     public void onTick(long l) {
-        final Iterator<String> iterator = commandRawQueue.iterator();
+        final Iterator<String> iterator = readerThread.getRawCommandQueue().iterator();
         while (iterator.hasNext()) {
             final String command = iterator.next();
             try {
@@ -85,55 +85,48 @@ public class Input extends TickingElement {
     @Override
     public void onStop() {
         game.getLogger().info("Stopping input");
-        readerThread.setInput(null);
     }
 
     public Game getGame() {
         return game;
     }
 
-    public ConcurrentLinkedQueue<String> getCommandQueue() {
-        return commandRawQueue;
-    }
-}
+    private static class ConsoleReaderThread extends Thread {
+        private volatile boolean running = false;
+        private final ConsoleReader reader;
+        private final ConcurrentLinkedQueue<String> rawCommandQueue = new ConcurrentLinkedQueue<>();
 
-class ConsoleReaderThread extends Thread {
-    private final ConsoleReader reader;
-    private Input input;
+        public ConsoleReaderThread() {
+            super("command");
+            setDaemon(true);
 
-    public ConsoleReaderThread() {
-        super("command");
-        setDaemon(true);
-
-        try {
-            reader = new ConsoleReader(System.in, System.out);
-        } catch (Exception e) {
-            throw new RuntimeException("Exception caught creating the console reader!", e);
-        }
-    }
-
-    @Override
-    public void run() {
-        try {
-            while (true) {
-                if (input == null) {
-                    continue;
-                }
-                String command;
-                command = reader.readLine();
-
-                if (command == null || command.trim().length() == 0) {
-                    continue;
-                }
-
-                input.getCommandQueue().offer(command);
+            try {
+                reader = new ConsoleReader(System.in, System.out);
+            } catch (Exception e) {
+                throw new RuntimeException("Exception caught creating the console reader!", e);
             }
-        } catch (IOException e) {
-            reader.shutdown();
         }
-    }
 
-    public void setInput(Input input) {
-        this.input = input;
+        @Override
+        public void run() {
+            running = true;
+            try {
+                while (running) {
+                    String command = reader.readLine();
+
+                    if (command == null || command.trim().length() == 0) {
+                        continue;
+                    }
+
+                    rawCommandQueue.offer(command);
+                }
+            } catch (IOException e) {
+                reader.shutdown();
+            }
+        }
+
+        public ConcurrentLinkedQueue<String> getRawCommandQueue() {
+            return rawCommandQueue;
+        }
     }
 }
