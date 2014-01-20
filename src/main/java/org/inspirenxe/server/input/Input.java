@@ -33,7 +33,6 @@ import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
 import com.flowpowered.commons.ticking.TickingElement;
 import jline.console.ConsoleReader;
-import jline.internal.NonBlockingInputStream;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.input.command.Commands;
 import org.inspirenxe.server.input.command.ConsoleCommandSender;
@@ -107,7 +106,7 @@ class ConsoleReaderThread extends Thread {
         setDaemon(true);
 
         try {
-            reader = new ConsoleReader(new NonBlockingInputStream(System.in, true), System.out);
+            reader = new ConsoleReader(System.in, System.out);
         } catch (Exception e) {
             throw new RuntimeException("Exception caught creating the console reader!", e);
         }
