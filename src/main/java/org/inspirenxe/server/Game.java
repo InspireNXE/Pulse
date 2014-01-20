@@ -39,16 +39,18 @@ public class Game {
     private final Logger logger;
     private final Input input;
     private final Network network;
+    private final String version;
 
     public Game(Configuration configuration) throws Exception {
         this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
         input = new Input(this);
         network = new Network(this);
+        version = getClass().getPackage().getImplementationVersion();
     }
 
     private void start() {
-        logger.info("Starting server, please wait a moment");
+        logger.info("Starting server version " + version + ", please wait a moment");
         input.start();
         network.start();
     }
@@ -75,6 +77,9 @@ public class Game {
         return network;
     }
 
+    public String getVersion() {
+        return version;
+    }
     /**
      * Starts the game and causes the current thread to wait until the {@link #close()} method is called. When this happens, the thread resumes and the game is stopped. Interrupting the thread will
      * not cause it to close, only calling {@link #close()} will. Calls to {@link #close()} before open() are not counted.

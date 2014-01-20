@@ -39,4 +39,9 @@ public class Commands {
     private void onCommandStop(CommandSender sender, CommandArguments args) {
         game.close();
     }
+
+    @CommandDescription (name = "version", usage = "version", desc = "Displays the server version", help = "Use this command to display the server version.")
+    private void onCommandVersion(CommandSender sender, CommandArguments args) {
+        sender.sendMessage("Running server version " + game.getVersion());
+    }
 }
