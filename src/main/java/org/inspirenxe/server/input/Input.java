@@ -105,6 +105,7 @@ public class Input extends TickingElement {
             } catch (Exception e) {
                 throw new RuntimeException("Exception caught creating the console reader!", e);
             }
+            reader.setPrompt("> ");
         }
 
         @Override
