@@ -3,7 +3,7 @@ language: java
 jdk: oraclejdk7
 
 # Compile and package JAR and set build properties
-install: ./gradlew build shadowJar -PbuildNumber=$TRAVIS_BUILD_NUMBER -PciSystem=travis -Pcommit=${TRAVIS_COMMIT:0:7}
+install: ./gradlew build shadowJar -PbuildNumber=$TRAVIS_BUILD_NUMBER
 
 # Perform steps after compilation/test success
 after_success:

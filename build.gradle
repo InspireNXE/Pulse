@@ -1,5 +1,5 @@
 // Default tasks
-defaultTasks 'clean', 'build', 'licenseFormatMain', 'licenseFormatTest', 'shadowJar'
+defaultTasks 'licenseFormatMain', 'licenseFormatTest', 'clean', 'build', 'shadowJar'
 
 // Apply plugins
 apply plugin: 'application'
@@ -24,15 +24,11 @@ ext.packaging = 'jar'
 ext.url = 'http://inspirenxe.org'
 ext.description = 'Open source, multi-threaded Minecraft server written in Java.'
 ext.organization = 'InspireNXE'
+ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
 
 // Minimum version of Java required
 sourceCompatibility = '1.7'
 targetCompatibility = '1.7'
-
-// Define variables
-ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
-ext.ciSystem = project.hasProperty("ciSystem") ? ciSystem : 'unknown'
-ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 
 // Configuration settings
 configurations.all {
@@ -124,7 +120,7 @@ manifest.mainAttributes(
         "Built-By": System.properties['user.name'],
         "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
         "Implementation-Title": name,
-        "Implementation-Version": version + "+" + ciSystem + "-b" + buildNumber + ".git-" + commit,
+        "Implementation-Version": version + ".b" + buildNumber,
         "Implementation-Vendor": url)
 
 // Coveralls report configuration

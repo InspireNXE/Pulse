@@ -44,7 +44,7 @@ Are you a talented programmer looking to contribute some code? We'd love the hel
 
 ## FAQ
 __How does the version system work for Pulse?__
->Our version outputs similarly to `1.0.0-SNAPSHOT+travis-b123.git-b1c543a`. This can be dissected into `{VERSION}+{BUILD_SOURCE}-b{BUILD_NUMBER}.git-{COMMIT_STRING}`.
+>Our version outputs similarly to `1.0.0-SNAPSHOT.b123`. This can be dissected into `{VERSION}.b{BUILD_NUMBER}`.
 
 __A dependency was added, but my IDE is missing it! How do I add it?__
 >If a new dependency was added you can simply restart your IDE and it should pull in new dependencies.
