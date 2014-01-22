@@ -64,8 +64,8 @@ repositories {
 }
 dependencies {
     compile 'com.beust:jcommander:1.32'
-    compile 'com.flowpowered:flow-commons:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-chat-commands:0.1.0-SNAPSHOT'
+    compile 'com.flowpowered:flow-commons:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-events:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-math:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
@@ -104,6 +104,7 @@ license {
     ext.url = url
     ext.year = inceptionYear
     header rootProject.file('HEADER.txt')
+    ignoreFailures true
     strictCheck true
 }
 
