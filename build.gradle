@@ -3,9 +3,9 @@ defaultTasks 'licenseFormatMain', 'licenseFormatTest', 'clean', 'build', 'shadow
 
 // Apply plugins
 apply plugin: 'application'
-apply plugin: 'java'
 apply plugin: 'cobertura'
 apply plugin: 'coveralls'
+apply plugin: 'java'
 apply plugin: 'license'
 apply plugin: 'maven'
 apply plugin: 'shadow'
@@ -49,7 +49,7 @@ buildscript {
         classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
         classpath 'net.saliman:gradle-cobertura-plugin:2.2.2' // Coveralls plugin dependency
         classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.1'
+        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.4'
     }
 }
 
@@ -72,10 +72,10 @@ dependencies {
     compile 'com.flowpowered:flow-noise:0.1.0-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'jline:jline:2.11'
-    compile 'junit:junit:4.8.2'
+    compile 'junit:junit:4.11'
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
-    testCompile 'junit:junit:4.8.2'
+    testCompile 'junit:junit:4.11'
 }
 
 // Filter, process, and include resources
