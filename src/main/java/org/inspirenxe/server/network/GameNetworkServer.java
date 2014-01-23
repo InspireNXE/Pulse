@@ -46,3 +46,4 @@ public class GameNetworkServer extends NetworkServer {
         game.getLogger().info(((ServerSession) session).getUsername() + " left the game.");
     }
 }
+

@@ -27,13 +27,10 @@ import java.io.IOException;
 
 import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.MessageHandler;
 import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.ServerSession;
-import org.inspirenxe.server.network.message.ChannelMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 
-public class LoginStartCodec implements MessageHandler<ServerSession, LoginStartMessage>, Codec<LoginStartMessage> {
+public class LoginStartCodec implements Codec<LoginStartMessage> {
     @Override
     public LoginStartMessage decode(ByteBuf buf) throws IOException {
         final String username = ByteBufUtils.readUTF8(buf);
@@ -44,9 +41,5 @@ public class LoginStartCodec implements MessageHandler<ServerSession, LoginStart
     public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a login start from the server!");
     }
-
-    @Override
-    public void handle(ServerSession session, LoginStartMessage message) {
-        session.getGame().getNetwork().offer(ChannelMessage.Channel.NETWORK, message);
-    }
 }
+

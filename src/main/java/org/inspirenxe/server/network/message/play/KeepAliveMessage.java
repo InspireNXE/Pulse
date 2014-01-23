@@ -23,12 +23,14 @@
  */
 package org.inspirenxe.server.network.message.play;
 
-import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.ChannelMessage;
 
 public class KeepAliveMessage extends ChannelMessage {
+    private static final Channel[] CHANNELS = new Channel[] {Channel.NETWORK};
     private final int id;
 
     public KeepAliveMessage(int id) {
+        super(CHANNELS);
         this.id = id;
     }
 
@@ -43,3 +45,4 @@ public class KeepAliveMessage extends ChannelMessage {
                 '}';
     }
 }
+

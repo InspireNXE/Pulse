@@ -75,3 +75,4 @@ public enum Difficulty {
         return valueOf(name.toUpperCase());
     }
 }
+

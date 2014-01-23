@@ -23,12 +23,14 @@
  */
 package org.inspirenxe.server.network.message.login;
 
-import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.ChannelMessage;
 
 public class LoginStartMessage extends ChannelMessage {
+    private static final Channel[] CHANNELS = new Channel[] {Channel.NETWORK};
     private final String username;
 
     public LoginStartMessage(String username) {
+        super(CHANNELS);
         this.username = username;
     }
 
@@ -43,3 +45,4 @@ public class LoginStartMessage extends ChannelMessage {
                 '}';
     }
 }
+

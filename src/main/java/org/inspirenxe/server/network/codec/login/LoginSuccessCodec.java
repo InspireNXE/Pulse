@@ -43,3 +43,4 @@ public class LoginSuccessCodec implements Codec<LoginSuccessMessage> {
         return buf;
     }
 }
+

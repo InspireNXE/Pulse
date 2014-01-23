@@ -24,12 +24,13 @@
 package org.inspirenxe.server.network.message.handshake;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.ChannelMessage;
 
 /**
  * Server-bound message that initiates the connection process to the server
  */
 public class HandshakeMessage extends ChannelMessage {
+    private static final Channel[] CHANNELS = new Channel[] {Channel.NETWORK};
     private final int version;
     private final String address;
     private final short port;
@@ -43,6 +44,7 @@ public class HandshakeMessage extends ChannelMessage {
      * @param state The state of the handshake, see {@link HandshakeMessage.HandshakeState}
      */
     public HandshakeMessage(int version, String address, short port, HandshakeState state) {
+        super(CHANNELS);
         this.version = version;
         this.address = address;
         this.port = port;
@@ -134,3 +136,4 @@ public class HandshakeMessage extends ChannelMessage {
         }
     }
 }
+

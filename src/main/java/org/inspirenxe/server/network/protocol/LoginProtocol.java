@@ -24,6 +24,7 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.ServerProtocol;
 import org.inspirenxe.server.network.codec.login.LoginStartCodec;
 import org.inspirenxe.server.network.codec.login.LoginSuccessCodec;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
@@ -32,7 +33,8 @@ import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 public class LoginProtocol extends ServerProtocol {
     public LoginProtocol(Game game) {
         super(game, "login", 2);
-        registerMessage(INBOUND, LoginStartMessage.class, LoginStartCodec.class, LoginStartCodec.class, 0);
+        registerMessage(INBOUND, LoginStartMessage.class, LoginStartCodec.class, null, 0);
         registerMessage(OUTBOUND, LoginSuccessMessage.class, LoginSuccessCodec.class, null, 2);
     }
 }
+

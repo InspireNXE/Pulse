@@ -61,3 +61,4 @@ public class Commands {
         sender.sendMessage("Running version " + game.getVersion());
     }
 }
+

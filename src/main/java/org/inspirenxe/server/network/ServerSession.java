@@ -23,11 +23,11 @@
  */
 package org.inspirenxe.server.network;
 
+import com.flowpowered.networking.Message;
 import com.flowpowered.networking.protocol.AbstractProtocol;
 import com.flowpowered.networking.session.BasicSession;
 import io.netty.channel.Channel;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.protocol.ServerProtocol;
 
 /**
  * Represents an open connection to a client. All {@link com.flowpowered.networking.Message}s are sent through the session.
@@ -86,6 +86,15 @@ public class ServerSession extends BasicSession {
     }
 
     @Override
+    public void messageReceived(Message message) {
+        final ChannelMessage channelMessage = (ChannelMessage) message;
+        channelMessage.setSession(this);
+        for (ChannelMessage.Channel channel : channelMessage.getChannels()) {
+            game.getNetwork().offer(channel, channelMessage);
+        }
+    }
+
+    @Override
     public void setProtocol(AbstractProtocol protocol) {
         if (!(protocol instanceof ServerProtocol)) {
             throw new IllegalArgumentException(protocol + " must be an extension of ServerProtocol!");
@@ -111,3 +120,4 @@ public class ServerSession extends BasicSession {
         return game;
     }
 }
+

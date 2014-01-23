@@ -40,7 +40,10 @@ public class JoinGameCodec implements Codec<JoinGameMessage> {
     public ByteBuf encode(ByteBuf buf, JoinGameMessage message) throws IOException {
         buf.writeInt(message.getPlayerId());
         short gameMode = (short) message.getGameMode().value();
-        buf.writeShort(message.isHardcore() ? gameMode |= 8 : gameMode);
+        if (message.isHardcore()) {
+            gameMode |= 8;
+        }
+        buf.writeShort(gameMode);
         buf.writeByte(message.getDimension().value());
         buf.writeShort(message.getDifficulty().value());
         buf.writeShort(message.getMaxPlayers());
@@ -48,3 +51,4 @@ public class JoinGameCodec implements Codec<JoinGameMessage> {
         return buf;
     }
 }
+

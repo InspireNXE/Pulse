@@ -24,6 +24,7 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.ServerProtocol;
 import org.inspirenxe.server.network.codec.play.JoinGameCodec;
 import org.inspirenxe.server.network.codec.play.KeepAliveCodec;
 import org.inspirenxe.server.network.message.play.JoinGameMessage;
@@ -32,8 +33,9 @@ import org.inspirenxe.server.network.message.play.KeepAliveMessage;
 public class PlayProtocol extends ServerProtocol {
     public PlayProtocol(Game game) {
         super(game, "play", 64);
-        registerMessage(INBOUND, KeepAliveMessage.class, KeepAliveCodec.class, KeepAliveCodec.class, 0);
+        registerMessage(INBOUND, KeepAliveMessage.class, KeepAliveCodec.class, null, 0);
         registerMessage(OUTBOUND, KeepAliveMessage.class, KeepAliveCodec.class, null, 0);
         registerMessage(OUTBOUND, JoinGameMessage.class, JoinGameCodec.class, null, 1);
     }
 }
+

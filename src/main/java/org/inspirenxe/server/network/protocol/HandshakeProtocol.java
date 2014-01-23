@@ -24,12 +24,13 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.ServerProtocol;
 import org.inspirenxe.server.network.codec.handshake.HandshakeCodec;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
 public class HandshakeProtocol extends ServerProtocol {
     public HandshakeProtocol(Game game) {
         super(game, "handshake", 0);
-        registerMessage(INBOUND, HandshakeMessage.class, HandshakeCodec.class, HandshakeCodec.class, 0);
+        registerMessage(INBOUND, HandshakeMessage.class, HandshakeCodec.class, null, 0);
     }
 }

@@ -106,6 +106,8 @@ public class Input extends TickingElement {
 
             try {
                 reader = new ConsoleReader(System.in, System.out);
+                reader.setBellEnabled(false);
+                reader.setExpandEvents(false);
             } catch (Exception e) {
                 throw new RuntimeException("Exception caught creating the console reader!", e);
             }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.protocol;
+package org.inspirenxe.server.network;
 
 import java.io.IOException;
 
@@ -35,6 +35,7 @@ import com.flowpowered.networking.protocol.keyed.KeyedProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.inspirenxe.server.Game;
+import org.slf4j.LoggerFactory;
 
 public class ServerProtocol extends KeyedProtocol {
     /**
@@ -95,3 +96,4 @@ public class ServerProtocol extends KeyedProtocol {
         return game;
     }
 }
+

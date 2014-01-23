@@ -30,20 +30,24 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
+import com.flowpowered.networking.util.AnnotatedMessageHandler;
+import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.ChannelMessage.Channel;
+import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
 public class Network extends TickingElement {
     private static final int TPS = 20;
     private final Game game;
     private final GameNetworkServer server;
-    private final Map<ChannelMessage.Channel, ConcurrentLinkedQueue<ChannelMessage>> messageQueue = new EnumMap<>(ChannelMessage.Channel.class);
+    private final AnnotatedMessageHandler handler = new AnnotatedMessageHandler(this);
+    private final Map<Channel, ConcurrentLinkedQueue<ChannelMessage>> messageQueue = new EnumMap<>(Channel.class);
 
     public Network(Game game) {
         super("network", TPS);
         this.game = game;
-        this.server = new GameNetworkServer(game);
-        messageQueue.put(ChannelMessage.Channel.NETWORK, new ConcurrentLinkedQueue<ChannelMessage>());
+        server = new GameNetworkServer(game);
+        messageQueue.put(Channel.NETWORK, new ConcurrentLinkedQueue<ChannelMessage>());
     }
 
     @Override
@@ -56,6 +60,11 @@ public class Network extends TickingElement {
 
     @Override
     public void onTick(long l) {
+        final Iterator<ChannelMessage> messages = messageQueue.get(Channel.NETWORK).iterator();
+        while (messages.hasNext()) {
+            handler.handle(messages.next());
+            messages.remove();
+        }
     }
 
     @Override
@@ -65,9 +74,9 @@ public class Network extends TickingElement {
     }
 
     /**
-     * Gets the {@link java.util.Iterator} storing the messages for the {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
+     * Gets the {@link java.util.Iterator} storing the messages for the {@link ChannelMessage.Channel}
      *
-     * @param c See {@link org.inspirenxe.server.network.message.ChannelMessage}
+     * @param c See {@link ChannelMessage}
      * @return The iterator
      */
     public Iterator<ChannelMessage> getChannel(ChannelMessage.Channel c) {
@@ -75,12 +84,23 @@ public class Network extends TickingElement {
     }
 
     /**
-     * Offers a {@link org.inspirenxe.server.network.message.ChannelMessage} to a queue mapped to {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
+     * Offers a {@link ChannelMessage} to a queue mapped to {@link ChannelMessage.Channel}
      *
-     * @param c See {@link org.inspirenxe.server.network.message.ChannelMessage.Channel}
-     * @param m See {@link org.inspirenxe.server.network.message.ChannelMessage}
+     * @param c See {@link ChannelMessage.Channel}
+     * @param m See {@link ChannelMessage}
      */
     public void offer(ChannelMessage.Channel c, ChannelMessage m) {
         messageQueue.get(c).offer(m);
     }
+
+    @Handle
+    private void handleHandshake(HandshakeMessage message) {
+        switch (message.getState()) {
+            case STATUS:
+                //TODO Implement status protocol
+                break;
+            case LOGIN:
+        }
+    }
 }
+

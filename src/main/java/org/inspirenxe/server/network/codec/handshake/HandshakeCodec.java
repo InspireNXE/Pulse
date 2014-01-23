@@ -27,18 +27,17 @@ import java.io.IOException;
 
 import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.MessageHandler;
 import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
+import org.inspirenxe.server.network.message.handshake.HandshakeMessage.HandshakeState;
 
-public class HandshakeCodec implements Codec<HandshakeMessage>, MessageHandler<ServerSession, HandshakeMessage> {
+public class HandshakeCodec implements Codec<HandshakeMessage> {
     @Override
     public HandshakeMessage decode(ByteBuf buf) throws IOException {
         final int version = ByteBufUtils.readVarInt(buf);
         final String address = ByteBufUtils.readUTF8(buf);
         final short port = (short) buf.readUnsignedShort();
-        final HandshakeMessage.HandshakeState state = HandshakeMessage.HandshakeState.get(buf.readInt());
+        final HandshakeState state = HandshakeState.get(buf.readInt());
         return new HandshakeMessage(version, address, port, state);
     }
 
@@ -46,9 +45,5 @@ public class HandshakeCodec implements Codec<HandshakeMessage>, MessageHandler<S
     public ByteBuf encode(ByteBuf buf, HandshakeMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a handshake from the server!");
     }
-
-    @Override
-    public void handle(ServerSession session, HandshakeMessage message) {
-        session.getGame().getLogger().info(message);
-    }
 }
+

@@ -26,12 +26,10 @@ package org.inspirenxe.server.network.codec.play;
 import java.io.IOException;
 
 import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.MessageHandler;
 import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.ServerSession;
 import org.inspirenxe.server.network.message.play.KeepAliveMessage;
 
-public class KeepAliveCodec implements MessageHandler<ServerSession, KeepAliveMessage>, Codec<KeepAliveMessage> {
+public class KeepAliveCodec implements Codec<KeepAliveMessage> {
     @Override
     public KeepAliveMessage decode(ByteBuf buf) throws IOException {
         final int id = buf.readInt();
@@ -43,9 +41,5 @@ public class KeepAliveCodec implements MessageHandler<ServerSession, KeepAliveMe
         buf.writeInt(message.getId());
         return buf;
     }
-
-    @Override
-    public void handle(ServerSession session, KeepAliveMessage message) {
-        session.getGame().getLogger().info(message);
-    }
 }
+
