@@ -26,8 +26,12 @@ package org.inspirenxe.server.network;
 import com.flowpowered.networking.Message;
 import com.flowpowered.networking.protocol.AbstractProtocol;
 import com.flowpowered.networking.session.BasicSession;
+import com.flowpowered.networking.session.PulsingSession;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.network.message.DisconnectMessage;
+import org.inspirenxe.server.network.protocol.HandshakeProtocol;
 
 /**
  * Represents an open connection to a client. All {@link com.flowpowered.networking.Message}s are sent through the session.
@@ -47,6 +51,29 @@ public class ServerSession extends BasicSession {
     public ServerSession(Game game, Channel channel, ServerProtocol protocol) {
         super(channel, protocol);
         this.game = game;
+    }
+
+    @Override
+    public void messageReceived(Message message) {
+        final ChannelMessage channelMessage = (ChannelMessage) message;
+        channelMessage.setSession(this);
+        game.getLogger().info(channelMessage);
+        for (ChannelMessage.Channel channel : channelMessage.getChannels()) {
+            game.getNetwork().offer(channel, channelMessage);
+        }
+    }
+
+    @Override
+    public void setProtocol(AbstractProtocol protocol) {
+        if (!(protocol instanceof ServerProtocol)) {
+            throw new IllegalArgumentException(protocol + " must be an extension of ServerProtocol!");
+        }
+        super.setProtocol(protocol);
+    }
+
+    @Override
+    public void onThrowable(Throwable t) {
+        game.getLogger().fatal(t);
     }
 
     /**
@@ -85,32 +112,6 @@ public class ServerSession extends BasicSession {
         this.username = username;
     }
 
-    @Override
-    public void messageReceived(Message message) {
-        final ChannelMessage channelMessage = (ChannelMessage) message;
-        channelMessage.setSession(this);
-        for (ChannelMessage.Channel channel : channelMessage.getChannels()) {
-            game.getNetwork().offer(channel, channelMessage);
-        }
-    }
-
-    @Override
-    public void setProtocol(AbstractProtocol protocol) {
-        if (!(protocol instanceof ServerProtocol)) {
-            throw new IllegalArgumentException(protocol + " must be an extension of ServerProtocol!");
-        }
-        super.setProtocol(protocol);
-    }
-
-    @Override
-    public void onReady() {
-    }
-
-    @Override
-    public void onThrowable(Throwable t) {
-        game.getLogger().fatal(t);
-    }
-
     /**
      * Returns the game for the session.
      *
@@ -118,6 +119,14 @@ public class ServerSession extends BasicSession {
      */
     public Game getGame() {
         return game;
+    }
+
+    public void disconnect(String reason) {
+        if (getProtocol().getClass() == HandshakeProtocol.class) {
+            getChannel().close();
+        } else {
+            getChannel().writeAndFlush(new DisconnectMessage(reason)).addListener(ChannelFutureListener.CLOSE);
+        }
     }
 }
 

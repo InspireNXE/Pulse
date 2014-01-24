@@ -35,7 +35,6 @@ import com.flowpowered.networking.protocol.keyed.KeyedProtocol;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.inspirenxe.server.Game;
-import org.slf4j.LoggerFactory;
 
 public class ServerProtocol extends KeyedProtocol {
     /**

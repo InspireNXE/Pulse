@@ -21,41 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network;
+package org.inspirenxe.server.network.message;
 
-import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
+import com.google.gson.JsonObject;
+import org.inspirenxe.server.network.ChannelMessage;
 
-import com.flowpowered.networking.NetworkServer;
-import com.flowpowered.networking.session.Session;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.protocol.HandshakeProtocol;
+public class DisconnectMessage extends ChannelMessage {
+    private final JsonObject reason;
 
-public class GameNetworkServer extends NetworkServer {
-    private final Game game;
-    private final CopyOnWriteArrayList<ServerSession> sessions = new CopyOnWriteArrayList<>();
+    public DisconnectMessage(String reason) {
+        this.reason = new JsonObject();
+        this.reason.addProperty("text", reason);
+    }
 
-    public GameNetworkServer(Game game) {
-        this.game = game;
+    public JsonObject getReason() {
+        return reason;
     }
 
     @Override
-    public Session newSession(Channel channel) {
-        channel.config().setAutoRead(false);
-        final ServerSession session = new ServerSession(game, channel, new HandshakeProtocol(game));
-        sessions.add(session);
-        return session;
-    }
-
-    @Override
-    public void sessionInactivated(Session session) {
-        sessions.remove(session);
-    }
-
-    public CopyOnWriteArrayList<ServerSession> getSessions() {
-        return sessions;
+    public String toString() {
+        return "DisconnectMessage{" +
+                "reason='" + reason + '\'' +
+                '}';
     }
 }
-

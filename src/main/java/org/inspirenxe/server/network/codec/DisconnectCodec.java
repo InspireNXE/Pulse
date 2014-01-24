@@ -21,41 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network;
+package org.inspirenxe.server.network.codec;
 
-import java.util.ArrayList;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.io.IOException;
 
-import com.flowpowered.networking.NetworkServer;
-import com.flowpowered.networking.session.Session;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.protocol.HandshakeProtocol;
+import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.Codec;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.server.network.message.DisconnectMessage;
 
-public class GameNetworkServer extends NetworkServer {
-    private final Game game;
-    private final CopyOnWriteArrayList<ServerSession> sessions = new CopyOnWriteArrayList<>();
-
-    public GameNetworkServer(Game game) {
-        this.game = game;
+public class DisconnectCodec implements Codec<DisconnectMessage> {
+    @Override
+    public DisconnectMessage decode(ByteBuf buffer) throws IOException {
+        throw new IOException("The server should not receive a disconnect from the Minecraft client!");
     }
 
     @Override
-    public Session newSession(Channel channel) {
-        channel.config().setAutoRead(false);
-        final ServerSession session = new ServerSession(game, channel, new HandshakeProtocol(game));
-        sessions.add(session);
-        return session;
-    }
-
-    @Override
-    public void sessionInactivated(Session session) {
-        sessions.remove(session);
-    }
-
-    public CopyOnWriteArrayList<ServerSession> getSessions() {
-        return sessions;
+    public ByteBuf encode(ByteBuf buf, DisconnectMessage message) throws IOException {
+        ByteBufUtils.writeUTF8(buf, message.getReason().getAsString());
+        return buf;
     }
 }
-

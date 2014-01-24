@@ -30,11 +30,14 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
+import com.flowpowered.networking.session.PulsingSession;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
+import org.inspirenxe.server.network.message.login.LoginStartMessage;
+import org.inspirenxe.server.network.protocol.LoginProtocol;
 
 public class Network extends TickingElement {
     private static final int TPS = 20;
@@ -60,10 +63,16 @@ public class Network extends TickingElement {
 
     @Override
     public void onTick(long l) {
-        final Iterator<ChannelMessage> messages = messageQueue.get(Channel.NETWORK).iterator();
+        final Iterator<ChannelMessage> messages = getChannel(Channel.NETWORK);
         while (messages.hasNext()) {
             handler.handle(messages.next());
             messages.remove();
+        }
+
+        for (ServerSession session : server.getSessions()) {
+            if (!session.getChannel().config().isAutoRead()) {
+                session.getChannel().read();
+            }
         }
     }
 
@@ -100,7 +109,15 @@ public class Network extends TickingElement {
                 //TODO Implement status protocol
                 break;
             case LOGIN:
+                game.getLogger().info("Handshake is LOGIN state, switching protocol");
+                message.getSession().setProtocol(new LoginProtocol(game));
+                game.getLogger().info("Protocol is now LOGIN state");
         }
+    }
+
+    @Handle
+    private void handleLoginStart(LoginStartMessage message) {
+        message.getSession().disconnect("Log-in of clients not yet supported " + message.getUsername());
     }
 }
 
