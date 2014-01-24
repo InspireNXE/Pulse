@@ -71,7 +71,6 @@ dependencies {
     compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-noise:0.1.0-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.2.4'
-    compile 'io.netty:netty-all:4.0.14.Final'
     compile 'jline:jline:2.11'
     compile 'junit:junit:4.11'
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
