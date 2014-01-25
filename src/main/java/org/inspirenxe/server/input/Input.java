@@ -118,7 +118,7 @@ public class Input extends TickingElement {
             running = true;
             try {
                 while (running) {
-                    String command = reader.readLine();
+                    String command = reader.readLine(">");
 
                     if (command == null || command.trim().length() == 0) {
                         continue;
