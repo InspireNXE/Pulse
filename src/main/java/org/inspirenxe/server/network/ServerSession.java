@@ -120,13 +120,5 @@ public class ServerSession extends BasicSession {
     public Game getGame() {
         return game;
     }
-
-    public void disconnect(String reason) {
-        if (getProtocol().getClass() == HandshakeProtocol.class) {
-            getChannel().close();
-        } else {
-            getChannel().writeAndFlush(new DisconnectMessage(reason)).addListener(ChannelFutureListener.CLOSE);
-        }
-    }
 }
 

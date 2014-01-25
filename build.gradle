@@ -70,6 +70,7 @@ dependencies {
     compile 'com.flowpowered:flow-math:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
     compile 'com.flowpowered:flow-noise:0.1.0-SNAPSHOT'
+    compile 'com.github.wolf480pl:jline-log4j2-appender:0.0.1-SNAPSHOT'
     compile 'com.google.code.gson:gson:2.2.4'
     compile 'jline:jline:2.11'
     compile 'junit:junit:4.11'

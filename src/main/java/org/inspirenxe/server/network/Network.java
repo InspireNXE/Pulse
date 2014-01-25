@@ -30,13 +30,16 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
+import com.flowpowered.networking.session.BasicSession;
 import com.flowpowered.networking.session.PulsingSession;
+import com.flowpowered.networking.session.Session;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
+import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 import org.inspirenxe.server.network.protocol.LoginProtocol;
 
 public class Network extends TickingElement {
@@ -69,9 +72,13 @@ public class Network extends TickingElement {
             messages.remove();
         }
 
-        for (ServerSession session : server.getSessions()) {
-            if (!session.getChannel().config().isAutoRead()) {
-                session.getChannel().read();
+        for (Session session : server.getSessions()) {
+            final BasicSession basic = (BasicSession) session;
+            if (!basic.getChannel().isOpen()) {
+                continue;
+            }
+            if (!basic.getChannel().config().isAutoRead()) {
+                basic.getChannel().read();
             }
         }
     }
@@ -117,7 +124,7 @@ public class Network extends TickingElement {
 
     @Handle
     private void handleLoginStart(LoginStartMessage message) {
-        message.getSession().disconnect("Log-in of clients not yet supported " + message.getUsername());
+        game.getLogger().info("Handling LoginStart");
     }
 }
 

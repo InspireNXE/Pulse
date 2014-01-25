@@ -23,19 +23,17 @@
  */
 package org.inspirenxe.server.network;
 
-import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import com.flowpowered.networking.NetworkServer;
 import com.flowpowered.networking.session.Session;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.protocol.HandshakeProtocol;
 
 public class GameNetworkServer extends NetworkServer {
     private final Game game;
-    private final CopyOnWriteArrayList<ServerSession> sessions = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<Session> sessions = new CopyOnWriteArrayList<>();
 
     public GameNetworkServer(Game game) {
         this.game = game;
@@ -54,7 +52,7 @@ public class GameNetworkServer extends NetworkServer {
         sessions.remove(session);
     }
 
-    public CopyOnWriteArrayList<ServerSession> getSessions() {
+    public CopyOnWriteArrayList<Session> getSessions() {
         return sessions;
     }
 }
