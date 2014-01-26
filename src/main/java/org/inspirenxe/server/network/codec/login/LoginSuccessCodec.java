@@ -25,7 +25,7 @@ package org.inspirenxe.server.network.codec.login;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.util.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
@@ -37,10 +37,9 @@ public class LoginSuccessCodec implements Codec<LoginSuccessMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
+    public void encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
         ByteBufUtils.writeUTF8(buf, message.getUuid());
         ByteBufUtils.writeUTF8(buf, message.getUsername());
-        return buf;
     }
 }
 

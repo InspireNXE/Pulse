@@ -41,7 +41,6 @@ public class GameNetworkServer extends NetworkServer {
 
     @Override
     public Session newSession(Channel channel) {
-        channel.config().setAutoRead(false);
         final ServerSession session = new ServerSession(game, channel, new HandshakeProtocol(game));
         sessions.add(session);
         return session;

@@ -25,8 +25,8 @@ package org.inspirenxe.server.network.codec.handshake;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage.HandshakeState;
@@ -42,7 +42,7 @@ public class HandshakeCodec implements Codec<HandshakeMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, HandshakeMessage message) throws IOException {
+    public void encode(ByteBuf buf, HandshakeMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a handshake from the server!");
     }
 }
