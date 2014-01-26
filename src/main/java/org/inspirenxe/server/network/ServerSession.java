@@ -26,12 +26,8 @@ package org.inspirenxe.server.network;
 import com.flowpowered.networking.Message;
 import com.flowpowered.networking.protocol.AbstractProtocol;
 import com.flowpowered.networking.session.BasicSession;
-import com.flowpowered.networking.session.PulsingSession;
 import io.netty.channel.Channel;
-import io.netty.channel.ChannelFutureListener;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.message.DisconnectMessage;
-import org.inspirenxe.server.network.protocol.HandshakeProtocol;
 
 /**
  * Represents an open connection to a client. All {@link com.flowpowered.networking.Message}s are sent through the session.

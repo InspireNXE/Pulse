@@ -32,6 +32,7 @@ import com.flowpowered.commands.CommandManager;
 import com.flowpowered.commands.CommandProvider;
 import com.flowpowered.commands.annotated.AnnotatedCommandExecutorFactory;
 import com.flowpowered.commons.ticking.TickingElement;
+import com.github.wolf480pl.jline_log4j2_appender.ConsoleSetupMessage;
 import jline.console.ConsoleReader;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.input.command.Commands;
@@ -62,6 +63,9 @@ public class Input extends TickingElement {
     public void onStart() {
         game.getLogger().info("Starting input");
         if (!readerThread.isAlive()) {
+            if (!readerThread.ranBefore) {
+                game.getLogger().info(new ConsoleSetupMessage(readerThread.reader, "Setting up console"));
+            }
             readerThread.start();
         } else {
             readerThread.getRawCommandQueue().clear();
@@ -97,6 +101,7 @@ public class Input extends TickingElement {
 
     private static class ConsoleReaderThread extends Thread {
         private volatile boolean running = false;
+        private volatile boolean ranBefore = false;
         private final ConsoleReader reader;
         private final ConcurrentLinkedQueue<String> rawCommandQueue = new ConcurrentLinkedQueue<>();
 
@@ -115,6 +120,7 @@ public class Input extends TickingElement {
 
         @Override
         public void run() {
+            ranBefore = true;
             running = true;
             try {
                 while (running) {

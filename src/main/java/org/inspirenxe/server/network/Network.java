@@ -31,7 +31,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
 import com.flowpowered.networking.session.BasicSession;
-import com.flowpowered.networking.session.PulsingSession;
 import com.flowpowered.networking.session.Session;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
@@ -39,7 +38,6 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
-import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 import org.inspirenxe.server.network.protocol.LoginProtocol;
 
 public class Network extends TickingElement {
