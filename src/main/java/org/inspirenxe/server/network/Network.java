@@ -24,6 +24,9 @@
 package org.inspirenxe.server.network;
 
 import java.net.InetSocketAddress;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -51,6 +54,7 @@ import org.inspirenxe.server.network.protocol.PlayProtocol;
 public class Network extends TickingElement {
     private static final int TPS = 20;
     private final Game game;
+    private final Access access;
     private final GameNetworkServer server;
     private final AnnotatedMessageHandler handler = new AnnotatedMessageHandler(this);
     private final Map<Channel, ConcurrentLinkedQueue<ChannelMessage>> messageQueue = new EnumMap<>(Channel.class);
@@ -58,6 +62,7 @@ public class Network extends TickingElement {
     public Network(Game game) {
         super("network", TPS);
         this.game = game;
+        this.access = new Access(this);
         server = new GameNetworkServer(game);
         messageQueue.put(Channel.UNIVERSE, new ConcurrentLinkedQueue<ChannelMessage>());
     }
@@ -65,6 +70,7 @@ public class Network extends TickingElement {
     @Override
     public void onStart() {
         game.getLogger().info("Starting network");
+        access.load();
         final InetSocketAddress address = new InetSocketAddress(game.getConfiguration().getAddress(), game.getConfiguration().getPort());
         server.bind(address);
         game.getLogger().info("Listening on " + address);
@@ -78,6 +84,14 @@ public class Network extends TickingElement {
     public void onStop() {
         game.getLogger().info("Stopping network");
         server.shutdown();
+    }
+
+    public Game getGame() {
+        return game;
+    }
+
+    public Access getAccess() {
+        return access;
     }
 
     /**

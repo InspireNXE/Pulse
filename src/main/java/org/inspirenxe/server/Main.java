@@ -35,7 +35,7 @@ import static java.util.Arrays.asList;
 public class Main {
     public static void main(String[] args) throws Exception {
         deploy();
-        final Configuration configuration = new Configuration(Paths.get("config.yml"));
+        final Configuration configuration = new Configuration(Paths.get("config/settings.yml"));
         configuration.load();
         parseArgs(args, configuration);
         final Game game = new Game(configuration);
@@ -43,9 +43,9 @@ public class Main {
     }
 
     public static void deploy() throws Exception {
-        final Path configPath = Paths.get("config.yml");
+        final Path configPath = Paths.get("config/settings.yml");
         if (Files.notExists(configPath)) {
-            Files.copy(Main.class.getResourceAsStream("/config.yml"), configPath);
+            Files.copy(Main.class.getResourceAsStream("/config/settings.yml"), configPath);
         }
         final Path worldsPath = Paths.get("worlds");
         if (Files.notExists(worldsPath)) {

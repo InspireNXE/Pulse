@@ -1,0 +1,6 @@
+banlist:
+    enabled: true
+    list: []
+whitelist:
+    enabled: false
+    list: []
