@@ -23,32 +23,40 @@
  */
 package org.inspirenxe.server;
 
-public class Configuration {
-    private String name;
-    private String address;
-    private int port;
+import java.nio.file.Path;
 
-    protected Configuration() {}
+import org.spout.cereal.config.yaml.YamlConfiguration;
+
+public class Configuration extends YamlConfiguration {
+    public Configuration(Path configPath) {
+        super(configPath.toFile());
+    }
 
     public String getName() {
-        return name;
+        return getChild("name").getString();
+    }
+
+    protected Configuration setName(String name) {
+        getChild("name", true).setValue(String.class, name);
+        return this;
     }
 
     public String getAddress() {
-        return address;
+        return getChild("address").getString();
+    }
+
+    protected Configuration setAddress(String address) {
+        getChild("address", true).setValue(String.class, address);
+        return this;
     }
 
     public int getPort() {
-        return port;
+        return getChild("port").getInt();
     }
 
-    @Override
-    public String toString() {
-        return "Configuration{" +
-                "name='" + name + '\'' +
-                ", address='" + address + '\'' +
-                ", port=" + port +
-                '}';
+    protected Configuration setPort(int port) {
+        getChild("port", true).setValue(int.class, port);
+        return this;
     }
 }
 

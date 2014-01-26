@@ -45,7 +45,7 @@ public class Game {
         version = Game.class.getPackage().getImplementationVersion();
     }
 
-    public Game(Configuration configuration) throws Exception {
+    public Game(Configuration configuration) {
         this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
         input = new Input(this);
