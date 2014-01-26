@@ -98,7 +98,7 @@ import nl.javadude.gradle.plugins.license.License
 tasks.withType(License).each { licenseTask ->
     licenseTask.exclude 'resources/**'
     licenseTask.exclude '**/*.xml'
-    licenseTask.exclude '**/*.json'
+    licenseTask.exclude '**/*.yml'
 }
 license {
     ext.name = projectName
