@@ -23,21 +23,26 @@
  */
 package org.inspirenxe.server;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+
+import static java.util.Arrays.asList;
 
 public class Main {
     public static void main(String[] args) throws Exception {
         deploy();
         final Configuration configuration = new Configuration(Paths.get("config.yml"));
         configuration.load();
+        parseArgs(args, configuration);
         final Game game = new Game(configuration);
         game.open();
     }
 
-    public static void deploy() throws IOException {
+    public static void deploy() throws Exception {
         final Path configPath = Paths.get("config.yml");
         if (Files.notExists(configPath)) {
             Files.copy(Main.class.getResourceAsStream("/config.yml"), configPath);
@@ -45,6 +50,34 @@ public class Main {
         final Path worldsPath = Paths.get("worlds");
         if (Files.notExists(worldsPath)) {
             Files.createDirectories(worldsPath);
+        }
+    }
+
+    public static void parseArgs(String[] args, Configuration configuration) throws Exception {
+        final OptionParser parser = new OptionParser() {
+            {
+                acceptsAll(asList("n", "name"))
+                        .withOptionalArg()
+                        .ofType(String.class);
+                acceptsAll(asList("a", "address"))
+                        .withOptionalArg()
+                        .ofType(String.class);
+                acceptsAll(asList("p", "port"))
+                        .withOptionalArg()
+                        .ofType(Integer.class);
+            }
+        };
+
+        // Set all configuration options for this game
+        final OptionSet options = parser.parse(args);
+        if (options.has("n")) { // Name flag
+            configuration.setName(options.valueOf("n").toString());
+        }
+        if (options.has("a")) { // Address flag
+            configuration.setAddress(options.valueOf("a").toString());
+        }
+        if (options.has("p")) { // Port flag
+            configuration.setPort(Integer.parseInt(options.valueOf("p").toString()));
         }
     }
 }
