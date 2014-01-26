@@ -2,6 +2,11 @@
 language: java
 jdk: oraclejdk7
 
+# Branch Whitelist
+branches:
+  only:
+    - master
+
 # Compile and package JAR and set build properties
 install: ./gradlew build -PbuildNumber=$TRAVIS_BUILD_NUMBER
 
