@@ -34,6 +34,7 @@ import com.flowpowered.networking.session.BasicSession;
 import com.flowpowered.networking.session.Session;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
+import io.netty.channel.ChannelOption;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
@@ -69,16 +70,6 @@ public class Network extends TickingElement {
             handler.handle(messages.next());
             messages.remove();
         }
-
-        for (Session session : server.getSessions()) {
-            final BasicSession basic = (BasicSession) session;
-            if (!basic.getChannel().isOpen()) {
-                continue;
-            }
-            if (!basic.getChannel().config().isAutoRead()) {
-                basic.getChannel().read();
-            }
-        }
     }
 
     @Override
@@ -104,7 +95,11 @@ public class Network extends TickingElement {
      * @param m See {@link ChannelMessage}
      */
     public void offer(ChannelMessage.Channel c, ChannelMessage m) {
-        messageQueue.get(c).offer(m);
+        if (c == Channel.NETWORK) {
+            handler.handle(m);
+        } else {
+            messageQueue.get(c).offer(m);
+        }
     }
 
     @Handle

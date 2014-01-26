@@ -25,7 +25,7 @@ package org.inspirenxe.server.network.codec.login;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.util.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
@@ -38,7 +38,7 @@ public class LoginStartCodec implements Codec<LoginStartMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
+    public void encode(ByteBuf buf, LoginStartMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a login start from the server!");
     }
 }

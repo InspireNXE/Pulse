@@ -25,7 +25,7 @@ package org.inspirenxe.server.network.codec.play;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
+import com.flowpowered.networking.util.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.play.JoinGameMessage;
@@ -37,7 +37,7 @@ public class JoinGameCodec implements Codec<JoinGameMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, JoinGameMessage message) throws IOException {
+    public void encode(ByteBuf buf, JoinGameMessage message) throws IOException {
         buf.writeInt(message.getPlayerId());
         short gameMode = (short) message.getGameMode().value();
         if (message.isHardcore()) {
@@ -48,7 +48,6 @@ public class JoinGameCodec implements Codec<JoinGameMessage> {
         buf.writeShort(message.getDifficulty().value());
         buf.writeShort(message.getMaxPlayers());
         ByteBufUtils.writeUTF8(buf, message.getLevelType().name());
-        return buf;
     }
 }
 

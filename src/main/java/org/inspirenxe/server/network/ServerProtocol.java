@@ -25,13 +25,13 @@ package org.inspirenxe.server.network;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
 import com.flowpowered.networking.Message;
 import com.flowpowered.networking.MessageHandler;
 import com.flowpowered.networking.exception.IllegalOpcodeException;
 import com.flowpowered.networking.exception.UnknownPacketException;
 import com.flowpowered.networking.protocol.keyed.KeyedProtocol;
+import com.flowpowered.networking.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.inspirenxe.server.Game;
@@ -82,13 +82,12 @@ public class ServerProtocol extends KeyedProtocol {
     }
 
     @Override
-    public ByteBuf writeHeader(Codec.CodecRegistration codec, ByteBuf data, ByteBuf out) {
+    public void writeHeader(ByteBuf out, Codec.CodecRegistration codec, ByteBuf data) {
         final int length = data.readableBytes();
         final ByteBuf opcodeBuffer = Unpooled.buffer();
         ByteBufUtils.writeVarInt(opcodeBuffer, codec.getOpcode());
         ByteBufUtils.writeVarInt(out, length + opcodeBuffer.readableBytes());
         ByteBufUtils.writeVarInt(out, codec.getOpcode());
-        return out;
     }
 
     public Game getGame() {
