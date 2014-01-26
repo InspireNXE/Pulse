@@ -43,10 +43,10 @@ public class JoinGameCodec implements Codec<JoinGameMessage> {
         if (message.isHardcore()) {
             gameMode |= 8;
         }
-        buf.writeShort(gameMode);
+        buf.writeByte(gameMode);
         buf.writeByte(message.getDimension().value());
-        buf.writeShort(message.getDifficulty().value());
-        buf.writeShort(message.getMaxPlayers());
+        buf.writeByte(message.getDifficulty().value());
+        buf.writeByte(message.getMaxPlayers());
         ByteBufUtils.writeUTF8(buf, message.getLevelType().name());
     }
 }
