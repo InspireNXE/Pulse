@@ -27,19 +27,19 @@ import java.net.InetSocketAddress;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import com.flowpowered.commons.ticking.TickingElement;
-import com.flowpowered.networking.session.BasicSession;
-import com.flowpowered.networking.session.Session;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
-import io.netty.channel.ChannelOption;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
+import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 import org.inspirenxe.server.network.protocol.LoginProtocol;
+import org.inspirenxe.server.network.protocol.PlayProtocol;
 
 public class Network extends TickingElement {
     private static final int TPS = 20;
@@ -52,7 +52,6 @@ public class Network extends TickingElement {
         super("network", TPS);
         this.game = game;
         server = new GameNetworkServer(game);
-        messageQueue.put(Channel.NETWORK, new ConcurrentLinkedQueue<ChannelMessage>());
     }
 
     @Override
@@ -65,11 +64,6 @@ public class Network extends TickingElement {
 
     @Override
     public void onTick(long l) {
-        final Iterator<ChannelMessage> messages = getChannel(Channel.NETWORK);
-        while (messages.hasNext()) {
-            handler.handle(messages.next());
-            messages.remove();
-        }
     }
 
     @Override
@@ -117,7 +111,9 @@ public class Network extends TickingElement {
 
     @Handle
     private void handleLoginStart(LoginStartMessage message) {
-        game.getLogger().info("Handling LoginStart");
+        message.getSession().setUUID(new UUID(0, message.getUsername().hashCode()).toString());
+        message.getSession().send(new LoginSuccessMessage(message.getSession().getUUID(), message.getUsername()));
+        message.getSession().setProtocol(new PlayProtocol(game));
     }
 }
 
