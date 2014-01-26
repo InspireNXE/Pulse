@@ -32,6 +32,7 @@ import org.inspirenxe.server.input.Input;
 import org.inspirenxe.server.network.Network;
 
 public class Game {
+    private static final String version;
     // A semaphore with no permits, so that the first acquire() call blocks
     private final Semaphore semaphore = new Semaphore(0);
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -39,14 +40,16 @@ public class Game {
     private final Logger logger;
     private final Input input;
     private final Network network;
-    private final String version;
+
+    static {
+        version = Game.class.getPackage().getImplementationVersion();
+    }
 
     public Game(Configuration configuration) throws Exception {
         this.configuration = configuration;
         logger = LogManager.getLogger(configuration.getName());
         input = new Input(this);
         network = new Network(this);
-        version = getClass().getPackage().getImplementationVersion();
     }
 
     private void start() {
