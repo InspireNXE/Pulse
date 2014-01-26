@@ -25,8 +25,8 @@ package org.inspirenxe.server.network.codec;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.ByteBufUtils;
 import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.DisconnectMessage;
 
@@ -37,8 +37,7 @@ public class DisconnectCodec implements Codec<DisconnectMessage> {
     }
 
     @Override
-    public ByteBuf encode(ByteBuf buf, DisconnectMessage message) throws IOException {
+    public void encode(ByteBuf buf, DisconnectMessage message) throws IOException {
         ByteBufUtils.writeUTF8(buf, message.getReason().getAsString());
-        return buf;
     }
 }
