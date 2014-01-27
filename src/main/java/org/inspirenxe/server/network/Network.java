@@ -59,6 +59,7 @@ public class Network extends TickingElement {
         super("network", TPS);
         this.game = game;
         server = new GameNetworkServer(game);
+        messageQueue.put(Channel.UNIVERSE, new ConcurrentLinkedQueue<ChannelMessage>());
     }
 
     @Override
@@ -85,7 +86,7 @@ public class Network extends TickingElement {
      * @param c See {@link ChannelMessage}
      * @return The iterator
      */
-    public Iterator<ChannelMessage> getChannel(ChannelMessage.Channel c) {
+    public Iterator<ChannelMessage> getChannel(Channel c) {
         return messageQueue.get(c).iterator();
     }
 
@@ -95,7 +96,7 @@ public class Network extends TickingElement {
      * @param c See {@link ChannelMessage.Channel}
      * @param m See {@link ChannelMessage}
      */
-    public void offer(ChannelMessage.Channel c, ChannelMessage m) {
+    public void offer(Channel c, ChannelMessage m) {
         if (c == Channel.NETWORK) {
             handler.handle(m);
         } else {
@@ -110,20 +111,15 @@ public class Network extends TickingElement {
                 //TODO Implement status protocol
                 break;
             case LOGIN:
-                game.getLogger().info("Handshake is LOGIN state, switching protocol");
                 message.getSession().setProtocol(new LoginProtocol(game));
-                game.getLogger().info("Protocol is now LOGIN state");
         }
     }
 
     @Handle
     private void handleLoginStart(LoginStartMessage message) {
-        System.out.println(message.getSession());
-        System.out.println(message.getSession().getProtocol());
-        message.getSession().getChannel().write(new DisconnectMessage("Logging in is not supported yet"));//.addListener(ChannelFutureListener.CLOSE);
-        //message.getSession().setUUID(new UUID(0, message.getUsername().hashCode()).toString());
-        //message.getSession().send(new LoginSuccessMessage(message.getSession().getUUID(), message.getUsername()));
-        //message.getSession().setProtocol(new PlayProtocol(game));
+        message.getSession().setUUID(new UUID(0, message.getUsername().hashCode()).toString());
+        message.getSession().send(new LoginSuccessMessage(message.getSession().getUUID(), message.getUsername()));
+        message.getSession().setProtocol(new PlayProtocol(game));
     }
 }
 

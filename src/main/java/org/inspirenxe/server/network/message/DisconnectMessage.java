@@ -23,25 +23,10 @@
  */
 package org.inspirenxe.server.network.message;
 
-import com.google.gson.JsonObject;
-import org.inspirenxe.server.network.ChannelMessage;
-
-public class DisconnectMessage extends ChannelMessage {
-    private final JsonObject reason;
+public class DisconnectMessage extends JsonMessage {
+    private static final String TEXT_PROPERTY = "text";
 
     public DisconnectMessage(String reason) {
-        this.reason = new JsonObject();
-        this.reason.addProperty("text", reason);
-    }
-
-    public JsonObject getReason() {
-        return reason;
-    }
-
-    @Override
-    public String toString() {
-        return "DisconnectMessage{" +
-                "reason='" + reason + '\'' +
-                '}';
+        super(TEXT_PROPERTY, reason);
     }
 }

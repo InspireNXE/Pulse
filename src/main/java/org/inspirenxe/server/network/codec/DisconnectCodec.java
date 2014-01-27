@@ -38,8 +38,6 @@ public class DisconnectCodec implements Codec<DisconnectMessage> {
 
     @Override
     public void encode(ByteBuf buf, DisconnectMessage message) throws IOException {
-        ByteBufUtils.writeUTF8(buf, message.getReason().getAsString());
-        System.out.println(message.getReason().getAsString());
-        System.out.println(message);
+        ByteBufUtils.writeUTF8(buf, message.getJsonString());
     }
 }
