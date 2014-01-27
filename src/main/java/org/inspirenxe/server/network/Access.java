@@ -27,75 +27,96 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 import java.util.List;
+
+import org.inspirenxe.server.Game;
 
 import org.spout.cereal.config.ConfigurationException;
 import org.spout.cereal.config.yaml.YamlConfiguration;
 
-public class Access {
-    private final Network network;
-    private final YamlConfiguration configuration = new YamlConfiguration(Paths.get("config/access.yml").toFile());
+public final class Access {
+    private static final Path CONFIG_PATH = Paths.get("config");
+    private static final Path ACCESS_PATH = Paths.get(CONFIG_PATH.toString(), "access.yml");
+    private static final String BANLIST_KEY = "banlist";
+    private static final String ENABLED_KEY = "enabled";
+    private static final String LIST_KEY = "list";
+    private static final String WHITELIST_KEY = "whitelist";
+    private static final YamlConfiguration CONFIGURATION = new YamlConfiguration(ACCESS_PATH.toFile());
+    private final Game game;
 
-    protected Access(Network network) {
-        this.network = network;
+    protected Access(Game game) {
+        this.game = game;
     }
 
-    public void load() {
-        final Path accessPath = Paths.get("config/access.yml");
-        if (Files.notExists(accessPath)) {
-            try {
-                Files.copy(getClass().getResourceAsStream("/config/access.yml"), accessPath);
-            } catch (IOException e) {
-                network.getGame().getLogger().fatal(e);
-            }
-        }
+    protected synchronized void load() {
         try {
-            configuration.load();
-        } catch (ConfigurationException e) {
-            network.getGame().getLogger().fatal(e);
+            if (Files.notExists(CONFIG_PATH)) {
+                Files.createDirectories(CONFIG_PATH);
+            }
+            if (Files.notExists(ACCESS_PATH)) {
+                Files.copy(getClass().getResourceAsStream("/config/access.yml"), ACCESS_PATH);
+            }
+            CONFIGURATION.load();
+        } catch (IOException | ConfigurationException e) {
+            game.getLogger().fatal(e);
         }
     }
 
     /**
      * @return true if the banlist is enabled, false if not
      */
-    public boolean isBanlistEnabled() {
-        return configuration.getChild("banlist.enabled").getBoolean();
+    public synchronized boolean isBanlistEnabled() {
+        return CONFIGURATION.getChild(BANLIST_KEY).getChild(ENABLED_KEY).getBoolean();
     }
 
     /**
      * @return true if the whitelist is enabled, false if not.
      */
-    public boolean isWhitelistEnabled() {
-        return configuration.getChild("whitelist.enabled").getBoolean();
+    public synchronized boolean isWhitelistEnabled() {
+        return CONFIGURATION.getChild(WHITELIST_KEY).getChild(ENABLED_KEY).getBoolean();
     }
 
     /**
      * @param enabled true to enable the banlist, false to disable it
      */
-    public void setBanlistEnabled(boolean enabled) {
-        configuration.getChild("banlist.enabled").setValue(boolean.class, enabled);
+    public synchronized void setBanlistEnabled(boolean enabled) {
+        CONFIGURATION.getChild(BANLIST_KEY).getChild(ENABLED_KEY).setValue(boolean.class, enabled);
     }
 
     /**
      * @param enabled true to enable the whitelist, false to disable it.
      */
-    public void setWhitelistEnabled(boolean enabled) {
-        configuration.getChild("whitelist.enabled").setValue(boolean.class, enabled);
+    public synchronized void setWhitelistEnabled(boolean enabled) {
+        CONFIGURATION.getChild(WHITELIST_KEY).getChild(ENABLED_KEY).setValue(boolean.class, enabled);
     }
 
     /**
      * @return the list of players in the banlist
      */
-    public List<String> getBanlist() {
-        return configuration.getChild("banlist.list").getStringList();
+    public synchronized List<String> getBanlist() {
+        return Collections.unmodifiableList(CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList());
     }
 
     /**
      * @return the list of players in the whitelist
      */
-    public List<String> getWhitelist() {
-        return configuration.getChild("whitelist.list").getStringList();
+    public synchronized List<String> getWhitelist() {
+        return Collections.unmodifiableList(CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList());
+    }
+
+    /**
+     * @param list the list to save to the configuration
+     */
+    public synchronized void setBanlist(List<String> list) {
+        CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).setValue(List.class, list);
+    }
+
+    /**
+     * @param list the list to save to the configuration
+     */
+    public synchronized void setWhitelist(List<String> list) {
+        CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).setValue(List.class, list);
     }
 
     /**
@@ -103,11 +124,11 @@ public class Access {
      * @param add if true it will add the player to the banlist, otherwise it will remove them
      * @return if the player was successfully added or removed
      */
-    public boolean ban(String name, boolean add) {
+    public synchronized boolean ban(String name, boolean add) {
         if (add) {
-            return getBanlist().add(name);
+            return CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList().add(name);
         } else {
-            return getBanlist().remove(name);
+            return CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList().remove(name);
         }
     }
 
@@ -116,11 +137,22 @@ public class Access {
      * @param add if true it will add the player to the whitelist, otherwise it will remove them
      * @return if the player was successfully added or removed
      */
-    public boolean whitelist(String name, boolean add) {
+    public synchronized boolean whitelist(String name, boolean add) {
         if (add) {
-            return getWhitelist().add(name);
+            return CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList().add(name);
         } else {
-            return getWhitelist().remove(name);
+            return CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList().remove(name);
+        }
+    }
+
+    /**
+     * Saves the configuration object to file
+     */
+    public synchronized void save() {
+        try {
+            CONFIGURATION.save();
+        } catch (ConfigurationException e) {
+            game.getLogger().fatal(e);
         }
     }
 }

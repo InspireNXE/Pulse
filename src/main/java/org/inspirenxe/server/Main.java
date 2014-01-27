@@ -33,9 +33,13 @@ import joptsimple.OptionSet;
 import static java.util.Arrays.asList;
 
 public class Main {
+    private static final Path CONFIG_PATH = Paths.get("config");
+    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.yml");
+    private static final Path WORLDS_PATH = Paths.get("worlds");
+
     public static void main(String[] args) throws Exception {
         deploy();
-        final Configuration configuration = new Configuration(Paths.get("config/settings.yml"));
+        final Configuration configuration = new Configuration(SETTINGS_PATH);
         configuration.load();
         parseArgs(args, configuration);
         final Game game = new Game(configuration);
@@ -43,13 +47,14 @@ public class Main {
     }
 
     public static void deploy() throws Exception {
-        final Path configPath = Paths.get("config/settings.yml");
-        if (Files.notExists(configPath)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.yml"), configPath);
+        if (Files.notExists(CONFIG_PATH)) {
+            Files.createDirectories(CONFIG_PATH);
         }
-        final Path worldsPath = Paths.get("worlds");
-        if (Files.notExists(worldsPath)) {
-            Files.createDirectories(worldsPath);
+        if (Files.notExists(SETTINGS_PATH)) {
+            Files.copy(Main.class.getResourceAsStream("/config/settings.yml"), SETTINGS_PATH);
+        }
+        if (Files.notExists(WORLDS_PATH)) {
+            Files.createDirectories(WORLDS_PATH);
         }
     }
 

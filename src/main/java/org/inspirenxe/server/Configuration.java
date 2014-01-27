@@ -28,34 +28,38 @@ import java.nio.file.Path;
 import org.spout.cereal.config.yaml.YamlConfiguration;
 
 public class Configuration extends YamlConfiguration {
+    private static final String ADDRESS_KEY = "address";
+    private static final String NAME_KEY = "name";
+    private static final String PORT_KEY = "port";
+
     public Configuration(Path configPath) {
         super(configPath.toFile());
     }
 
     public String getName() {
-        return getChild("name").getString();
+        return getChild(NAME_KEY).getString();
     }
 
     protected Configuration setName(String name) {
-        getChild("name", true).setValue(String.class, name);
+        getChild(NAME_KEY, true).setValue(String.class, name);
         return this;
     }
 
     public String getAddress() {
-        return getChild("address").getString();
+        return getChild(ADDRESS_KEY).getString();
     }
 
     protected Configuration setAddress(String address) {
-        getChild("address", true).setValue(String.class, address);
+        getChild(ADDRESS_KEY, true).setValue(String.class, address);
         return this;
     }
 
     public int getPort() {
-        return getChild("port").getInt();
+        return getChild(PORT_KEY).getInt();
     }
 
     protected Configuration setPort(int port) {
-        getChild("port", true).setValue(int.class, port);
+        getChild(PORT_KEY, true).setValue(int.class, port);
         return this;
     }
 }
