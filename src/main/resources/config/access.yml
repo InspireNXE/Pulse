@@ -1,6 +1,6 @@
 banlist:
     enabled: true
-    list: []
+    list:
 whitelist:
     enabled: false
-    list: []
+    list:
