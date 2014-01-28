@@ -1,7 +1,7 @@
 /**
- * This file is part of Pulse, licensed under the MIT License (MIT).
+ * This file is part of Client, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 InspireNXE <http://inspirenxe.org/>
+ * Copyright (c) 2013-2014 Spoutcraft <http://spoutcraft.org/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.codec.login;
+package org.inspirenxe.server.universe.block.material;
 
-import java.io.IOException;
+import gnu.trove.map.TShortObjectMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
 
-import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.util.ByteBufUtils;
-import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.message.login.LoginStartMessage;
+/**
+ *
+ */
+public abstract class MasterMaterial extends Material {
+    private final TShortObjectMap<SubMaterial> subMaterials = new TShortObjectHashMap<>();
 
-public class LoginStartCodec implements Codec<LoginStartMessage> {
-    @Override
-    public LoginStartMessage decode(ByteBuf buf) throws IOException {
-        final String username = ByteBufUtils.readUTF8(buf);
-        return new LoginStartMessage(username);
+    public MasterMaterial(short id) {
+        super(id, (short) 0);
+        register(this);
     }
 
-    @Override
-    public void encode(ByteBuf buf, LoginStartMessage message) throws IOException {
-        throw new IOException("The Minecraft client should not receive a login start from the server!");
+    public SubMaterial getSubMaterial(short subID) {
+        return subMaterials.get(subID);
+    }
+
+    protected void addSubMaterial(SubMaterial subMaterial) {
+        final SubMaterial previous = subMaterials.put(subMaterial.getSubID(), subMaterial);
+        if (previous != null) {
+            System.out.println("New sub-material has conflicting ID, previous sub-material was overwritten: " + previous + " => " + subMaterial);
+        }
     }
 }
-

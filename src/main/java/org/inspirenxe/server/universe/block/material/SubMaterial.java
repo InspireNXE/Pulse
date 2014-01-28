@@ -1,7 +1,7 @@
 /**
- * This file is part of Pulse, licensed under the MIT License (MIT).
+ * This file is part of Client, licensed under the MIT License (MIT).
  *
- * Copyright (c) 2014 InspireNXE <http://inspirenxe.org/>
+ * Copyright (c) 2013-2014 Spoutcraft <http://spoutcraft.org/>
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,25 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.codec.login;
+package org.inspirenxe.server.universe.block.material;
 
-import java.io.IOException;
+/**
+ *
+ */
+public abstract class SubMaterial extends Material {
+    private final Material master;
 
-import com.flowpowered.networking.Codec;
-import com.flowpowered.networking.util.ByteBufUtils;
-import io.netty.buffer.ByteBuf;
-import org.inspirenxe.server.network.message.login.LoginStartMessage;
-
-public class LoginStartCodec implements Codec<LoginStartMessage> {
-    @Override
-    public LoginStartMessage decode(ByteBuf buf) throws IOException {
-        final String username = ByteBufUtils.readUTF8(buf);
-        return new LoginStartMessage(username);
+    public SubMaterial(MasterMaterial master, short subID) {
+        super(master.getID(), subID);
+        if (master == null) {
+            throw new IllegalArgumentException("Master material cannot be null");
+        }
+        if (subID == 0) {
+            throw new IllegalArgumentException("Sub ID 0 is reserved for the master material");
+        }
+        this.master = master;
+        master.addSubMaterial(this);
     }
 
-    @Override
-    public void encode(ByteBuf buf, LoginStartMessage message) throws IOException {
-        throw new IOException("The Minecraft client should not receive a login start from the server!");
+    public Material getMaster() {
+        return master;
     }
 }
-

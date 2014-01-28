@@ -99,6 +99,7 @@ public final class Access {
     }
 
     /**
+     *
      * @return the list of players in the whitelist
      */
     public synchronized List<String> getWhitelist() {

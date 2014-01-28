@@ -25,8 +25,8 @@ package org.inspirenxe.server.network.codec.login;
 
 import java.io.IOException;
 
-import com.flowpowered.networking.util.ByteBufUtils;
 import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.util.ByteBufUtils;
 import io.netty.buffer.ByteBuf;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 

@@ -24,9 +24,6 @@
 package org.inspirenxe.server.network;
 
 import java.net.InetSocketAddress;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -36,18 +33,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.flowpowered.commons.ticking.TickingElement;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
-import io.netty.channel.ChannelFutureListener;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.game.Difficulty;
-import org.inspirenxe.server.game.Dimension;
-import org.inspirenxe.server.game.GameMode;
-import org.inspirenxe.server.game.LevelType;
 import org.inspirenxe.server.network.ChannelMessage.Channel;
-import org.inspirenxe.server.network.message.DisconnectMessage;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
-import org.inspirenxe.server.network.message.play.JoinGameMessage;
 import org.inspirenxe.server.network.protocol.LoginProtocol;
 import org.inspirenxe.server.network.protocol.PlayProtocol;
 
