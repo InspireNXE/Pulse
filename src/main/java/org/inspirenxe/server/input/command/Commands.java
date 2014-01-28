@@ -24,7 +24,6 @@
 package org.inspirenxe.server.input.command;
 
 import java.io.IOException;
-import java.util.List;
 
 import com.flowpowered.commands.CommandArguments;
 import com.flowpowered.commands.CommandException;
@@ -33,7 +32,6 @@ import com.flowpowered.commands.annotated.CommandDescription;
 import com.flowpowered.commands.annotated.Permissible;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.Access;
-import org.omg.CORBA.Environment;
 
 public class Commands {
     private final Game game;

@@ -289,10 +289,8 @@ public class BlockFaces implements Iterable<BlockFace> {
     }
 
     /**
-     * Gets the next BlockFace in this circular BlockFaces constant<br><br>
-     * <p/>
-     * <b>For example:</b><br> BlockFaces.NESW.next(BlockFace.EAST, 2) == BlockFace.WEST<br> BlockFaces.NESW.next(BlockFace.WEST, 1) == BlockFace.NORTH<br> BlockFaces.NESW.next(BlockFace.SOUTH, -3) ==
-     * BlockFace.WEST<br>
+     * Gets the next BlockFace in this circular BlockFaces constant<br><br> <p/> <b>For example:</b><br> BlockFaces.NESW.next(BlockFace.EAST, 2) == BlockFace.WEST<br>
+     * BlockFaces.NESW.next(BlockFace.WEST, 1) == BlockFace.NORTH<br> BlockFaces.NESW.next(BlockFace.SOUTH, -3) == BlockFace.WEST<br>
      *
      * @param from the BlockFace to count
      * @param offset index in this range
