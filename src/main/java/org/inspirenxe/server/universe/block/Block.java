@@ -24,6 +24,7 @@
 package org.inspirenxe.server.universe.block;
 
 import com.flowpowered.math.vector.Vector3i;
+import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.material.Material;
 import org.inspirenxe.server.universe.world.Chunk;
 
@@ -31,20 +32,22 @@ import org.inspirenxe.server.universe.world.Chunk;
  *
  */
 public class Block {
+    private final Game game;
     private final Vector3i position;
     private final Material material;
     private final short blockLight;
     private final short blockSkyLight;
 
-    public Block(Vector3i position, int packed) {
-        this(position, (short) (packed >> 16), (short) packed);
+    public Block(Game game, Vector3i position, int packed) {
+        this(game, position, (short) (packed >> 16), (short) packed);
     }
 
-    public Block(Vector3i position, short id, short data) {
-        this(position, Material.get(id, Chunk.SUB_ID_MASK.extract(data)), Chunk.BLOCK_LIGHT_MASK.extract(data), Chunk.BLOCK_SKY_LIGHT_MASK.extract(data));
+    public Block(Game game, Vector3i position, short id, short data) {
+        this(game, position, Material.get(id, Chunk.SUB_ID_MASK.extract(data)), Chunk.BLOCK_LIGHT_MASK.extract(data), Chunk.BLOCK_SKY_LIGHT_MASK.extract(data));
     }
 
-    public Block(Vector3i position, Material material, short blockLight, short blockSkyLight) {
+    public Block(Game game, Vector3i position, Material material, short blockLight, short blockSkyLight) {
+        this.game = game;
         this.position = position;
         this.material = material;
         this.blockLight = blockLight;
@@ -59,11 +62,11 @@ public class Block {
         return position;
     }
 
-    public short getBlockLight() {
+    public short getLight() {
         return blockLight;
     }
 
-    public short getBlockSkyLight() {
+    public short getSkyLight() {
         return blockSkyLight;
     }
 }

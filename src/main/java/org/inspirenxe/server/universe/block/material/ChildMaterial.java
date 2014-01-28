@@ -26,12 +26,12 @@ package org.inspirenxe.server.universe.block.material;
 import org.inspirenxe.server.Game;
 
 /**
- * Represents a {@link Material} which is a child of a {@link ParentMaterial}
+ * Represents a {@link Material} which is a child of another {@link Material}
  */
 public abstract class ChildMaterial extends Material {
     private final Material parent;
 
-    public ChildMaterial(Game game, ParentMaterial parent, String name) {
+    public ChildMaterial(Game game, Material parent, String name) {
         super(game, name);
         if (parent == null) {
             throw new IllegalArgumentException("Parent material cannot be null!");
@@ -41,5 +41,20 @@ public abstract class ChildMaterial extends Material {
 
     public Material getParent() {
         return parent;
+    }
+
+    @Override
+    public ChildMaterial getChild(String name) {
+        throw new UnsupportedOperationException("Child materials do not have children!");
+    }
+
+    @Override
+    protected ChildMaterial getChild(short id) {
+        throw new UnsupportedOperationException("Child materials do not have children!");
+    }
+
+    @Override
+    protected void addChild(ChildMaterial childMaterial) {
+        throw new UnsupportedOperationException("Child materials do not have children!");
     }
 }

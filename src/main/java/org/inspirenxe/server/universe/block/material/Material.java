@@ -23,6 +23,10 @@
  */
 package org.inspirenxe.server.universe.block.material;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import gnu.trove.map.hash.TIntObjectHashMap;
 import org.inspirenxe.server.Game;
 
 /**
@@ -31,17 +35,13 @@ import org.inspirenxe.server.Game;
 public abstract class Material {
     private final Game game;
     private final String name;
+    private final Map<String, ChildMaterial> childMaterialsByName = new ConcurrentHashMap<>();
+    private final TIntObjectHashMap<ChildMaterial> childMaterialsById = new TIntObjectHashMap<>();
 
     protected Material(Game game, String name) {
         this.game = game;
         this.name = name;
     }
-
-    /**
-     * Used to send to the client so the client knows what to render
-     * @return The id
-     */
-    public abstract short getId();
 
     public Game getGame() {
         return game;
@@ -50,4 +50,26 @@ public abstract class Material {
     public String getName() {
         return name;
     }
+
+    public ChildMaterial getChild(String name) {
+        return childMaterialsByName.get(name);
+    }
+
+    protected ChildMaterial getChild(short id) {
+        return childMaterialsById.get(id);
+    }
+
+    protected void addChild(ChildMaterial childMaterial) {
+        final ChildMaterial previous = childMaterialsByName.put(getName() + "." + childMaterial.getName(), childMaterial);
+        if (previous != null) {
+            getGame().getLogger().warn("New child material has conflicting name, previous child material was overwritten: " + previous + " => " + childMaterial);
+        }
+        childMaterialsById.put(childMaterial.getId(), childMaterial);
+    }
+
+    /**
+     * Used to send to the client so the client knows what to render
+     * @return The id
+     */
+    public abstract short getId();
 }
