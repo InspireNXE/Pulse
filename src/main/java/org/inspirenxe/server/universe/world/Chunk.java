@@ -161,7 +161,7 @@ public class Chunk {
         return result;
     }
 
-    private static Material getPacked(int packed) {
+    private Material getPacked(int packed) {
         return Material.get((short) (packed >> 16), SUB_ID_MASK.extract((short) packed));
     }
 }

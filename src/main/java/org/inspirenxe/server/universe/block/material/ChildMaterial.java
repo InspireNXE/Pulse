@@ -23,28 +23,23 @@
  */
 package org.inspirenxe.server.universe.block.material;
 
-import gnu.trove.map.TShortObjectMap;
-import gnu.trove.map.hash.TShortObjectHashMap;
+import org.inspirenxe.server.Game;
 
 /**
- *
+ * Represents a {@link Material} which is a child of a {@link ParentMaterial}
  */
-public abstract class MasterMaterial extends Material {
-    private final TShortObjectMap<SubMaterial> subMaterials = new TShortObjectHashMap<>();
+public abstract class ChildMaterial extends Material {
+    private final Material parent;
 
-    public MasterMaterial(short id) {
-        super(id, (short) 0);
-        register(this);
-    }
-
-    public SubMaterial getSubMaterial(short subID) {
-        return subMaterials.get(subID);
-    }
-
-    protected void addSubMaterial(SubMaterial subMaterial) {
-        final SubMaterial previous = subMaterials.put(subMaterial.getSubID(), subMaterial);
-        if (previous != null) {
-            System.out.println("New sub-material has conflicting ID, previous sub-material was overwritten: " + previous + " => " + subMaterial);
+    public ChildMaterial(Game game, ParentMaterial parent, String name) {
+        super(game, name);
+        if (parent == null) {
+            throw new IllegalArgumentException("Parent material cannot be null!");
         }
+        this.parent = parent;
+    }
+
+    public Material getParent() {
+        return parent;
     }
 }

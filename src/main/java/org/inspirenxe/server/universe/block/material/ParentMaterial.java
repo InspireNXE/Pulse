@@ -23,25 +23,31 @@
  */
 package org.inspirenxe.server.universe.block.material;
 
-/**
- *
- */
-public abstract class SubMaterial extends Material {
-    private final Material master;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-    public SubMaterial(MasterMaterial master, short subID) {
-        super(master.getID(), subID);
-        if (master == null) {
-            throw new IllegalArgumentException("Master material cannot be null");
-        }
-        if (subID == 0) {
-            throw new IllegalArgumentException("Sub ID 0 is reserved for the master material");
-        }
-        this.master = master;
-        master.addSubMaterial(this);
+import gnu.trove.map.TShortObjectMap;
+import gnu.trove.map.hash.TShortObjectHashMap;
+import org.inspirenxe.server.Game;
+
+/**
+ * Represents a {@link org.inspirenxe.server.universe.block.material.Material} which is the parent of {@link ChildMaterial}s.
+ */
+public abstract class ParentMaterial extends Material {
+    private final Map<String, ChildMaterial> childMaterials = new ConcurrentHashMap<>();
+
+    public ParentMaterial(Game game, String name) {
+        super(game, name);
     }
 
-    public Material getMaster() {
-        return master;
+    public ChildMaterial getChildMaterial(String name) {
+        return childMaterials.get(name);
+    }
+
+    protected void addChild(ChildMaterial childMaterial) {
+        final ChildMaterial previous = childMaterials.put(childMaterial.getName(), childMaterial);
+        if (previous != null) {
+            getGame().getLogger().warn("New child material has conflicting name, previous child material was overwritten: " + previous + " => " + childMaterial);
+        }
     }
 }
