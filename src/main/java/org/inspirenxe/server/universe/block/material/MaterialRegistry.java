@@ -2,28 +2,39 @@ package org.inspirenxe.server.universe.block.material;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.procedure.TIntObjectProcedure;
-import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.world.Chunk;
 
-public class MaterialManager {
+public class MaterialRegistry {
     private final Game game;
+    // Name -> Material
     private final Map<String, Material> materialsByName = new ConcurrentHashMap<>();
-    private final TIntObjectHashMap<Material> materialsById = new TIntObjectHashMap<>();
+    // Id -> Material - INTERNAL ONLY
+    private final Map<Short, Material> materialsById = new ConcurrentHashMap<>();
+    // Id -> (Material with non zero child id) - INTERNAL ONLY
+    private final Map<Short, CopyOnWriteArrayList<Material>> childMaterialsById = new ConcurrentHashMap<>();
 
-    public MaterialManager(Game game) {
+    public MaterialRegistry(Game game) {
         this.game = game;
     }
 
-    public void register(Material material) {
+    public void put(Material material) {
         final Material previous = materialsByName.put(material.getName(), material);
         if (previous != null) {
             game.getLogger().warn("New material has conflicting name, previous material was overwritten: " + previous + " => " + material);
         }
-        materialsById.put(material.getId(), material);
+        if (material.getChildId() != 0) {
+            CopyOnWriteArrayList<Material> childMaterialsForId = childMaterialsById.get(material.getId());
+            if (childMaterialsForId == null) {
+                childMaterialsForId = new CopyOnWriteArrayList<>();
+                childMaterialsById.put(material.getId(), childMaterialsForId);
+            }
+            childMaterialsForId.add(material);
+        } else {
+            materialsById.put(material.getId(), material);
+        }
     }
 
     public Material get(String name) {
@@ -41,7 +52,7 @@ public class MaterialManager {
             return materialsById.get(id);
         } else {
             // TODO Optimize this as children is slower
-            for(Object obj : materialsById.values()) {
+            for (Object obj : childMaterialsById.values()) {
                 final Material other = (Material) obj;
                 if (other.getId() == id && other.getChildId() == childId) {
                     return other;

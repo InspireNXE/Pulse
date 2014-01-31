@@ -32,7 +32,7 @@ public abstract class Material {
     private final Game game;
     private final String name;
 
-    protected Material(Game game, String name) {
+    public Material(Game game, String name) {
         this.game = game;
         this.name = name;
     }
@@ -59,5 +59,24 @@ public abstract class Material {
      */
     public short getChildId() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Material)) {
+            return false;
+        }
+
+        final Material material = (Material) o;
+
+        return game.equals(material.game) && name.equals(material.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
     }
 }
