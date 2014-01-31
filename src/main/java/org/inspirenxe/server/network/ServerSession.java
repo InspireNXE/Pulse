@@ -53,7 +53,6 @@ public class ServerSession extends BasicSession {
     public void messageReceived(Message message) {
         final ChannelMessage channelMessage = (ChannelMessage) message;
         channelMessage.setSession(this);
-        game.getLogger().info(channelMessage);
         for (ChannelMessage.Channel channel : channelMessage.getChannels()) {
             game.getNetwork().offer(channel, channelMessage);
         }
@@ -68,8 +67,13 @@ public class ServerSession extends BasicSession {
     }
 
     @Override
-    public void onThrowable(Throwable t) {
-        game.getLogger().fatal(t);
+    public void onInboundThrowable(Throwable throwable) {
+        game.getLogger().fatal("Exception caught on inbound messsage", throwable);
+    }
+
+    @Override
+    public void onOutboundThrowable(Throwable throwable) {
+        game.getLogger().fatal("Exception caught on outbound message", throwable);
     }
 
     /**
@@ -91,18 +95,18 @@ public class ServerSession extends BasicSession {
     }
 
     /**
-     * Returns the username of the player for the session.
+     * Returns the username of the session.
      *
-     * @return The player's username
+     * @return The session's username
      */
     public String getUsername() {
         return username;
     }
 
     /**
-     * Sets the player's username
+     * Sets the session's username.
      *
-     * @param username The player's username
+     * @param username The session's username
      */
     public void setUsername(String username) {
         this.username = username;
