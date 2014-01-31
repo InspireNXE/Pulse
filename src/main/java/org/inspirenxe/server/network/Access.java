@@ -38,6 +38,8 @@ import org.spout.cereal.config.yaml.YamlConfiguration;
 public final class Access {
     private static final Path CONFIG_PATH = Paths.get("config");
     private static final Path ACCESS_PATH = Paths.get(CONFIG_PATH.toString(), "access.yml");
+    private static List<String> BANLIST;
+    private static List<String> WHITELIST;
     private static final String BANLIST_KEY = "banlist";
     private static final String ENABLED_KEY = "enabled";
     private static final String LIST_KEY = "list";
@@ -61,9 +63,13 @@ public final class Access {
         } catch (IOException | ConfigurationException e) {
             game.getLogger().fatal(e);
         }
+        BANLIST = CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList();
+        WHITELIST = CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList();
     }
 
     /**
+     * Checks if the banlist is enabled
+     *
      * @return true if the banlist is enabled, false if not
      */
     public synchronized boolean isBanlistEnabled() {
@@ -71,6 +77,8 @@ public final class Access {
     }
 
     /**
+     * Checks if the whitelist is enabled
+     *
      * @return true if the whitelist is enabled, false if not.
      */
     public synchronized boolean isWhitelistEnabled() {
@@ -78,6 +86,8 @@ public final class Access {
     }
 
     /**
+     * Sets the enabled status of the banlist
+     *
      * @param enabled true to enable the banlist, false to disable it
      */
     public synchronized void setBanlistEnabled(boolean enabled) {
@@ -85,6 +95,8 @@ public final class Access {
     }
 
     /**
+     * Sets the enabled status of the whitelist
+     *
      * @param enabled true to enable the whitelist, false to disable it.
      */
     public synchronized void setWhitelistEnabled(boolean enabled) {
@@ -92,13 +104,16 @@ public final class Access {
     }
 
     /**
+     * Gets the current banlist
+     *
      * @return the list of players in the banlist
      */
     public synchronized List<String> getBanlist() {
-        return Collections.unmodifiableList(CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList());
+        return Collections.unmodifiableList(BANLIST);
     }
 
     /**
+     * Gets the current whitelist
      *
      * @return the list of players in the whitelist
      */
@@ -107,6 +122,8 @@ public final class Access {
     }
 
     /**
+     * Sets the current banlist list
+     *
      * @param list the list to save to the configuration
      */
     public synchronized void setBanlist(List<String> list) {
@@ -114,6 +131,8 @@ public final class Access {
     }
 
     /**
+     * Sets the current whitelist list
+     *
      * @param list the list to save to the configuration
      */
     public synchronized void setWhitelist(List<String> list) {
@@ -121,29 +140,47 @@ public final class Access {
     }
 
     /**
+     * Adds or removes a player to/from the banlist
+     *
      * @param name the player name
      * @param add if true it will add the player to the banlist, otherwise it will remove them
      * @return if the player was successfully added or removed
      */
     public synchronized boolean ban(String name, boolean add) {
         if (add) {
-            return CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList().add(name);
+            if (!BANLIST.contains(name) && BANLIST.add(name)) {
+                setBanlist(BANLIST);
+                return true;
+            }
         } else {
-            return CONFIGURATION.getChild(BANLIST_KEY).getChild(LIST_KEY).getStringList().remove(name);
+            if (BANLIST.remove(name)) {
+                setBanlist(BANLIST);
+                return true;
+            }
         }
+        return false;
     }
 
     /**
+     * Adds or removes a player to/from the whitelist
+     *
      * @param name the player name
      * @param add if true it will add the player to the whitelist, otherwise it will remove them
      * @return if the player was successfully added or removed
      */
     public synchronized boolean whitelist(String name, boolean add) {
         if (add) {
-            return CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList().add(name);
+            if (!WHITELIST.contains(name) && WHITELIST.add(name)) {
+                setWhitelist(WHITELIST);
+                return true;
+            }
         } else {
-            return CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList().remove(name);
+            if (WHITELIST.remove(name)) {
+                setWhitelist(WHITELIST);
+                return true;
+            }
         }
+        return false;
     }
 
     /**

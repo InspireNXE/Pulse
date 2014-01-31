@@ -76,6 +76,7 @@ dependencies {
     compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.50'
     compile 'org.spout:cereal:1.0.0-SNAPSHOT'
     compile 'net.sf.jopt-simple:jopt-simple:4.6'
     testCompile 'junit:junit:4.11'
