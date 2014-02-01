@@ -93,6 +93,9 @@ processResources {
 shadow {
     artifactAttached = false
     exclude 'junit/**'
+    exclude 'META-INF/*.SF'
+    exclude 'META-INF/*.DSA'
+    exclude 'META-INF/*.RSA'
 }
 
 // License header formatting
