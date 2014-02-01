@@ -42,7 +42,7 @@ public class HandshakeCodec implements Codec<HandshakeMessage> {
     }
 
     @Override
-    public void encode(ByteBuf buf, HandshakeMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buf, HandshakeMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a handshake from the server!");
     }
 }

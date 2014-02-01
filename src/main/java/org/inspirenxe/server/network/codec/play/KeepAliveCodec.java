@@ -37,8 +37,9 @@ public class KeepAliveCodec implements Codec<KeepAliveMessage> {
     }
 
     @Override
-    public void encode(ByteBuf buf, KeepAliveMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buf, KeepAliveMessage message) throws IOException {
         buf.writeInt(message.getId());
+        return buf;
     }
 }
 

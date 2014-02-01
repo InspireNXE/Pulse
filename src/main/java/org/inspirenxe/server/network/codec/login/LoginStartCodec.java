@@ -38,7 +38,7 @@ public class LoginStartCodec implements Codec<LoginStartMessage> {
     }
 
     @Override
-    public void encode(ByteBuf buf, LoginStartMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buf, LoginStartMessage message) throws IOException {
         throw new IOException("The Minecraft client should not receive a login start from the server!");
     }
 }
