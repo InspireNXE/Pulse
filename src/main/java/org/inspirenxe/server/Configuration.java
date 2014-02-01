@@ -25,7 +25,7 @@ package org.inspirenxe.server;
 
 import java.nio.file.Path;
 
-import org.spout.cereal.config.yaml.YamlConfiguration;
+import com.flowpowered.cerealization.config.yaml.YamlConfiguration;
 
 public class Configuration extends YamlConfiguration {
     private static final String ADDRESS_KEY = "address";
