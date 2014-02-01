@@ -37,9 +37,10 @@ public class LoginSuccessCodec implements Codec<LoginSuccessMessage> {
     }
 
     @Override
-    public void encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
+    public ByteBuf encode(ByteBuf buf, LoginSuccessMessage message) throws IOException {
         ByteBufUtils.writeUTF8(buf, message.getUuid());
         ByteBufUtils.writeUTF8(buf, message.getUsername());
+        return buf;
     }
 }
 
