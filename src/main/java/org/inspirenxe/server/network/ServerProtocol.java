@@ -26,6 +26,7 @@ package org.inspirenxe.server.network;
 import java.io.IOException;
 
 import com.flowpowered.networking.Codec;
+import com.flowpowered.networking.Codec.CodecRegistration;
 import com.flowpowered.networking.Message;
 import com.flowpowered.networking.MessageHandler;
 import com.flowpowered.networking.exception.IllegalOpcodeException;
@@ -46,13 +47,13 @@ public class ServerProtocol extends KeyedProtocol {
      */
     protected static final String OUTBOUND = "OUTBOUND";
     /**
-     * The server's protocol version.
+     * The protocol's version.
      */
     public static final int VERSION = 4;
     private final Game game;
 
     public ServerProtocol(Game game, String name, int highestOpcode) {
-        super(name, game.getConfiguration().getPort(), highestOpcode + 1);
+        super(name, highestOpcode + 1);
         this.game = game;
     }
 
@@ -68,7 +69,7 @@ public class ServerProtocol extends KeyedProtocol {
         try {
             length = ByteBufUtils.readVarInt(buf);
             opcode = ByteBufUtils.readVarInt(buf);
-            return getCodecLookupService(INBOUND).find(opcode).getCodec();
+            return getCodecLookupService(INBOUND).find(opcode);
         } catch (IOException e) {
             throw new UnknownPacketException("Failed to read packet data (corrupt?)", opcode, length);
         } catch (IllegalOpcodeException e) {
@@ -77,17 +78,18 @@ public class ServerProtocol extends KeyedProtocol {
     }
 
     @Override
-    public <M extends Message> Codec.CodecRegistration getCodecRegistration(Class<M> clazz) {
+    public <M extends Message> CodecRegistration getCodecRegistration(Class<M> clazz) {
         return getCodecLookupService(OUTBOUND).find(clazz);
     }
 
     @Override
-    public void writeHeader(ByteBuf out, Codec.CodecRegistration codec, ByteBuf data) {
+    public ByteBuf writeHeader(ByteBuf out, CodecRegistration codec, ByteBuf data) {
         final int length = data.readableBytes();
         final ByteBuf opcodeBuffer = Unpooled.buffer();
         ByteBufUtils.writeVarInt(opcodeBuffer, codec.getOpcode());
         ByteBufUtils.writeVarInt(out, length + opcodeBuffer.readableBytes());
         ByteBufUtils.writeVarInt(out, codec.getOpcode());
+        return out;
     }
 
     public Game getGame() {
