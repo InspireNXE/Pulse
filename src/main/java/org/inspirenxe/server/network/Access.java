@@ -43,6 +43,7 @@ public final class Access {
     private static final String BANLIST_KEY = "banlist";
     private static final String ENABLED_KEY = "enabled";
     private static final String LIST_KEY = "list";
+    private static final String MESSAGE_KEY = "message";
     private static final String WHITELIST_KEY = "whitelist";
     private static final YamlConfiguration CONFIGURATION = new YamlConfiguration(ACCESS_PATH.toFile());
     private final Game game;
@@ -119,6 +120,24 @@ public final class Access {
      */
     public synchronized List<String> getWhitelist() {
         return Collections.unmodifiableList(WHITELIST);
+    }
+
+    /**
+     * Gets the banlist message.
+     *
+     * @return The banlist message.
+     */
+    public synchronized String getBanlistMessage() {
+        return CONFIGURATION.getChild(BANLIST_KEY).getChild(MESSAGE_KEY).getString();
+    }
+
+    /**
+     * Gets the whitelist message.
+     *
+     * @return The whitelist message.
+     */
+    public synchronized String getWhitelistMessage() {
+        return CONFIGURATION.getChild(WHITELIST_KEY).getChild(MESSAGE_KEY).getString();
     }
 
     /**

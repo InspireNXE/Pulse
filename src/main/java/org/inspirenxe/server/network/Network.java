@@ -126,13 +126,13 @@ public class Network extends TickingElement {
     private void handleLoginStart(LoginStartMessage message) {
         if (access.isBanlistEnabled()) {
             if (access.isBanned(message.getUsername())) {
-                message.getSession().sendWithFuture(new DisconnectMessage("You have been banned from this server!")).addListener(ChannelFutureListener.CLOSE);
+                message.getSession().sendWithFuture(new DisconnectMessage(access.getBanlistMessage())).addListener(ChannelFutureListener.CLOSE);
                 return;
             }
         }
         if (access.isWhitelistEnabled()) {
             if (!access.isWhitelisted(message.getUsername())) {
-                message.getSession().sendWithFuture(new DisconnectMessage("You are not whitelisted for this server!")).addListener(ChannelFutureListener.CLOSE);
+                message.getSession().sendWithFuture(new DisconnectMessage(access.getWhitelistMessage())).addListener(ChannelFutureListener.CLOSE);
                 return;
             }
         }
