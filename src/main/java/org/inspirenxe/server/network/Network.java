@@ -33,9 +33,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import com.flowpowered.commons.ticking.TickingElement;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
+import io.netty.channel.ChannelFutureListener;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.network.message.ChannelMessage;
 import org.inspirenxe.server.network.message.ChannelMessage.Channel;
+import org.inspirenxe.server.network.message.DisconnectMessage;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
@@ -122,6 +124,18 @@ public class Network extends TickingElement {
 
     @Handle
     private void handleLoginStart(LoginStartMessage message) {
+        if (access.isBanlistEnabled()) {
+            if (access.isBanned(message.getUsername())) {
+                message.getSession().sendWithFuture(new DisconnectMessage("You have been banned from this server!")).addListener(ChannelFutureListener.CLOSE);
+                return;
+            }
+        }
+        if (access.isWhitelistEnabled()) {
+            if (!access.isWhitelisted(message.getUsername())) {
+                message.getSession().sendWithFuture(new DisconnectMessage("You are not whitelisted for this server!")).addListener(ChannelFutureListener.CLOSE);
+                return;
+            }
+        }
         message.getSession().setUUID(new UUID(0, message.getUsername().hashCode()).toString());
         message.getSession().send(new LoginSuccessMessage(message.getSession().getUUID(), message.getUsername()));
         message.getSession().setProtocol(new PlayProtocol(game));

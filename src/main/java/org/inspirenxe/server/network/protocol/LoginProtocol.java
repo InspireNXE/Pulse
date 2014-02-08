@@ -33,7 +33,7 @@ import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 
 public class LoginProtocol extends ServerProtocol {
     public LoginProtocol(Game game) {
-        super(game, "login", 3);
+        super(game, "login", 0x02);
 
         inbound(0x00, LoginStartMessage.class, LoginStartCodec.class);
 

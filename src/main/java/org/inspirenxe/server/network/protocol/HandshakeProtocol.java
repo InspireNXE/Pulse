@@ -29,7 +29,7 @@ import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 
 public class HandshakeProtocol extends ServerProtocol {
     public HandshakeProtocol(Game game) {
-        super(game, "handshake", 1);
+        super(game, "handshake", 0x00);
         inbound(0x00, HandshakeMessage.class, HandshakeCodec.class);
     }
 }

@@ -52,8 +52,8 @@ public class ServerProtocol extends KeyedProtocol {
     public static final int VERSION = 4;
     private final Game game;
 
-    protected ServerProtocol(Game game, String name, int packetAmount) {
-        super(name, packetAmount);
+    protected ServerProtocol(Game game, String name, int highestOpcode) {
+        super(name, highestOpcode + 1);
         this.game = game;
     }
 
