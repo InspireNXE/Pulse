@@ -41,20 +41,28 @@ public class ServerProtocol extends KeyedProtocol {
     /**
      * From Client
      */
-    protected static final String INBOUND = "INBOUND";
+    private static final String INBOUND = "INBOUND";
     /**
      * To Client
      */
-    protected static final String OUTBOUND = "OUTBOUND";
+    private static final String OUTBOUND = "OUTBOUND";
     /**
      * The protocol's version.
      */
     public static final int VERSION = 4;
     private final Game game;
 
-    protected ServerProtocol(Game game, String name, int highestOpcode) {
-        super(name, highestOpcode + 1);
+    protected ServerProtocol(Game game, String name, int packetAmount) {
+        super(name, packetAmount);
         this.game = game;
+    }
+
+    protected <M extends Message, C extends Codec<? super M>> void inbound(int opcode, Class<M> message, Class<C> codec) {
+        registerMessage(INBOUND, message, codec, null, opcode);
+    }
+
+    protected <M extends Message, C extends Codec<? super M>> void outbound(int opcode, Class<M> message, Class<C> codec) {
+        registerMessage(OUTBOUND, message, codec, null, opcode);
     }
 
     @Override

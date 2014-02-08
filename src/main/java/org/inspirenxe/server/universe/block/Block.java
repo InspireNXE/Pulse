@@ -25,7 +25,7 @@ package org.inspirenxe.server.universe.block;
 
 import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.universe.block.material.Material;
+import org.inspirenxe.server.universe.material.Material;
 import org.inspirenxe.server.universe.world.Chunk;
 
 /**

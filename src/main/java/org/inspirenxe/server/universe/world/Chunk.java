@@ -29,7 +29,7 @@ import com.flowpowered.commons.store.block.AtomicBlockStore.DataMask;
 import com.flowpowered.commons.store.block.impl.AtomicPaletteBlockStore;
 import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.universe.block.Block;
-import org.inspirenxe.server.universe.block.material.Material;
+import org.inspirenxe.server.universe.material.Material;
 
 /**
  *

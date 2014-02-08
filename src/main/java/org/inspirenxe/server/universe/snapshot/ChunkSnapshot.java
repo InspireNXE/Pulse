@@ -30,7 +30,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.flowpowered.commons.store.block.AtomicBlockStore;
 import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.universe.block.Block;
-import org.inspirenxe.server.universe.block.material.Material;
+import org.inspirenxe.server.universe.material.Material;
 import org.inspirenxe.server.universe.world.Chunk;
 
 /**

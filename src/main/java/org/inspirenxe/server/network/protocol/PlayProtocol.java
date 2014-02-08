@@ -33,11 +33,13 @@ import org.inspirenxe.server.network.message.play.KeepAliveMessage;
 
 public class PlayProtocol extends ServerProtocol {
     public PlayProtocol(Game game) {
-        super(game, "play", 64);
-        registerMessage(INBOUND, KeepAliveMessage.class, KeepAliveCodec.class, null, 0);
-        registerMessage(OUTBOUND, KeepAliveMessage.class, KeepAliveCodec.class, null, 0);
-        registerMessage(OUTBOUND, JoinGameMessage.class, JoinGameCodec.class, null, 1);
-        registerMessage(OUTBOUND, DisconnectMessage.class, DisconnectCodec.class, null, 40);
+        super(game, "play", 4);
+
+        inbound(0x00, KeepAliveMessage.class, KeepAliveCodec.class);
+
+        outbound(0x00, KeepAliveMessage.class, KeepAliveCodec.class);
+        outbound(0x01, JoinGameMessage.class, JoinGameCodec.class);
+        outbound(0x40, DisconnectMessage.class, DisconnectCodec.class);
     }
 }
 

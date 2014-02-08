@@ -23,18 +23,15 @@
  */
 package org.inspirenxe.server.universe;
 
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.flowpowered.commons.ticking.TickingElement;
-import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.universe.block.material.MaterialRegistry;
+import org.inspirenxe.server.universe.material.MaterialRegistry;
 import org.inspirenxe.server.universe.snapshot.WorldSnapshot;
-import org.inspirenxe.server.universe.world.Chunk;
 import org.inspirenxe.server.universe.world.World;
 
 /**

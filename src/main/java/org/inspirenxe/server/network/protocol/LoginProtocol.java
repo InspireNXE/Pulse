@@ -33,10 +33,12 @@ import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
 
 public class LoginProtocol extends ServerProtocol {
     public LoginProtocol(Game game) {
-        super(game, "login", 2);
-        registerMessage(INBOUND, LoginStartMessage.class, LoginStartCodec.class, null, 0);
-        registerMessage(OUTBOUND, DisconnectMessage.class, DisconnectCodec.class, null, 0);
-        registerMessage(OUTBOUND, LoginSuccessMessage.class, LoginSuccessCodec.class, null, 2);
+        super(game, "login", 3);
+
+        inbound(0x00, LoginStartMessage.class, LoginStartCodec.class);
+
+        outbound(0x00, DisconnectMessage.class, DisconnectCodec.class);
+        outbound(0x02, LoginSuccessMessage.class, LoginSuccessCodec.class);
     }
 }
 

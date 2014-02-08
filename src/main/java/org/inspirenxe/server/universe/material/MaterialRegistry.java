@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.universe.block.material;
+package org.inspirenxe.server.universe.material;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
