@@ -43,11 +43,11 @@ public class Commands {
     @CommandDescription (name = "banlist", usage = "banlist <argument>", desc = "Manages the banlist", help = "Use this command to manage the banlist.")
     @Permissible ("game.command.banlist")
     private void onCommandBanlist(CommandSender sender, CommandArguments args) throws CommandException {
+        final Access access = game.getNetwork().getAccess();
         if (args.remaining() < 1) {
-            sender.sendMessage("Invalid arguments.");
+            sender.sendMessage("Current banlist: " + access.getBanlist().toString().replace("[", "").replace("]", ""));
             return;
         }
-        final Access access = game.getNetwork().getAccess();
         switch (args.popString("ARGUMENT").toUpperCase()) {
             case "ADD":
                 if (args.remaining() < 1) {
@@ -61,8 +61,9 @@ public class Commands {
                     sender.sendMessage(addedName + " is already on the banlist.");
                 }
                 break;
-            case "LIST":
-                sender.sendMessage("Current banlist: " + access.getBanlist().toString().replace("[", "").replace("]", ""));
+            case "CLEAR":
+                access.clearBanlist();
+                sender.sendMessage("Banlist has been temporarily cleared.");
                 break;
             case "OFF":
                 access.setBanlistEnabled(false);
@@ -118,11 +119,11 @@ public class Commands {
     @CommandDescription (name = "whitelist", usage = "whitelist <argument>", desc = "Manages the whitelist", help = "Use this command to manage the whitelist.")
     @Permissible ("game.command.whitelist")
     private void onCommandWhitelist(CommandSender sender, CommandArguments args) throws CommandException {
+        final Access access = game.getNetwork().getAccess();
         if (args.remaining() < 1) {
-            sender.sendMessage("Invalid arguments.");
+            sender.sendMessage("Current whitelist: " + access.getWhitelist().toString().replace("[", "").replace("]", ""));
             return;
         }
-        final Access access = game.getNetwork().getAccess();
         switch (args.popString("ARGUMENT").toUpperCase()) {
             case "ADD":
                 if (args.remaining() < 1) {
@@ -136,8 +137,9 @@ public class Commands {
                     sender.sendMessage(addedName + " is already on the whitelist.");
                 }
                 break;
-            case "LIST":
-                sender.sendMessage("Current whitelist: " + access.getWhitelist().toString().replace("[", "").replace("]", ""));
+            case "CLEAR":
+                access.clearBanlist();
+                sender.sendMessage("Whitelist has been temporarily cleared.");
                 break;
             case "OFF":
                 access.setWhitelistEnabled(false);

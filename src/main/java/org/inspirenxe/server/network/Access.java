@@ -118,7 +118,7 @@ public final class Access {
      * @return The list of players in the whitelist.
      */
     public synchronized List<String> getWhitelist() {
-        return Collections.unmodifiableList(CONFIGURATION.getChild(WHITELIST_KEY).getChild(LIST_KEY).getStringList());
+        return Collections.unmodifiableList(WHITELIST);
     }
 
     /**
@@ -167,6 +167,20 @@ public final class Access {
             }
         }
         return false;
+    }
+
+    /**
+     * Clears the banlist
+     */
+    public synchronized void clearBanlist() {
+        BANLIST.clear();
+    }
+
+    /**
+     * Clears the whitelist
+     */
+    public synchronized void clearWhitelist() {
+        WHITELIST.clear();
     }
 
     /**
