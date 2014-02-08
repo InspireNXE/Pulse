@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import com.flowpowered.commons.ticking.TickingElement;
 import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.Game;
+import org.inspirenxe.server.universe.block.material.MaterialRegistry;
 import org.inspirenxe.server.universe.snapshot.WorldSnapshot;
 import org.inspirenxe.server.universe.world.Chunk;
 import org.inspirenxe.server.universe.world.World;
@@ -45,6 +46,7 @@ public class Universe extends TickingElement {
     private static final int MAX_CHUNK_COLUMN_SECTIONS = 16;
     private static final byte[] UNLOAD_CHUNKS_IN_COLUMN = {0x78, (byte) 0x9C, 0x63, 0x64, 0x1C, (byte) 0xD9, 0x00, 0x00, (byte) 0x81, (byte) 0x80, 0x01, 0x01};
     private final Game game;
+    private final MaterialRegistry materialRegistry;
     private final Map<UUID, World> worlds = new ConcurrentHashMap<>();
     private final Map<UUID, WorldSnapshot> worldSnapshots = new ConcurrentHashMap<>();
     private final Map<String, UUID> worldIDsByName = new ConcurrentHashMap<>();
@@ -52,24 +54,13 @@ public class Universe extends TickingElement {
     public Universe(Game game) {
         super("universe", TPS);
         this.game = game;
+        materialRegistry = new MaterialRegistry(game);
     }
 
     @Override
     public void onStart() {
         game.getLogger().info("Starting universe");
-
-        // TEST CODE
-        final short[] chunkIDs = new short[Chunk.BLOCKS.VOLUME];
-        Arrays.fill(chunkIDs, Materials.SOLID.getID());
-        final short[] chunkSubIDs = new short[Chunk.BLOCKS.VOLUME];
-        final World world = new World("test");
-
-        for (int xx = -2; xx < 2; xx++) {
-            for (int zz = -2; zz < 2; zz++) {
-                world.setChunk(new Chunk(world, new Vector3i(xx, 0, zz), chunkIDs, chunkSubIDs));
-            }
-        }
-        addWorld(world);
+        // TODO Load Minecraft default materials
     }
 
     @Override
@@ -87,6 +78,10 @@ public class Universe extends TickingElement {
 
     public Game getGame() {
         return game;
+    }
+
+    public MaterialRegistry getMaterials() {
+        return materialRegistry;
     }
 
     public WorldSnapshot getWorldSnapshot(UUID id) {

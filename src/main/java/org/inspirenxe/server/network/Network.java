@@ -34,7 +34,8 @@ import com.flowpowered.commons.ticking.TickingElement;
 import com.flowpowered.networking.util.AnnotatedMessageHandler;
 import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.ChannelMessage.Channel;
+import org.inspirenxe.server.network.message.ChannelMessage;
+import org.inspirenxe.server.network.message.ChannelMessage.Channel;
 import org.inspirenxe.server.network.message.handshake.HandshakeMessage;
 import org.inspirenxe.server.network.message.login.LoginStartMessage;
 import org.inspirenxe.server.network.message.login.LoginSuccessMessage;
@@ -85,7 +86,7 @@ public class Network extends TickingElement {
     }
 
     /**
-     * Gets the {@link java.util.Iterator} storing the messages for the {@link ChannelMessage.Channel}
+     * Gets the {@link java.util.Iterator} storing the messages for the {@link Channel}
      *
      * @param c See {@link ChannelMessage}
      * @return The iterator
@@ -95,9 +96,9 @@ public class Network extends TickingElement {
     }
 
     /**
-     * Offers a {@link ChannelMessage} to a queue mapped to {@link ChannelMessage.Channel}
+     * Offers a {@link ChannelMessage} to a queue mapped to {@link Channel}
      *
-     * @param c See {@link ChannelMessage.Channel}
+     * @param c See {@link Channel}
      * @param m See {@link ChannelMessage}
      */
     public void offer(Channel c, ChannelMessage m) {

@@ -43,7 +43,7 @@ public class Block {
     }
 
     public Block(Game game, Vector3i position, short id, short data) {
-        this(game, position, Material.get(id, Chunk.SUB_ID_MASK.extract(data)), Chunk.BLOCK_LIGHT_MASK.extract(data), Chunk.BLOCK_SKY_LIGHT_MASK.extract(data));
+        this(game, position, game.getUniverse().getMaterials().get(id, Chunk.SUB_ID_MASK.extract(data)), Chunk.BLOCK_LIGHT_MASK.extract(data), Chunk.BLOCK_SKY_LIGHT_MASK.extract(data));
     }
 
     public Block(Game game, Vector3i position, Material material, short blockLight, short blockSkyLight) {
@@ -52,6 +52,10 @@ public class Block {
         this.material = material;
         this.blockLight = blockLight;
         this.blockSkyLight = blockSkyLight;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public Material getMaterial() {

@@ -23,7 +23,7 @@
  */
 package org.inspirenxe.server.network.message.play;
 
-import org.inspirenxe.server.network.ChannelMessage;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
 public class KeepAliveMessage extends ChannelMessage {
     private static final Channel[] CHANNELS = new Channel[] {Channel.NETWORK};

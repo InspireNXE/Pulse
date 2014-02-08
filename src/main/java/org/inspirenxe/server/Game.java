@@ -30,6 +30,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.inspirenxe.server.input.Input;
 import org.inspirenxe.server.network.Network;
+import org.inspirenxe.server.universe.Universe;
 
 public class Game {
     private static final String version;
@@ -40,6 +41,7 @@ public class Game {
     private final Logger logger;
     private final Input input;
     private final Network network;
+    private final Universe universe;
 
     static {
         version = Game.class.getPackage().getImplementationVersion();
@@ -50,18 +52,21 @@ public class Game {
         logger = LogManager.getLogger(configuration.getName());
         input = new Input(this);
         network = new Network(this);
+        universe = new Universe(this);
     }
 
     private void start() {
         logger.info("Starting game, running version " + version + ", please wait a moment");
         input.start();
         network.start();
+        universe.start();
     }
 
     private void stop() {
         logger.info("Stopping game, please wait a moment");
         input.stop();
         network.stop();
+        universe.stop();
     }
 
     public Configuration getConfiguration() {
@@ -78,6 +83,10 @@ public class Game {
 
     public Network getNetwork() {
         return network;
+    }
+
+    public Universe getUniverse() {
+        return universe;
     }
 
     public String getVersion() {

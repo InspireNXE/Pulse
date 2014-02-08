@@ -24,7 +24,6 @@
 package org.inspirenxe.server.network.protocol;
 
 import org.inspirenxe.server.Game;
-import org.inspirenxe.server.network.ServerProtocol;
 import org.inspirenxe.server.network.codec.DisconnectCodec;
 import org.inspirenxe.server.network.codec.login.LoginStartCodec;
 import org.inspirenxe.server.network.codec.login.LoginSuccessCodec;

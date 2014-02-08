@@ -87,7 +87,7 @@ public class Chunk {
     }
 
     public Block getBlock(Vector3i position) {
-        return new Block(position, blocks.getFullData(position.getX() & BLOCKS.MASK, position.getY() & BLOCKS.MASK, position.getZ() & BLOCKS.MASK));
+        return new Block(world.getGame(), position, blocks.getFullData(position.getX() & BLOCKS.MASK, position.getY() & BLOCKS.MASK, position.getZ() & BLOCKS.MASK));
     }
 
     public Material getMaterial(Vector3i position) {
@@ -103,7 +103,7 @@ public class Chunk {
     }
 
     public void setMaterial(int x, int y, int z, Material material) {
-        blocks.setBlock(x & BLOCKS.MASK, y & BLOCKS.MASK, z & BLOCKS.MASK, material.getID(), material.getSubID(), SUB_ID_MASK);
+        blocks.setBlock(x & BLOCKS.MASK, y & BLOCKS.MASK, z & BLOCKS.MASK, material.getId(), material.getChildId(), SUB_ID_MASK);
     }
 
     public short getBlockLight(Vector3i position) {
@@ -162,6 +162,6 @@ public class Chunk {
     }
 
     private Material getPacked(int packed) {
-        return Material.get((short) (packed >> 16), SUB_ID_MASK.extract((short) packed));
+        return world.getGame().getUniverse().getMaterials().get((short) (packed >> 16), SUB_ID_MASK.extract((short) packed));
     }
 }

@@ -23,7 +23,7 @@
  */
 package org.inspirenxe.server.network.message.login;
 
-import org.inspirenxe.server.network.ChannelMessage;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
 public class LoginSuccessMessage extends ChannelMessage {
     private final String uuid;

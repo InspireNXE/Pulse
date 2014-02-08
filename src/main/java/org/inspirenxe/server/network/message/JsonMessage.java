@@ -24,7 +24,6 @@
 package org.inspirenxe.server.network.message;
 
 import com.google.gson.JsonObject;
-import org.inspirenxe.server.network.ChannelMessage;
 
 public abstract class JsonMessage extends ChannelMessage {
     private final JsonObject message;

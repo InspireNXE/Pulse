@@ -24,7 +24,7 @@
 package org.inspirenxe.server.network.message.handshake;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
-import org.inspirenxe.server.network.ChannelMessage;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
 /**
  * Server-bound message that initiates the connection process to the server

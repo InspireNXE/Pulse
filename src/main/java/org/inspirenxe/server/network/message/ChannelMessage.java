@@ -21,9 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network;
+package org.inspirenxe.server.network.message;
 
 import com.flowpowered.networking.Message;
+import org.inspirenxe.server.network.ServerSession;
 
 public abstract class ChannelMessage implements Message {
     private final Channel[] channels;
@@ -42,7 +43,7 @@ public abstract class ChannelMessage implements Message {
         return true;
     }
 
-    protected void setSession(ServerSession session) {
+    public void setSession(ServerSession session) {
         if (this.session != null) {
             throw new IllegalArgumentException("Attempt made to set session twice on message!");
         }

@@ -28,6 +28,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 import com.flowpowered.math.vector.Vector3i;
+import org.inspirenxe.server.Game;
 import org.inspirenxe.server.game.Difficulty;
 import org.inspirenxe.server.game.Dimension;
 import org.inspirenxe.server.game.GameMode;
@@ -37,6 +38,8 @@ import org.inspirenxe.server.game.LevelType;
  *
  */
 public class World {
+    private final Game game;
+
     // Storage
     private final Map<Vector3i, Chunk> chunks = new ConcurrentHashMap<>();
     private final UUID id;
@@ -48,25 +51,30 @@ public class World {
     private Difficulty difficulty;
     private LevelType levelType;
 
-    public World(String name) {
-        this(UUID.randomUUID(), name);
+    public World(Game game, String name) {
+        this(game, UUID.randomUUID(), name);
     }
 
-    public World(UUID id, String name) {
-        this(id, name, GameMode.SURVIVAL, Dimension.NORMAL, Difficulty.NORMAL, LevelType.DEFAULT);
+    public World(Game game, UUID id, String name) {
+        this(game, id, name, GameMode.SURVIVAL, Dimension.NORMAL, Difficulty.NORMAL, LevelType.DEFAULT);
     }
 
-    public World(String name, GameMode gameMode, Dimension dimension, Difficulty difficulty, LevelType levelType) {
-        this(UUID.randomUUID(), name, gameMode, dimension, difficulty, levelType);
+    public World(Game game, String name, GameMode gameMode, Dimension dimension, Difficulty difficulty, LevelType levelType) {
+        this(game, UUID.randomUUID(), name, gameMode, dimension, difficulty, levelType);
     }
 
-    public World(UUID id, String name, GameMode gameMode, Dimension dimension, Difficulty difficulty, LevelType levelType) {
+    public World(Game game, UUID id, String name, GameMode gameMode, Dimension dimension, Difficulty difficulty, LevelType levelType) {
+        this.game = game;
         this.id = id;
         this.name = name;
         this.gameMode = gameMode;
         this.difficulty = difficulty;
         this.dimension = dimension;
         this.levelType = levelType;
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public UUID getID() {

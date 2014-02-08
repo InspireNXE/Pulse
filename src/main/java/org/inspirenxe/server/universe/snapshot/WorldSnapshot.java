@@ -36,6 +36,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.flowpowered.commons.map.TripleIntObjectMap;
 import com.flowpowered.commons.map.impl.TTripleInt21ObjectHashMap;
 import com.flowpowered.math.vector.Vector3i;
+import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.world.Chunk;
 import org.inspirenxe.server.universe.world.World;
 
@@ -44,14 +45,20 @@ import org.inspirenxe.server.universe.world.World;
  */
 public class WorldSnapshot {
     private final TripleIntObjectMap<ChunkSnapshot> chunks = new TTripleInt21ObjectHashMap<>();
+    private final Game game;
     private final UUID id;
     private final String name;
     private long updateNumber = 0;
     private final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 
     public WorldSnapshot(World world) {
+        game = world.getGame();
         this.id = world.getID();
         this.name = world.getName();
+    }
+
+    public Game getGame() {
+        return game;
     }
 
     public UUID getID() {

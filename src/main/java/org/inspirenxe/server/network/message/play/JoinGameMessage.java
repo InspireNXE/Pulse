@@ -27,7 +27,7 @@ import org.inspirenxe.server.game.Difficulty;
 import org.inspirenxe.server.game.Dimension;
 import org.inspirenxe.server.game.GameMode;
 import org.inspirenxe.server.game.LevelType;
-import org.inspirenxe.server.network.ChannelMessage;
+import org.inspirenxe.server.network.message.ChannelMessage;
 
 public class JoinGameMessage extends ChannelMessage {
     private final int playerId;

@@ -74,7 +74,7 @@ public class ChunkSnapshot {
         lock.lock();
         try {
             final int index = getBlockIndex(position);
-            return new Block(position, blockIDs[index], blockData[index]);
+            return new Block(world.getGame(), position, blockIDs[index], blockData[index]);
         } finally {
             lock.unlock();
         }
@@ -93,7 +93,7 @@ public class ChunkSnapshot {
         lock.lock();
         try {
             final int index = getBlockIndex(x, y, z);
-            return Material.get(blockIDs[index], Chunk.SUB_ID_MASK.extract(blockData[index]));
+            return world.getGame().getUniverse().getMaterials().get(blockIDs[index], Chunk.SUB_ID_MASK.extract(blockData[index]));
         } finally {
             lock.unlock();
         }

@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network;
+package org.inspirenxe.server.network.protocol;
 
 import java.io.IOException;
 
@@ -52,7 +52,7 @@ public class ServerProtocol extends KeyedProtocol {
     public static final int VERSION = 4;
     private final Game game;
 
-    public ServerProtocol(Game game, String name, int highestOpcode) {
+    protected ServerProtocol(Game game, String name, int highestOpcode) {
         super(name, highestOpcode + 1);
         this.game = game;
     }
@@ -68,11 +68,13 @@ public class ServerProtocol extends KeyedProtocol {
         int opcode = -1;
         try {
             length = ByteBufUtils.readVarInt(buf);
+            buf.markReaderIndex();
             opcode = ByteBufUtils.readVarInt(buf);
             return getCodecLookupService(INBOUND).find(opcode);
         } catch (IOException e) {
             throw new UnknownPacketException("Failed to read packet data (corrupt?)", opcode, length);
         } catch (IllegalOpcodeException e) {
+            buf.resetReaderIndex();
             throw new UnknownPacketException("Opcode received is not a registered codec on the server!", opcode, length);
         }
     }
