@@ -138,7 +138,7 @@ public class Commands {
                 }
                 break;
             case "CLEAR":
-                access.clearBanlist();
+                access.clearWhitelist();
                 sender.sendMessage("Whitelist has been temporarily cleared.");
                 break;
             case "OFF":
