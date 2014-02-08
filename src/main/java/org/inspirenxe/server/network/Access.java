@@ -32,8 +32,8 @@ import java.util.List;
 
 import org.inspirenxe.server.Game;
 
-import org.spout.cereal.config.ConfigurationException;
-import org.spout.cereal.config.yaml.YamlConfiguration;
+import com.flowpowered.cerealization.config.ConfigurationException;
+import com.flowpowered.cerealization.config.yaml.YamlConfiguration;
 
 public final class Access {
     private static final Path CONFIG_PATH = Paths.get("config");
