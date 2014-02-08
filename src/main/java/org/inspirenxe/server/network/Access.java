@@ -70,7 +70,7 @@ public final class Access {
     /**
      * Checks if the banlist is enabled.
      *
-     * @return true if the banlist is enabled, false if not.
+     * @return True if the banlist is enabled, false if not.
      */
     public synchronized boolean isBanlistEnabled() {
         return CONFIGURATION.getChild(BANLIST_KEY).getChild(ENABLED_KEY).getBoolean();
@@ -79,7 +79,7 @@ public final class Access {
     /**
      * Checks if the whitelist is enabled.
      *
-     * @return true if the whitelist is enabled, false if not.
+     * @return True if the whitelist is enabled, false if not.
      */
     public synchronized boolean isWhitelistEnabled() {
         return CONFIGURATION.getChild(WHITELIST_KEY).getChild(ENABLED_KEY).getBoolean();
