@@ -27,16 +27,17 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.BlockMaterial;
 
 public class Dirt extends BlockMaterial {
-    private static final String NAME = "minecraft:dirt";
     private static final float HARDNESS = 0.5f;
+    private static final short ID = 3;
+    private static final String NAME = "dirt";
 
-    public Dirt(Game game, String name) {
+    public Dirt(Game game) {
         super(game, NAME);
         setHardness(HARDNESS);
     }
 
     @Override
     public short getId() {
-        return 3;
+        return ID;
     }
 }

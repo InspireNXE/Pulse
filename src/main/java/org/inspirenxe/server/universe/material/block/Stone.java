@@ -27,11 +27,12 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.BlockMaterial;
 
 public class Stone extends BlockMaterial {
-    private static final String NAME = "minecraft:stone";
     private static final float HARDNESS = 1.5f;
     private static final float RESISTANCE = 10.0f;
+    private static final short ID = 1;
+    private static final String NAME = "stone";
 
-    public Stone(Game game, String name) {
+    public Stone(Game game) {
         super(game, NAME);
         setHardness(HARDNESS);
         setResistance(RESISTANCE);
@@ -39,6 +40,6 @@ public class Stone extends BlockMaterial {
 
     @Override
     public short getId() {
-        return 1;
+        return ID;
     }
 }

@@ -27,10 +27,11 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.BlockMaterial;
 
 public class Bedrock extends BlockMaterial {
-    private static final String NAME = "minecraft:bedrock";
     private static final float RESISTANCE = 6000000.0f;
+    private static final short ID = 7;
+    private static final String NAME = "bedrock";
 
-    public Bedrock(Game game, String name) {
+    public Bedrock(Game game) {
         super(game, NAME);
         setResistance(RESISTANCE);
         setUnbreakable();
@@ -38,6 +39,6 @@ public class Bedrock extends BlockMaterial {
 
     @Override
     public short getId() {
-        return 7;
+        return ID;
     }
 }

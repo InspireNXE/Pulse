@@ -27,16 +27,17 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.BlockMaterial;
 
 public class Grass extends BlockMaterial {
-    private static final String NAME = "minecraft:grass";
     private static final float HARDNESS = 0.6f;
+    private static final short ID = 2;
+    private static final String NAME = "grass";
 
-    public Grass(Game game, String name) {
+    public Grass(Game game) {
         super(game, NAME);
         setHardness(HARDNESS);
     }
 
     @Override
     public short getId() {
-        return 2;
+        return ID;
     }
 }

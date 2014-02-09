@@ -27,14 +27,15 @@ import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.block.BlockMaterial;
 
 public class Air extends BlockMaterial {
-    private static final String NAME = "minecraft:air";
+    private static final short ID = 0;
+    private static final String NAME = "air";
 
-    public Air(Game game, String name) {
+    public Air(Game game) {
         super(game, NAME);
     }
 
     @Override
     public short getId() {
-        return 0;
+        return ID;
     }
 }

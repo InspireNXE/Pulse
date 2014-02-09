@@ -34,28 +34,61 @@ public abstract class BlockMaterial extends Material {
         super(game, name);
     }
 
+    /**
+     * Gets the hardness value of the block.
+     *
+     * @return Hardness of the block.
+     */
     public float getHardness() {
         return hardness;
     }
 
+    /**
+     * Determines how many hits it will take to destroy the block.
+     * This should be called before setResistance if both are used on a block.
+     *
+     * @param value The float value to use for hardness.
+     * @return BlockMaterial for chaining.
+     */
     public BlockMaterial setHardness(float value) {
-        hardness = value;
+        hardness = hardness < value ? value * 5.0f : value;
         return this;
     }
 
+    /**
+     * Gets the explosion resistance value of the block.
+     *
+     * @return Resistance of the block.
+     */
     public float getResistance() {
         return resistance;
     }
 
+    /**
+     * Sets the resistances to explosions.
+     *
+     * @param value The float value to use for resistance.
+     * @return BlockMaterial for chaining.
+     */
     public BlockMaterial setResistance(float value) {
-        resistance = value;
+        resistance = value * 3.0f;
         return this;
     }
 
+    /**
+     * Check if a block is unbreakable.
+     *
+     * @return True if unbreakable, false if breakable.
+     */
     public boolean isUnbreakable() {
         return hardness == -1.0f;
     }
 
+    /**
+     * Sets the block as unbreakable.
+     *
+     * @return BlockMaterial for chaining.
+     */
     public BlockMaterial setUnbreakable() {
         hardness = -1.0f;
         return this;
