@@ -259,7 +259,7 @@ public class BlockFaces implements Iterable<BlockFace> {
      *
      * @param from the BlockFace to count
      * @return the face at the offset
-     * @see BlockFaces#previous(BlockFace from, int offset);
+     * @see BlockFaces#previous(BlockFace from, int offset)
      */
     public BlockFace previous(BlockFace from) {
         return previous(from, 1);
@@ -271,7 +271,7 @@ public class BlockFaces implements Iterable<BlockFace> {
      * @param from the BlockFace to count
      * @param offset index in this range
      * @return the face at the offset
-     * @see BlockFaces#next(BlockFace from, int offset);
+     * @see BlockFaces#next(BlockFace from, int offset)
      */
     public BlockFace previous(BlockFace from, int offset) {
         return this.next(from, -offset);
@@ -282,7 +282,7 @@ public class BlockFaces implements Iterable<BlockFace> {
      *
      * @param from the BlockFace to count
      * @return the face at the offset
-     * @see BlockFaces#next(BlockFace from, int offset);
+     * @see BlockFaces#next(BlockFace from, int offset)
      */
     public BlockFace next(BlockFace from) {
         return next(from, 1);
