@@ -39,7 +39,6 @@ import org.inspirenxe.server.game.LevelType;
  */
 public class World {
     private final Game game;
-
     // Storage
     private final Map<Vector3i, Chunk> chunks = new ConcurrentHashMap<>();
     private final UUID id;

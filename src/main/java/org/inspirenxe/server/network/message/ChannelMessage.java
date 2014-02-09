@@ -24,7 +24,6 @@
 package org.inspirenxe.server.network.message;
 
 import com.flowpowered.networking.AsyncableMessage;
-import com.flowpowered.networking.Message;
 import org.inspirenxe.server.network.ServerSession;
 
 public abstract class ChannelMessage implements AsyncableMessage {

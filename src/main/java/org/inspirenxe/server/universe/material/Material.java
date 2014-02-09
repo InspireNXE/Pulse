@@ -47,6 +47,7 @@ public abstract class Material {
 
     /**
      * Used to send to the client so the client knows what to render
+     *
      * @return The id
      */
     public abstract short getId();
@@ -55,6 +56,7 @@ public abstract class Material {
      * Used to send to the client so the client knows this is a "child" id of the id (meta).
      *
      * Example: The material PLANK has an id of 5 but has child ids (meta) for PLANK_SPRUCE, PLANK_BIRCH, and PLANK_JUNGLE
+     *
      * @return The child id, 0 means this isn't a child and to use the normal id
      */
     public short getChildId() {

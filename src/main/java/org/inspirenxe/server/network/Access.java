@@ -30,10 +30,9 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
-import org.inspirenxe.server.Game;
-
 import com.flowpowered.cerealization.config.ConfigurationException;
 import com.flowpowered.cerealization.config.yaml.YamlConfiguration;
+import org.inspirenxe.server.Game;
 
 public final class Access {
     private static final Path CONFIG_PATH = Paths.get("config");
