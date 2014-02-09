@@ -21,53 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message;
+package org.inspirenxe.server.universe.material.block.wood.plank;
 
-import com.flowpowered.networking.AsyncableMessage;
-import com.flowpowered.networking.Message;
-import org.inspirenxe.server.network.ServerSession;
+import org.inspirenxe.server.Game;
 
-public abstract class ChannelMessage implements AsyncableMessage {
-    private final Channel[] channels;
-    private ServerSession session;
+public class DarkOakPlank extends OakPlank {
+    private static final String NAME = "minecraft:plank.darkoak";
 
-    public ChannelMessage() {
-        this.channels = new Channel[0];
-    }
-
-    public ChannelMessage(Channel[] channels) {
-        this.channels = channels;
+    public DarkOakPlank(Game game, String name) {
+        super(game, NAME);
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
-    }
-
-    public void setSession(ServerSession session) {
-        if (this.session != null) {
-            throw new IllegalArgumentException("Attempt made to set session twice on message!");
-        }
-        this.session = session;
-    }
-
-    public ServerSession getSession() {
-        return session;
-    }
-
-    public Channel[] getChannels() {
-        return channels;
-    }
-
-    /**
-     * An enum of all the message channels.
-     */
-    public static enum Channel {
-        UNIVERSE,
-        INTERFACE,
-        NETWORK,
-        PHYSICS
+    public short getChildId() {
+        return 5;
     }
 }
-
-

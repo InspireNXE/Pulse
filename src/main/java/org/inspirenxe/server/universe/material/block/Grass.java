@@ -21,53 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.server.network.message;
+package org.inspirenxe.server.universe.material.block;
 
-import com.flowpowered.networking.AsyncableMessage;
-import com.flowpowered.networking.Message;
-import org.inspirenxe.server.network.ServerSession;
+import org.inspirenxe.server.Game;
+import org.inspirenxe.server.universe.block.BlockMaterial;
 
-public abstract class ChannelMessage implements AsyncableMessage {
-    private final Channel[] channels;
-    private ServerSession session;
+public class Grass extends BlockMaterial {
+    private static final String NAME = "minecraft:grass";
+    private static final float HARDNESS = 0.6f;
 
-    public ChannelMessage() {
-        this.channels = new Channel[0];
-    }
-
-    public ChannelMessage(Channel[] channels) {
-        this.channels = channels;
+    public Grass(Game game, String name) {
+        super(game, NAME);
+        setHardness(HARDNESS);
     }
 
     @Override
-    public boolean isAsync() {
-        return true;
-    }
-
-    public void setSession(ServerSession session) {
-        if (this.session != null) {
-            throw new IllegalArgumentException("Attempt made to set session twice on message!");
-        }
-        this.session = session;
-    }
-
-    public ServerSession getSession() {
-        return session;
-    }
-
-    public Channel[] getChannels() {
-        return channels;
-    }
-
-    /**
-     * An enum of all the message channels.
-     */
-    public static enum Channel {
-        UNIVERSE,
-        INTERFACE,
-        NETWORK,
-        PHYSICS
+    public short getId() {
+        return 2;
     }
 }
-
-

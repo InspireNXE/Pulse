@@ -23,51 +23,41 @@
  */
 package org.inspirenxe.server.universe.block;
 
-import com.flowpowered.math.vector.Vector3i;
 import org.inspirenxe.server.Game;
 import org.inspirenxe.server.universe.material.Material;
-import org.inspirenxe.server.universe.world.Chunk;
 
-public class Block {
-    private final Game game;
-    private final Vector3i position;
-    private final Material material;
-    private final short blockLight;
-    private final short blockSkyLight;
+public abstract class BlockMaterial extends Material {
+    private float hardness = 0.0f;
+    private float resistance = 0.0f;
 
-    public Block(Game game, Vector3i position, int packed) {
-        this(game, position, (short) (packed >> 16), (short) packed);
+    public BlockMaterial(Game game, String name) {
+        super(game, name);
     }
 
-    public Block(Game game, Vector3i position, short id, short data) {
-        this(game, position, game.getUniverse().getMaterials().get(id, Chunk.SUB_ID_MASK.extract(data)), Chunk.BLOCK_LIGHT_MASK.extract(data), Chunk.BLOCK_SKY_LIGHT_MASK.extract(data));
+    public float getHardness() {
+        return hardness;
     }
 
-    public Block(Game game, Vector3i position, Material material, short blockLight, short blockSkyLight) {
-        this.game = game;
-        this.position = position;
-        this.material = material;
-        this.blockLight = blockLight;
-        this.blockSkyLight = blockSkyLight;
+    public BlockMaterial setHardness(float value) {
+        hardness = value;
+        return this;
     }
 
-    public Game getGame() {
-        return game;
+    public float getResistance() {
+        return resistance;
     }
 
-    public Material getMaterial() {
-        return material;
+    public BlockMaterial setResistance(float value) {
+        resistance = value;
+        return this;
     }
 
-    public Vector3i getPosition() {
-        return position;
+    public boolean isUnbreakable() {
+        return hardness == -1.0f;
     }
 
-    public short getLight() {
-        return blockLight;
-    }
-
-    public short getSkyLight() {
-        return blockSkyLight;
+    public BlockMaterial setUnbreakable() {
+        hardness = -1.0f;
+        return this;
     }
 }
