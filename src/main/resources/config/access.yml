@@ -1,5 +1,5 @@
 banlist:
-    message: You are banned from this server.
+    message: You are banned from this pulse.
     enabled: true
     list:
 whitelist:
