@@ -2,7 +2,7 @@
 * Formatting pull requests will not be merged!
 * Be concise and to the point with your pull request title.
 * Be detailed about what you added/changed/removed and why you did so.
-* Run `gradle licenseFormatMain licenseFormatTest` to add/update license headers. PRs with headerless files will not be accepted.
+* Run `gradle licenseFormat` to add/update license headers. PRs with headerless files will not be accepted.
 * The code must be your work or you must accredit those whom you have use code from appropriately.
 
 ## Code Requirements
