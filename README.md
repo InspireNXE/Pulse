@@ -1,6 +1,6 @@
 Pulse [![Build Status](https://travis-ci.org/InspireNXE/Pulse.png?branch=master)](https://travis-ci.org/InspireNXE/Pulse) [![Coverage Status](https://coveralls.io/repos/InspireNXE/Pulse/badge.png?branch=master)](https://coveralls.io/r/InspireNXE/Pulse?branch=master)  
 =============
-Pulse is an open source, multi-threaded Minecraft server built with Java. It is licensed under the [MIT License].
+Pulse is an open-source Minecraft server written in Java that implements Sponge API. It is licensed under the [MIT License].
 
 * [Source]
 * [Issues]
@@ -11,8 +11,8 @@ Pulse is an open source, multi-threaded Minecraft server built with Java. It is 
 [![Grinch](https://secure.gravatar.com/avatar/19d97d07c8797464aa8b7e2e0481da78?s=48)](https://github.com/Grinch "Grinch, Developer")
 
 ## Prerequisites
-* [Java] `>=` 7
-* [Gradle] `>=` 1.10
+* [Java] `>=` 8
+* [Gradle] `>=` 2.2
 
 ## Cloning
 If you are using Git, use this command to clone the project: `git clone git@github.com:InspireNXE/Pulse.git`
@@ -31,10 +31,10 @@ __For [IntelliJ]__
 ## Building
 __Note:__ If you do not have [Gradle] installed you can use the gradlew files included with the project in place of 'gradle' in the following command(s). If you are using Git Bash, Unix or OS X then use './gradlew'. If you are using Windows then use 'gradlew.bat'.
 
-In order to build Pulse you simply need to run the `gradle` command. You can find the compiled JAR file in `~/build/distributions`.
+In order to build Pulse you simply need to run the `gradle` command. You can find the compiled JAR file in `~/build/shaded`.
 
 ## Running
-After building, you can go to `~/build/distributions` and run the command `java -jar pulse-1.0.0-SNAPSHOT.jar`.
+After building, you can go to `~/build/shaded` and run the command `java -jar pulse-1.0.0-SNAPSHOT.jar`.
 
 ## Contributing
 Are you a talented programmer looking to contribute some code? We'd love the help!  
