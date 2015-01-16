@@ -25,9 +25,15 @@ repositories {
 // Project dependencies
 dependencies {
     compile 'com.flowpowered:flow-math:1.0.1-SNAPSHOT'
+    compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
+    compile 'io.netty:netty-all:4.0.25.Final'
     compile 'junit:junit:4.11'
-    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
+    compile 'org.apache.logging.log4j:log4j-api:2.1'
+    compile 'org.apache.logging.log4j:log4j-core:2.1'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.1'
+    compile 'org.bouncycastle:bcprov-jdk15on:1.51'
     compile 'org.spongepowered:spongeapi:1.1-SNAPSHOT'
+    compile 'net.sf.jopt-simple:jopt-simple:4.8'
 }
 
 // Gradle default tasks
@@ -35,16 +41,16 @@ defaultTasks 'licenseFormat', 'clean', 'build', 'shadowJar'
 
 // Basic project information
 group = 'org.inspirenxe'
-archivesBaseName = 'ember'
+archivesBaseName = 'pulse'
 version = '1.0.0-SNAPSHOT'
-mainClassName = 'org.inspirenxe.server.Main'
+mainClassName = 'org.inspirenxe.pulse.Main'
 ext.inceptionYear = '2014'
 ext.currentYear = '2015'
 ext.packaging = 'jar'
 
 // Extended project information
 ext.projectName = 'Pulse'
-ext.description = 'Pulse is an open-source Minecraft server written in Java that implements Sponge API'
+ext.description = 'Pulse is an open-source Minecraft pulse written in Java that implements Sponge API'
 ext.url = 'http://inspirenxe.org'
 ext.organization = 'InspireNXE'
 
