@@ -1,87 +1,60 @@
-// Default tasks
-defaultTasks 'licenseFormatMain', 'licenseFormatTest', 'clean', 'build', 'shadowJar'
-
-// Apply plugins
-apply plugin: 'application'
-apply plugin: 'cobertura'
-apply plugin: 'coveralls'
-apply plugin: 'java'
-apply plugin: 'license'
-apply plugin: 'maven'
-apply plugin: 'shadow'
-apply plugin: 'signing'
-
-// Basic project information
-group = 'org.inspirenxe'
-archivesBaseName = 'pulse'
-version = '1.0.0-SNAPSHOT'
-mainClassName = "org.inspirenxe.server.Main"
-
-// Extended project information
-ext.projectName = 'Pulse'
-ext.inceptionYear = '2014'
-ext.packaging = 'jar'
-ext.url = 'http://inspirenxe.org'
-ext.description = 'Open source, multi-threaded Minecraft server written in Java.'
-ext.organization = 'InspireNXE'
-ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
-
-// Minimum version of Java required
-sourceCompatibility = '1.7'
-targetCompatibility = '1.7'
-
-// ServerConfiguration settings
-configurations.all {
-    resolutionStrategy.cacheChangingModulesFor 0, 'seconds' // Always check for new snapshots
+// Gradle plugins
+plugins {
+    id 'application'
+    id 'com.github.hierynomus.license' version '0.11.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.0'
+    id 'java'
+    id 'maven'
+    id 'signing'
 }
 
-// Plugin repositories and dependencies
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = 'sonatype-nexus-public'
-            url = 'https://oss.sonatype.org/content/repositories/public/'
-        }
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.github.jengelman.gradle.plugins:shadow:0.8'
-        classpath 'net.saliman:gradle-cobertura-plugin:2.2.2' // Coveralls plugin dependency
-        classpath 'nl.javadude.gradle.plugins:license-gradle-plugin:0.7.0'
-        classpath 'org.kt3k.gradle.plugin:coveralls-gradle-plugin:0.2.4'
-    }
-}
-
-// Non-plugin repositories and dependencies
+// Project repositories
 repositories {
     mavenLocal()
     mavenCentral()
     maven {
-        name = 'sonatype-nexus-public'
+        name = 'oss-sonatype'
         url = 'https://oss.sonatype.org/content/repositories/public/'
     }
+    maven {
+        name = 'spongepowered-sonatype'
+        url = 'http://repo.spongepowered.org/maven/'
+    }
 }
+
+// Project dependencies
 dependencies {
-    compile 'com.flowpowered:flow-cerealization:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-chat-commands:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-commons:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-events:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-math:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-noise:0.1.0-SNAPSHOT'
-    compile 'com.github.wolf480pl:jline-log4j2-appender:0.0.1-SNAPSHOT'
-    compile 'com.google.code.gson:gson:2.2.4'
-    compile 'io.netty:netty-all:4.0.15.Final'
-    compile 'jline:jline:2.11'
+    compile 'com.flowpowered:flow-math:1.0.1-SNAPSHOT'
     compile 'junit:junit:4.11'
-    compile 'org.apache.logging.log4j:log4j-api:2.0-beta9'
-    compile 'org.apache.logging.log4j:log4j-core:2.0-beta9'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.0-beta9'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.50'
-    compile 'net.sf.jopt-simple:jopt-simple:4.6'
-    testCompile 'junit:junit:4.11'
+    compile 'org.spongepowered:spongeapi:1.1-SNAPSHOT'
 }
+
+// Gradle default tasks
+defaultTasks 'licenseFormat', 'clean', 'build', 'shadowJar'
+
+// Basic project information
+group = 'org.inspirenxe'
+archivesBaseName = 'ember'
+version = '1.0.0-SNAPSHOT'
+mainClassName = 'org.inspirenxe.server.Main'
+ext.inceptionYear = '2014'
+ext.currentYear = '2015'
+ext.packaging = 'jar'
+
+// Extended project information
+ext.projectName = 'Pulse'
+ext.description = 'Pulse is an open-source Minecraft server written in Java that implements Sponge API'
+ext.url = 'http://inspirenxe.org'
+ext.organization = 'InspireNXE'
+
+// Java version target/source compatibility
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
+// Compilation variables
+ext.buildNumber = project.hasProperty("buildNumber") ? buildNumber : '0'
+ext.commit = project.hasProperty("commit") ? commit : 'unknown'
 
 // Filter, process, and include resources
 processResources {
@@ -90,50 +63,32 @@ processResources {
     }
 }
 
-// Include dependencies in final JAR
-shadow {
-    artifactAttached = false
-    exclude 'junit/**'
-    exclude 'META-INF/*.SF'
-    exclude 'META-INF/*.DSA'
-    exclude 'META-INF/*.RSA'
+// Include dependencies in the final JAR
+shadowJar {
+    classifier = ''
+    destinationDir = file("build/shaded")
 }
 
 // License header formatting
-import nl.javadude.gradle.plugins.license.License
-tasks.withType(License).each { licenseTask ->
-    licenseTask.exclude 'resources/**'
-    licenseTask.exclude '**/*.xml'
-    licenseTask.exclude '**/*.yml'
-}
 license {
-    ext.name = projectName
+    ext.name = project.name
     ext.organization = organization
     ext.url = url
-    ext.year = inceptionYear
+    ext.year = inceptionYear == currentYear ? inceptionYear : inceptionYear + '-' + currentYear
     header rootProject.file('HEADER.txt')
     ignoreFailures true
     strictCheck true
-}
-
-// Source compiler configuration
-configure([compileJava, compileTestJava]) {
-    options.compilerArgs << '-Xlint:all'
-    options.compilerArgs << '-Xlint:-path'
-    options.deprecation = true
+    includes(["**/*.java"])
 }
 
 // JAR manifest configuration
-manifest.mainAttributes(
+jar.manifest.mainAttributes(
         "Main-Class": mainClassName,
         "Built-By": System.properties['user.name'],
         "Created-By": System.properties['java.vm.version'] + " (" + System.properties['java.vm.vendor'] + ")",
         "Implementation-Title": name,
-        "Implementation-Version": version + ".b" + buildNumber,
+        "Implementation-Version": version + "-b" + buildNumber + ".git-" + commit,
         "Implementation-Vendor": url)
-
-// Coveralls report configuration
-cobertura.coverageFormats = [ 'html', 'xml' ] // Coveralls requires xml format
 
 // Artifact deployment
 uploadArchives {
