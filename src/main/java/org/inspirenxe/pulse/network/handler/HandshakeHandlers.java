@@ -29,7 +29,7 @@ import org.inspirenxe.pulse.network.ProtocolType;
 import org.inspirenxe.pulse.network.packet.handshake.HandshakePacket;
 
 public final class HandshakeHandlers {
-    public static final HandshakeHandlers INSTANCE = new HandshakeHandlers();
+    public static final HandshakeHandlers instance = new HandshakeHandlers();
 
     @AnnotatedMessageHandler.Handle
     public void onHandshake(MinecraftSession session, HandshakePacket packet) {

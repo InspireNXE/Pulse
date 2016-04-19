@@ -102,8 +102,9 @@ public final class MinecraftSession implements Session {
 
     @Override
     public <T extends Message> void messageReceived(T message) {
-        SpongeGame.logger.error(message.toString());
-        incomingQueue.add(message);
+        getProtocol().getHandlerManager().handle(this, message);
+//        SpongeGame.logger.error(message.toString());
+//        incomingQueue.add(message);
     }
 
     @Override
@@ -112,7 +113,6 @@ public final class MinecraftSession implements Session {
     }
 
     public void switchToProtocol(ProtocolType protocol) {
-        this.channel.flush();
         this.protocol = protocol;
     }
 
@@ -143,7 +143,7 @@ public final class MinecraftSession implements Session {
         }
         return channel.writeAndFlush(message).addListener(future -> {
             if (future.cause() != null) {
-                SpongeGame.logger.error("Failed to flush packet [{}] due to [{}]!", message, future.cause());
+                SpongeGame.logger.error("Failed to flush packet [{}] in protocol [{}] due to [{}]!", message, getProtocol(), future.cause());
             }
         });
     }

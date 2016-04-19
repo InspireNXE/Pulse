@@ -107,7 +107,7 @@ public interface MinecraftProtocol extends Protocol {
 
     @Override
     default <M extends Message> Codec.CodecRegistration getCodecRegistration(Class<M> message) {
-        return getInboundCodecLookupService().find(message);
+        return getOutboundCodecLookupService().find(message);
     }
 
     @Override

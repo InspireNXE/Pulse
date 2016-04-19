@@ -5,6 +5,7 @@ import com.flowpowered.network.service.HandlerLookupService;
 import org.inspirenxe.pulse.network.handler.AnnotatedMessageHandler;
 import org.inspirenxe.pulse.network.handler.HandshakeHandlers;
 import org.inspirenxe.pulse.network.handler.LoginHandlers;
+import org.inspirenxe.pulse.network.handler.PlayHandlers;
 import org.inspirenxe.pulse.network.packet.handshake.HandshakePacket;
 import org.inspirenxe.pulse.network.packet.login.LoginStartPacket;
 import org.inspirenxe.pulse.network.packet.login.LoginSuccessPacket;
@@ -14,14 +15,14 @@ import org.inspirenxe.pulse.network.packet.text.DisconnectPacket;
 
 public enum ProtocolType implements MinecraftProtocol {
 
-    HANDSHAKE("handshake", 0x01, new AnnotatedMessageHandler(HandshakeHandlers.INSTANCE))
+    HANDSHAKE("handshake", 0x01, new AnnotatedMessageHandler(HandshakeHandlers.instance))
     {
         {
             inbound(0x00, HandshakePacket.class, HandshakePacket.class);
         }
     },
 
-    LOGIN("login", 0x03, new AnnotatedMessageHandler(LoginHandlers.INSTANCE))
+    LOGIN("login", 0x03, new AnnotatedMessageHandler(LoginHandlers.instance))
     {
         {
             inbound(0x00, LoginStartPacket.class, LoginStartPacket.class);
@@ -31,7 +32,7 @@ public enum ProtocolType implements MinecraftProtocol {
         }
     },
 
-    PLAY("play", 0x41, null) {
+    PLAY("play", 0x41, new AnnotatedMessageHandler(PlayHandlers.instance)) {
         {
             inbound(0x00, KeepAlivePacket.class, KeepAlivePacket.class);
 

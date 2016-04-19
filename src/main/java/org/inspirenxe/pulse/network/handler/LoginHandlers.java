@@ -32,7 +32,7 @@ import org.inspirenxe.pulse.network.packet.login.LoginSuccessPacket;
 import java.util.UUID;
 
 public final class LoginHandlers {
-    public static final LoginHandlers INSTANCE = new LoginHandlers();
+    public static final LoginHandlers instance = new LoginHandlers();
 
     @AnnotatedMessageHandler.Handle
     public void onLoginStart(MinecraftSession session, LoginStartPacket message) {

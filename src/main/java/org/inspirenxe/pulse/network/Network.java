@@ -33,10 +33,12 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.network.packet.play.KeepAlivePacket;
 import org.inspirenxe.pulse.util.TickingElement;
 
 import java.net.InetSocketAddress;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 public class Network extends TickingElement implements ConnectionManager {
@@ -73,7 +75,9 @@ public class Network extends TickingElement implements ConnectionManager {
 
     @Override
     public void onTick(long l) {
-        sessions.forEach(MinecraftSession::pulse);
+        sessions.stream().filter(session -> session.getProtocol().equals(ProtocolType.PLAY)).forEach(session -> {
+            session.send(new KeepAlivePacket(new Random().nextInt()));
+        });
     }
 
     @Override
@@ -85,6 +89,8 @@ public class Network extends TickingElement implements ConnectionManager {
 
     @Override
     public Session newSession(Channel c) {
+        c.config().setOption(ChannelOption.TCP_NODELAY, true);
+        c.config().setOption(ChannelOption.AUTO_READ, true);
         final MinecraftSession session = new MinecraftSession(c);
         sessions.add(session);
         return session;
