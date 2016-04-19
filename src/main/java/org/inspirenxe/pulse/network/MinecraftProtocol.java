@@ -94,17 +94,6 @@ public interface MinecraftProtocol extends Protocol {
         }
     }
 
-    default <M extends Message> Codec.CodecRegistration getCodecRegistration(String serviceKey, Class<M> clazz) {
-        switch (serviceKey) {
-            case INBOUND:
-                return getCodecRegistration(clazz);
-            case OUTBOUND:
-                return getOutboundCodecLookupService().find(clazz);
-            default:
-                throw new RuntimeException("Invalid service key provided! Options available are [" + INBOUND + ", " + OUTBOUND + "].");
-        }
-    }
-
     @Override
     default <M extends Message> Codec.CodecRegistration getCodecRegistration(Class<M> message) {
         return getOutboundCodecLookupService().find(message);
@@ -129,10 +118,9 @@ public interface MinecraftProtocol extends Protocol {
 
     @Override
     default ByteBuf writeHeader(ByteBuf out, Codec.CodecRegistration codec, ByteBuf data) {
-        final int length = data.readableBytes();
-        final ByteBuf opcodeBuffer = Unpooled.buffer();
+        final ByteBuf opcodeBuffer = Unpooled.buffer(5);
         ByteBufUtils.writeVarInt(opcodeBuffer, codec.getOpcode());
-        ByteBufUtils.writeVarInt(out, length + opcodeBuffer.readableBytes());
+        ByteBufUtils.writeVarInt(out, opcodeBuffer.readableBytes() + data.readableBytes());
         ByteBufUtils.writeVarInt(out, codec.getOpcode());
         return out;
     }

@@ -88,23 +88,21 @@ public final class MinecraftSession implements Session {
     public void pulse() {
         Message message;
 
-        if (state == State.OPEN) {
-            while ((message = outgoingQueue.poll()) != null) {
-                SpongeGame.logger.error(message.toString());
-                send(message);
-            }
-        }
-
         while ((message = incomingQueue.poll()) != null) {
             getProtocol().getHandlerManager().handle(this, message);
+        }
+
+        if (state == State.OPEN) {
+            while ((message = outgoingQueue.poll()) != null) {
+                send(message);
+            }
         }
     }
 
     @Override
     public <T extends Message> void messageReceived(T message) {
         getProtocol().getHandlerManager().handle(this, message);
-//        SpongeGame.logger.error(message.toString());
-//        incomingQueue.add(message);
+        incomingQueue.add(message);
     }
 
     @Override

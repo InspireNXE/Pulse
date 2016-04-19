@@ -32,13 +32,13 @@ public enum ProtocolType implements MinecraftProtocol {
         }
     },
 
-    PLAY("play", 0x41, new AnnotatedMessageHandler(PlayHandlers.instance)) {
+    PLAY("play", 0xFF, new AnnotatedMessageHandler(PlayHandlers.instance)) {
         {
-            inbound(0x00, KeepAlivePacket.class, KeepAlivePacket.class);
+            inbound(0x0B, KeepAlivePacket.class, KeepAlivePacket.class);
 
-            outbound(0x00, KeepAlivePacket.class, KeepAlivePacket.class);
-            outbound(0x01, JoinGamePacket.class, JoinGamePacket.class);
-            outbound(0x40, DisconnectPacket.class, DisconnectPacket.class);
+            outbound(0x1F, KeepAlivePacket.class, KeepAlivePacket.class);
+            outbound(0x23, JoinGamePacket.class, JoinGamePacket.class);
+            outbound(0x1A, DisconnectPacket.class, DisconnectPacket.class);
         }
     };
 

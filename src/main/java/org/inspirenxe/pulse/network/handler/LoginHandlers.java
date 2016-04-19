@@ -28,6 +28,7 @@ import org.inspirenxe.pulse.network.MinecraftSession;
 import org.inspirenxe.pulse.network.ProtocolType;
 import org.inspirenxe.pulse.network.packet.login.LoginStartPacket;
 import org.inspirenxe.pulse.network.packet.login.LoginSuccessPacket;
+import org.inspirenxe.pulse.network.packet.play.JoinGamePacket;
 
 import java.util.UUID;
 
@@ -39,5 +40,7 @@ public final class LoginHandlers {
         SpongeGame.logger.error(session + " " + message);
         session.send(MinecraftSession.SendType.FORCE, new LoginSuccessPacket(UUID.randomUUID().toString(), message.getUsername()));
         session.switchToProtocol(ProtocolType.PLAY);
+        session.setState(MinecraftSession.State.OPEN);
+        session.send(new JoinGamePacket());
     }
 }

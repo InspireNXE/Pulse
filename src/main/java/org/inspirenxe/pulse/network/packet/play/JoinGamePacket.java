@@ -25,9 +25,9 @@ package org.inspirenxe.pulse.network.packet.play;
 
 import com.flowpowered.network.Codec;
 import com.flowpowered.network.Message;
-import com.flowpowered.network.util.ByteBufUtils;
 import com.google.common.base.Objects;
 import io.netty.buffer.ByteBuf;
+import org.inspirenxe.pulse.network.packet.util.ByteBufUtils;
 import org.spongepowered.api.entity.living.player.gamemode.GameMode;
 import org.spongepowered.api.world.DimensionType;
 import org.spongepowered.api.world.GeneratorType;
@@ -92,7 +92,7 @@ public class JoinGamePacket implements Message, Codec<JoinGamePacket> {
 
     @Override
     public ByteBuf encode(ByteBuf buf, JoinGamePacket message) throws IOException {
-        buf.writeInt(message.getPlayerId());
+        buf.writeInt(1);
         short gameMode = (short) 0;
         if (message.isHardcore()) {
             gameMode |= 8;
@@ -100,8 +100,9 @@ public class JoinGamePacket implements Message, Codec<JoinGamePacket> {
         buf.writeByte(gameMode);
         buf.writeByte(0);
         buf.writeByte(0);
-        buf.writeByte(message.getMaxPlayers());
+        buf.writeByte(1);
         ByteBufUtils.writeUTF8(buf, "default");
+        buf.writeBoolean(false);
         return buf;
     }
 
