@@ -21,32 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.pulse;
+package org.inspirenxe.pulse.network.packet.login;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.flowpowered.network.Codec;
+import com.flowpowered.network.Message;
+import com.flowpowered.network.util.ByteBufUtils;
+import com.google.common.base.Objects;
+import io.netty.buffer.ByteBuf;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+import java.io.IOException;
 
-    public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
-        game.launch();
+public class LoginStartPacket implements Message, Codec<LoginStartPacket> {
+    private String username;
+
+    public LoginStartPacket() {}
+
+    public LoginStartPacket(String username) {
+        this.username = username;
     }
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
-        if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
-        }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+    public String getUsername() {
+        return username;
+    }
+
+    @Override
+    public LoginStartPacket decode(ByteBuf buf) throws IOException {
+        final String username = ByteBufUtils.readUTF8(buf);
+        return new LoginStartPacket(username);
+    }
+
+    @Override
+    public ByteBuf encode(ByteBuf buf, LoginStartPacket message) throws IOException {
+        throw new IOException("The Minecraft client should not receive a login start from the server!");
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("username", username)
+                .toString();
     }
 }
+

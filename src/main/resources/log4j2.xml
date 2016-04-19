@@ -1,24 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration status="warn">
 	<Appenders>
-		<JLineConsole name ="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="[%d{HH:mm:ss}] [%style{%t}{dim, yellow}] [%logger{36}/%highlight{%-4level}]: %msg%n"/>
-		</JLineConsole>
-		<Console name ="workaround" target="SYSTEM_OUT">
-			<PatternLayout pattern="[%d{HH:mm:ss}] [%t] [%logger{36}/%-4level]: %msg%n"/>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{36}] %msg%n"/>
 		</Console>
-		<RollingRandomAccessFile name="Log" fileName="logs/current.log" filePattern="logs/%d{MM.dd.yyyy}-%i.log.gz">
-			<PatternLayout pattern="[%d{HH:mm:ss}] [%t] [%logger{36}/%-4level]: %msg%n"/>
+
+		<!-- Keep a console appender open so log4j2 doesn't close our main out stream if we redirect System.out to the logger -->
+		<Console name="SysOut" target="SYSTEM_OUT"/>
+
+		<RollingRandomAccessFile name="File" fileName="logs/latest.log" filePattern="logs/%d{yyyy-MM-dd}-%i.log.gz">
+			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}]: %replace{%msg}{(?i)\u00A7[0-9A-FK-OR]}{}%n"/>
 			<Policies>
-				<OnStartupTriggeringPolicy/>
 				<TimeBasedTriggeringPolicy/>
+				<OnStartupTriggeringPolicy/>
 			</Policies>
 		</RollingRandomAccessFile>
 	</Appenders>
+
 	<Loggers>
+		<!-- Log all other messages with prefix -->
 		<Root level="info">
-			<AppenderRef ref="Console"/>
-			<AppenderRef ref="Log"/>
+			<AppenderRef ref="Console" level="debug"/>
+			<AppenderRef ref="File"/>
 		</Root>
 	</Loggers>
 </Configuration>

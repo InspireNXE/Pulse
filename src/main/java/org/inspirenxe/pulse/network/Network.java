@@ -23,122 +23,81 @@
  */
 package org.inspirenxe.pulse.network;
 
+import com.flowpowered.network.BasicChannelInitializer;
+import com.flowpowered.network.ConnectionManager;
+import com.flowpowered.network.session.Session;
+import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.util.TickingElement;
+
 import java.net.InetSocketAddress;
-import java.util.EnumMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.HashSet;
+import java.util.Set;
 
-import com.flowpowered.commons.ticking.TickingElement;
-import com.flowpowered.networking.util.AnnotatedMessageHandler;
-import com.flowpowered.networking.util.AnnotatedMessageHandler.Handle;
-import io.netty.channel.ChannelFutureListener;
-import org.inspirenxe.pulse.Game;
-import org.inspirenxe.pulse.network.message.ChannelMessage;
-import org.inspirenxe.pulse.network.message.ChannelMessage.Channel;
-import org.inspirenxe.pulse.network.message.DisconnectMessage;
-import org.inspirenxe.pulse.network.message.handshake.HandshakeMessage;
-import org.inspirenxe.pulse.network.message.login.LoginStartMessage;
-import org.inspirenxe.pulse.network.message.login.LoginSuccessMessage;
-import org.inspirenxe.pulse.network.protocol.LoginProtocol;
-import org.inspirenxe.pulse.network.protocol.PlayProtocol;
-
-public class Network extends TickingElement {
+public class Network extends TickingElement implements ConnectionManager {
     private static final int TPS = 20;
-    private final Game game;
-    private final Access access;
-    private final GameNetworkServer server;
-    private final AnnotatedMessageHandler handler = new AnnotatedMessageHandler(this);
-    private final Map<Channel, ConcurrentLinkedQueue<ChannelMessage>> messageQueue = new EnumMap<>(Channel.class);
 
-    public Network(Game game) {
+    private final Set<MinecraftSession> sessions = new HashSet<>();
+    private final ServerBootstrap bootstrap = new ServerBootstrap();
+    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
+    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
+    private InetSocketAddress boundAddress;
+
+    public Network() {
         super("network", TPS);
-        this.game = game;
-        this.access = new Access(game);
-        server = new GameNetworkServer(game);
-        messageQueue.put(Channel.UNIVERSE, new ConcurrentLinkedQueue<ChannelMessage>());
+        bootstrap
+                .group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .childHandler(new BasicChannelInitializer(this))
+                .childOption(ChannelOption.TCP_NODELAY, true)
+                .childOption(ChannelOption.SO_KEEPALIVE, true);
     }
 
     @Override
     public void onStart() {
-        game.getLogger().info("Starting network");
-        access.load();
-        final InetSocketAddress address = new InetSocketAddress(game.getConfiguration().getAddress(), game.getConfiguration().getPort());
-        server.bind(address);
-        game.getLogger().info("Listening on " + address);
+        SpongeGame.logger.info("Starting network");
+        boundAddress = new InetSocketAddress("localhost", 25565);
+        bootstrap.bind(boundAddress).addListener(future -> {
+            if (future.isSuccess()) {
+                SpongeGame.logger.info("Listening on " + boundAddress);
+            } else {
+                SpongeGame.logger.error("Failed to bound server to " + boundAddress + "!");
+            }
+        });
     }
 
     @Override
     public void onTick(long l) {
+        sessions.forEach(MinecraftSession::pulse);
     }
 
     @Override
     public void onStop() {
-        game.getLogger().info("Stopping network");
-        server.shutdown();
+        SpongeGame.logger.info("Stopping network");
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
     }
 
-    public Game getGame() {
-        return game;
+    @Override
+    public Session newSession(Channel c) {
+        final MinecraftSession session = new MinecraftSession(c);
+        sessions.add(session);
+        return session;
     }
 
-    public Access getAccess() {
-        return access;
+    @Override
+    public void sessionInactivated(Session session) {
+        sessions.remove(session);
     }
 
-    /**
-     * Gets the {@link java.util.Iterator} storing the messages for the {@link Channel}
-     *
-     * @param c See {@link ChannelMessage}
-     * @return The iterator
-     */
-    public Iterator<ChannelMessage> getChannel(Channel c) {
-        return messageQueue.get(c).iterator();
-    }
-
-    /**
-     * Offers a {@link ChannelMessage} to a queue mapped to {@link Channel}
-     *
-     * @param c See {@link Channel}
-     * @param m See {@link ChannelMessage}
-     */
-    public void offer(Channel c, ChannelMessage m) {
-        if (c == Channel.NETWORK) {
-            handler.handle(m);
-        } else {
-            messageQueue.get(c).offer(m);
-        }
-    }
-
-    @Handle
-    private void handleHandshake(HandshakeMessage message) {
-        switch (message.getState()) {
-            case STATUS:
-                //TODO Implement status protocol
-                break;
-            case LOGIN:
-                message.getSession().setProtocol(new LoginProtocol(game));
-        }
-    }
-
-    @Handle
-    private void handleLoginStart(LoginStartMessage message) {
-        if (access.isBanlistEnabled()) {
-            if (access.isBanned(message.getUsername())) {
-                message.getSession().sendWithFuture(new DisconnectMessage(access.getBanlistMessage())).addListener(ChannelFutureListener.CLOSE);
-                return;
-            }
-        }
-        if (access.isWhitelistEnabled()) {
-            if (!access.isWhitelisted(message.getUsername())) {
-                message.getSession().sendWithFuture(new DisconnectMessage(access.getWhitelistMessage())).addListener(ChannelFutureListener.CLOSE);
-                return;
-            }
-        }
-        message.getSession().setUUID(new UUID(0, message.getUsername().hashCode()).toString());
-        message.getSession().send(new LoginSuccessMessage(message.getSession().getUUID(), message.getUsername()));
-        message.getSession().setProtocol(new PlayProtocol(game));
+    @Override
+    public void shutdown() {
+        throw new RuntimeException("Network thread should not be stopped via shutdown!");
     }
 }
 

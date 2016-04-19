@@ -1,8 +1,0 @@
-banlist:
-    message: You are banned from this pulse.
-    enabled: true
-    list:
-whitelist:
-    message: You are not whitelisted.
-    enabled: false
-    list:

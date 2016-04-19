@@ -21,32 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.pulse;
+package org.inspirenxe.pulse.network.packet;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.flowpowered.network.Message;
+import com.google.common.base.Objects;
+import org.spongepowered.api.text.Text;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+public abstract class TextPacket implements Message {
+    private final Text text;
 
-    public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
-        game.launch();
+    public TextPacket(Text text) {
+        this.text = text;
     }
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
-        if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
-        }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+    public Text getText() {
+        return text;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("text", text)
+                .toString();
     }
 }

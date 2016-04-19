@@ -21,32 +21,23 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.pulse;
+package org.inspirenxe.pulse.network.handler;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.network.MinecraftSession;
+import org.inspirenxe.pulse.network.ProtocolType;
+import org.inspirenxe.pulse.network.packet.login.LoginStartPacket;
+import org.inspirenxe.pulse.network.packet.login.LoginSuccessPacket;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+import java.util.UUID;
 
-    public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
-        game.launch();
-    }
+public final class LoginHandlers {
+    public static final LoginHandlers INSTANCE = new LoginHandlers();
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
-        if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
-        }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+    @AnnotatedMessageHandler.Handle
+    public void onLoginStart(MinecraftSession session, LoginStartPacket message) {
+        SpongeGame.logger.error(session + " " + message);
+        session.send(MinecraftSession.SendType.FORCE, new LoginSuccessPacket(UUID.randomUUID().toString(), message.getUsername()));
+        session.switchToProtocol(ProtocolType.PLAY);
     }
 }

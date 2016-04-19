@@ -21,32 +21,35 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.pulse;
+package org.inspirenxe.pulse.network.packet.text;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.flowpowered.network.Codec;
+import com.flowpowered.network.util.ByteBufUtils;
+import io.netty.buffer.ByteBuf;
+import org.inspirenxe.pulse.network.packet.TextPacket;
+import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.serializer.TextSerializers;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+import java.io.IOException;
 
-    public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
-        game.launch();
+public class DisconnectPacket extends TextPacket implements Codec<DisconnectPacket> {
+
+    public DisconnectPacket() {
+        super(null);
     }
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
-        if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
-        }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+    public DisconnectPacket(Text reason) {
+        super(reason);
+    }
+
+    @Override
+    public DisconnectPacket decode(ByteBuf buffer) throws IOException {
+        throw new IOException("The server should not receive a disconnect from the Minecraft client!");
+    }
+
+    @Override
+    public ByteBuf encode(ByteBuf buf, DisconnectPacket message) throws IOException {
+        ByteBufUtils.writeUTF8(buf, TextSerializers.JSON.serialize(message.getText()));
+        return buf;
     }
 }

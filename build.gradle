@@ -2,7 +2,7 @@
 plugins {
     id 'application'
     id 'com.github.hierynomus.license' version '0.11.0'
-    id 'com.github.johnrengelman.shadow' version '1.2.0'
+    id 'com.github.johnrengelman.shadow' version '1.2.3'
     id 'java'
     id 'maven'
     id 'signing'
@@ -24,16 +24,16 @@ repositories {
 
 // Project dependencies
 dependencies {
-    compile 'com.flowpowered:flow-math:1.0.1-SNAPSHOT'
-    compile 'com.flowpowered:flow-networking:0.1.0-SNAPSHOT'
+    compile 'org.spongepowered:spongeapi:4.1.0-SNAPSHOT'
+    compile 'com.flowpowered:flow-network:1.0.0'
     compile 'io.netty:netty-all:4.0.25.Final'
-    compile 'junit:junit:4.11'
-    compile 'org.apache.logging.log4j:log4j-api:2.1'
-    compile 'org.apache.logging.log4j:log4j-core:2.1'
-    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.1'
     compile 'org.bouncycastle:bcprov-jdk15on:1.51'
-    compile 'org.spongepowered:spongeapi:1.1-SNAPSHOT'
-    compile 'net.sf.jopt-simple:jopt-simple:4.8'
+    compile 'org.apache.logging.log4j:log4j-api:2.5'
+    compile 'org.apache.logging.log4j:log4j-core:2.5'
+    compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.5'
+    compile 'net.sf.jopt-simple:jopt-simple:5.0'
+    compile 'jline:jline:2.14.1'
+    compile 'junit:junit:4.11'
 }
 
 // Gradle default tasks
@@ -50,7 +50,7 @@ ext.packaging = 'jar'
 
 // Extended project information
 ext.projectName = 'Pulse'
-ext.description = 'Pulse is an open-source Minecraft pulse written in Java that implements Sponge API'
+ext.description = 'Pulse is an open-source Minecraft server written in Java that implements Sponge API'
 ext.url = 'http://inspirenxe.org'
 ext.organization = 'InspireNXE'
 
@@ -72,7 +72,6 @@ processResources {
 // Include dependencies in the final JAR
 shadowJar {
     classifier = ''
-    destinationDir = file("build/shaded")
 }
 
 // License header formatting

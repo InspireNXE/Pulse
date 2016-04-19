@@ -21,32 +21,45 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package org.inspirenxe.pulse;
+package org.inspirenxe.pulse.network.packet.play;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import com.flowpowered.network.Codec;
+import com.flowpowered.network.Message;
+import com.google.common.base.Objects;
+import io.netty.buffer.ByteBuf;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+import java.io.IOException;
 
-    public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
-        game.launch();
+public class KeepAlivePacket implements Message, Codec<KeepAlivePacket> {
+    private int id;
+
+    public KeepAlivePacket() {}
+
+    public KeepAlivePacket(int id) {
+        this.id = id;
     }
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
-        if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
-        }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public KeepAlivePacket decode(ByteBuf buf) throws IOException {
+        final int id = buf.readInt();
+        return new KeepAlivePacket(id);
+    }
+
+    @Override
+    public ByteBuf encode(ByteBuf buf, KeepAlivePacket message) throws IOException {
+        buf.writeInt(message.getId());
+        return buf;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this)
+                .add("id", id)
+                .toString();
     }
 }
+
