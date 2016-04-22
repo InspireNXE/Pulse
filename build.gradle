@@ -20,14 +20,16 @@ repositories {
         name = 'spongepowered-sonatype'
         url = 'http://repo.spongepowered.org/maven/'
     }
+    maven {
+        name = "spacehq"
+        url = "https://repo.spacehq.org/content/repositories/snapshots"
+    }
 }
 
 // Project dependencies
 dependencies {
     compile 'org.spongepowered:spongeapi:4.1.0-SNAPSHOT'
-    compile 'com.flowpowered:flow-network:1.0.0'
-    compile 'io.netty:netty-all:4.0.25.Final'
-    compile 'org.bouncycastle:bcprov-jdk15on:1.51'
+    compile 'org.spacehq:mcprotocollib:1.9.2-SNAPSHOT'
     compile 'org.apache.logging.log4j:log4j-api:2.5'
     compile 'org.apache.logging.log4j:log4j-core:2.5'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.5'

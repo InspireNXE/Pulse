@@ -23,87 +23,231 @@
  */
 package org.inspirenxe.pulse.network;
 
-import com.flowpowered.network.BasicChannelInitializer;
-import com.flowpowered.network.ConnectionManager;
-import com.flowpowered.network.session.Session;
-import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import org.inspirenxe.pulse.SpongeGame;
-import org.inspirenxe.pulse.network.packet.play.KeepAlivePacket;
 import org.inspirenxe.pulse.util.TickingElement;
+import org.spacehq.mc.auth.data.GameProfile;
+import org.spacehq.mc.protocol.MinecraftConstants;
+import org.spacehq.mc.protocol.MinecraftProtocol;
+import org.spacehq.mc.protocol.ServerLoginHandler;
+import org.spacehq.mc.protocol.data.game.PlayerListEntry;
+import org.spacehq.mc.protocol.data.game.PlayerListEntryAction;
+import org.spacehq.mc.protocol.data.game.chunk.Chunk;
+import org.spacehq.mc.protocol.data.game.chunk.Column;
+import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
+import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
+import org.spacehq.mc.protocol.data.game.setting.Difficulty;
+import org.spacehq.mc.protocol.data.game.world.WorldType;
+import org.spacehq.mc.protocol.data.game.world.block.BlockState;
+import org.spacehq.mc.protocol.data.message.TextMessage;
+import org.spacehq.mc.protocol.data.status.PlayerInfo;
+import org.spacehq.mc.protocol.data.status.ServerStatusInfo;
+import org.spacehq.mc.protocol.data.status.VersionInfo;
+import org.spacehq.mc.protocol.data.status.handler.ServerInfoBuilder;
+import org.spacehq.mc.protocol.packet.ingame.client.ClientKeepAlivePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerKeepAlivePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerPluginMessagePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerChunkDataPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerSpawnPositionPacket;
+import org.spacehq.packetlib.Server;
+import org.spacehq.packetlib.Session;
+import org.spacehq.packetlib.event.server.ServerBoundEvent;
+import org.spacehq.packetlib.event.server.ServerClosedEvent;
+import org.spacehq.packetlib.event.server.ServerClosingEvent;
+import org.spacehq.packetlib.event.server.ServerListener;
+import org.spacehq.packetlib.event.server.SessionAddedEvent;
+import org.spacehq.packetlib.event.server.SessionRemovedEvent;
+import org.spacehq.packetlib.event.session.ConnectedEvent;
+import org.spacehq.packetlib.event.session.DisconnectedEvent;
+import org.spacehq.packetlib.event.session.DisconnectingEvent;
+import org.spacehq.packetlib.event.session.PacketReceivedEvent;
+import org.spacehq.packetlib.event.session.PacketSentEvent;
+import org.spacehq.packetlib.event.session.SessionListener;
+import org.spacehq.packetlib.tcp.TcpServerSession;
+import org.spacehq.packetlib.tcp.TcpSessionFactory;
+import org.spacehq.packetlib.tcp.io.ByteBufNetOutput;
 
-import java.net.InetSocketAddress;
+import java.io.IOException;
+import java.net.Proxy;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Queue;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class Network extends TickingElement implements ConnectionManager {
+public class Network extends TickingElement implements ServerListener, SessionListener {
     private static final int TPS = 20;
-
-    private final Set<MinecraftSession> sessions = new HashSet<>();
-    private final ServerBootstrap bootstrap = new ServerBootstrap();
-    private final EventLoopGroup bossGroup = new NioEventLoopGroup();
-    private final EventLoopGroup workerGroup = new NioEventLoopGroup();
-    private InetSocketAddress boundAddress;
+    private static final boolean VERIFY_USERS = false;
+    private static final Proxy AUTH_PROXY = Proxy.NO_PROXY;
+    private Set<Session> sessions = new HashSet<>();
+    private Queue<PacketReceivedEvent> incomingNetworkEvents = new ConcurrentLinkedQueue<>();
 
     public Network() {
         super("network", TPS);
-        bootstrap
-                .group(bossGroup, workerGroup)
-                .channel(NioServerSocketChannel.class)
-                .childHandler(new BasicChannelInitializer(this))
-                .childOption(ChannelOption.TCP_NODELAY, true)
-                .childOption(ChannelOption.SO_KEEPALIVE, true);
     }
 
     @Override
     public void onStart() {
         SpongeGame.logger.info("Starting network");
-        boundAddress = new InetSocketAddress("localhost", 25565);
-        bootstrap.bind(boundAddress).addListener(future -> {
-            if (future.isSuccess()) {
-                SpongeGame.logger.info("Listening on " + boundAddress);
-            } else {
-                SpongeGame.logger.error("Failed to bound server to " + boundAddress + "!");
+        final Server server = new Server("0.0.0.0", 25565, MinecraftProtocol.class, new TcpSessionFactory());
+        server.setGlobalFlag(MinecraftConstants.AUTH_PROXY_KEY, AUTH_PROXY);
+        server.setGlobalFlag(MinecraftConstants.VERIFY_USERS_KEY, VERIFY_USERS);
+        server.setGlobalFlag(MinecraftConstants.SERVER_INFO_BUILDER_KEY,
+                (ServerInfoBuilder) session -> new ServerStatusInfo(
+                        new VersionInfo(MinecraftConstants.GAME_VERSION, MinecraftConstants.PROTOCOL_VERSION),
+                        new PlayerInfo(100, 0, new GameProfile[0]), new TextMessage("Hello world!"), null));
+
+        server.setGlobalFlag(MinecraftConstants.SERVER_COMPRESSION_THRESHOLD, 1000);
+
+        server.setGlobalFlag(MinecraftConstants.SERVER_LOGIN_HANDLER_KEY, (ServerLoginHandler) session -> {
+            final GameProfile profile = session.getFlag(MinecraftConstants.PROFILE_KEY);
+            session.send(new ServerJoinGamePacket(0, true, GameMode.SURVIVAL, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
+            final ByteBuf buffer = Unpooled.buffer();
+            final ByteBufNetOutput adapter = new ByteBufNetOutput(buffer);
+            try {
+                adapter.writeString(SpongeGame.ECOSYSTEM_NAME);
+            } catch (IOException e) {
+                SpongeGame.logger.error(e.toString());
             }
+            session.send(new ServerPluginMessagePacket("MC|Brand", buffer.array()));
+            session.send(new ServerSpawnPositionPacket(new Position(0, 64, 0)));
+            session.send(new ServerPlayerAbilitiesPacket(false, false, false, true, 0.05f, 0.1f));
+            session.send(new ServerPlayerPositionRotationPacket(0, 64, 0, 0, 0, 0));
+            for (Session activeSession : sessions) {
+                activeSession
+                        .send(new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(profile,
+                                GameMode.CREATIVE, 10, new TextMessage(profile.getName()))}));
+
+                if (activeSession != session) {
+                    final GameProfile otherProfile = activeSession.getFlag(MinecraftConstants.PROFILE_KEY);
+                    session.send(
+                            new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(otherProfile,
+                                    GameMode.CREATIVE, 10, new TextMessage(otherProfile.getName()))}));
+                }
+
+                activeSession.send(new ServerChatPacket(profile.getName() + " has joined the game."));
+            }
+
+
+            final BlockState state = new BlockState(1, 0);
+            final List<Column> columns = new ArrayList<>();
+            for (int cx = 0; cx < 16; cx++) {
+                for (int cz = 0; cz < cx; cz++) {
+                    final Chunk[] sections = new Chunk[16];
+                    for (int section = 0; section < 16; section++) {
+                        final Chunk chunk = new Chunk(true);
+
+                        for (int bx = 0; bx < 16; bx++) {
+                            for (int bz = 0; bz < bx; bz++) {
+                                for (int by = 0; by < bz; by++) {
+                                    if (new Random().nextBoolean()) {
+                                        chunk.getBlocks().set(bx, by, bz, state);
+                                    }
+                                }
+                            }
+                        }
+
+                        sections[section] = chunk;
+                    }
+
+                    final byte[] biomeData = new byte[256];
+                    Arrays.fill(biomeData, (byte) 2);
+                    columns.add(new Column(cx, cz, sections, biomeData));
+                }
+            }
+
+            for (Column column : columns) {
+                session.send(new ServerChunkDataPacket(column));
+            }
+
         });
+
+        server.addListener(this);
+        server.bind();
+
     }
 
     @Override
     public void onTick(long l) {
-        sessions.stream().filter(session -> session.getProtocol().equals(ProtocolType.PLAY)).forEach(session -> {
-            session.send(new KeepAlivePacket(new Random().nextInt()));
-        });
+        PacketReceivedEvent incomingNetworkEvent;
+        while ((incomingNetworkEvent = incomingNetworkEvents.poll()) != null) {
+            if (incomingNetworkEvent.getPacket() instanceof ClientKeepAlivePacket) {
+                continue;
+            }
+
+            SpongeGame.logger.error("[INCOMING] " + incomingNetworkEvent.getPacket().toString());
+        }
     }
 
     @Override
     public void onStop() {
-        SpongeGame.logger.info("Stopping network");
-        workerGroup.shutdownGracefully();
-        bossGroup.shutdownGracefully();
+
     }
 
     @Override
-    public Session newSession(Channel c) {
-        c.config().setOption(ChannelOption.TCP_NODELAY, true);
-        c.config().setOption(ChannelOption.AUTO_READ, true);
-        final MinecraftSession session = new MinecraftSession(c);
-        sessions.add(session);
-        return session;
+    public void packetReceived(PacketReceivedEvent event) {
+        incomingNetworkEvents.add(event);
     }
 
     @Override
-    public void sessionInactivated(Session session) {
-        sessions.remove(session);
+    public void packetSent(PacketSentEvent event) {
+        if (!(event.getPacket() instanceof ServerKeepAlivePacket)) {
+            SpongeGame.logger.error("[OUTGOING] " + event.getPacket().toString());
+        }
     }
 
     @Override
-    public void shutdown() {
-        throw new RuntimeException("Network thread should not be stopped via shutdown!");
+    public void connected(ConnectedEvent event) {
+    }
+
+    @Override
+    public void disconnecting(DisconnectingEvent disconnectingEvent) {
+
+    }
+
+    @Override
+    public void disconnected(DisconnectedEvent disconnectedEvent) {
+
+    }
+
+    @Override
+    public void serverBound(ServerBoundEvent serverBoundEvent) {
+
+    }
+
+    @Override
+    public void serverClosing(ServerClosingEvent serverClosingEvent) {
+
+    }
+
+    @Override
+    public void serverClosed(ServerClosedEvent serverClosedEvent) {
+
+    }
+
+    @Override
+    public void sessionAdded(SessionAddedEvent event) {
+        SpongeGame.logger.info("Connection received from [{}:{}]", event.getSession().getHost(), event.getSession().getPort());
+        if (event.getSession() instanceof TcpServerSession) {
+            sessions.add(event.getSession());
+            event.getSession().addListener(this);
+        }
+
+    }
+
+    @Override
+    public void sessionRemoved(SessionRemovedEvent event) {
+        event.getSession().removeListener(this);
+        sessions.remove(event.getSession());
     }
 }
 
