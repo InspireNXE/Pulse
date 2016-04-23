@@ -23,9 +23,6 @@
  */
 package org.inspirenxe.pulse;
 
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.io.IoBuilder;
-
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,9 +33,6 @@ public class Main {
     private static final Path WORLDS_PATH = Paths.get("saves");
 
     public static void main(String[] args) throws Exception {
-        System.setOut(IoBuilder.forLogger("STDOUT").setLevel(Level.INFO).buildPrintStream());
-        System.setErr(IoBuilder.forLogger("STDERR").setLevel(Level.ERROR).buildPrintStream());
-
         deploy();
         final SpongeGame game = new SpongeGame();
         game.launch();
