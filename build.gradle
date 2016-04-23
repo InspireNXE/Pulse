@@ -30,6 +30,8 @@ repositories {
 dependencies {
     compile 'org.spongepowered:spongeapi:4.1.0-SNAPSHOT'
     compile 'org.spacehq:mcprotocollib:1.9.2-SNAPSHOT'
+    compile 'com.googlecode.disruptor:disruptor:2.7.1'
+    compile 'com.google.guava:guava:19.0'
     compile 'org.apache.logging.log4j:log4j-api:2.5'
     compile 'org.apache.logging.log4j:log4j-core:2.5'
     compile 'org.apache.logging.log4j:log4j-slf4j-impl:2.5'
