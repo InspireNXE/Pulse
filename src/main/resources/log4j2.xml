@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="warn">
+<Configuration status="warn" packages="org.inspirenxe.pulse.console">
 	<Appenders>
-		<Console name="Console" target="SYSTEM_OUT">
+		<TerminalConsole name="Console">
 			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}]: %msg%n"/>
-		</Console>
-		<Console name="TraceConsole" target="SYSTEM_OUT">
+		</TerminalConsole>
+		<TerminalConsole name="TraceConsole">
 			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}] [%location] %msg%n"/>
-		</Console>
+		</TerminalConsole>
 
 		<!-- Keep a console appender open so log4j2 doesn't close our main out stream if we redirect System.out to the logger -->
 		<Console name="SysOut" target="SYSTEM_OUT"/>

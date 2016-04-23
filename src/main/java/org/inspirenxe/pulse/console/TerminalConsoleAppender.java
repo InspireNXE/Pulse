@@ -40,6 +40,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
+import org.apache.logging.log4j.io.IoBuilder;
 import org.apache.logging.log4j.util.PropertiesUtil;
 import org.fusesource.jansi.Ansi;
 import org.fusesource.jansi.AnsiConsole;
@@ -83,10 +84,10 @@ public class TerminalConsoleAppender extends AbstractAppender {
 
     @PluginFactory
     public static TerminalConsoleAppender createAppender(
-            @PluginAttribute("name") String name,
-            @PluginElement("Filters") Filter filter,
             @PluginElement("Layout") @Nullable Layout<? extends Serializable> layout,
-            @PluginAttribute("ignoreExceptions") String ignore) {
+            @PluginAttribute("name") String name,
+            @PluginElement("Filter") Filter filter,
+            @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) boolean ignoreExceptions) {
 
         if (name == null) {
             LOGGER.error("No name provided for TerminalConsoleAppender");
@@ -96,8 +97,6 @@ public class TerminalConsoleAppender extends AbstractAppender {
         if (layout == null) {
             layout = PatternLayout.createLayout(null, null, null, null, null, false, false, null, null);
         }
-
-        boolean ignoreExceptions = PropertiesUtil.getProperties().getBooleanProperty(ignore, true);
 
         // This is handled by jline
         System.setProperty("log4j.skipJansi", "true");
@@ -147,6 +146,9 @@ public class TerminalConsoleAppender extends AbstractAppender {
                 }
             }
         }
+
+        System.setOut(IoBuilder.forLogger("STDOUT").setLevel(Level.INFO).buildPrintStream());
+        System.setErr(IoBuilder.forLogger("STDERR").setLevel(Level.ERROR).buildPrintStream());
     }
 
     @Override
