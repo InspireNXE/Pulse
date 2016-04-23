@@ -2,7 +2,10 @@
 <Configuration status="warn">
 	<Appenders>
 		<Console name="Console" target="SYSTEM_OUT">
-			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{36}] %msg%n"/>
+			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}]: %msg%n"/>
+		</Console>
+		<Console name="TraceConsole" target="SYSTEM_OUT">
+			<PatternLayout pattern="[%d{HH:mm:ss}] [%t/%level] [%logger{1}] [%location] %msg%n"/>
 		</Console>
 
 		<!-- Keep a console appender open so log4j2 doesn't close our main out stream if we redirect System.out to the logger -->
@@ -18,7 +21,15 @@
 	</Appenders>
 
 	<Loggers>
-		<!-- Log all other messages with prefix -->
+		<Logger name="STDOUT" additivity="false">
+			<AppenderRef ref="TraceConsole"/>
+			<AppenderRef ref="File"/>
+		</Logger>
+		<Logger name="STDERR" additivity="false">
+			<AppenderRef ref="TraceConsole"/>
+			<AppenderRef ref="File"/>
+		</Logger>
+
 		<Root level="info">
 			<AppenderRef ref="Console" level="debug"/>
 			<AppenderRef ref="File"/>
