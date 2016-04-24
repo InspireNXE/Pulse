@@ -24,7 +24,7 @@
 package org.inspirenxe.pulse.network;
 
 import org.inspirenxe.pulse.SpongeGame;
-import org.inspirenxe.pulse.network.pc.PCProtocol;
+import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
 import org.inspirenxe.pulse.network.pc.PCSession;
 import org.inspirenxe.pulse.network.pc.PCSessionFactory;
 import org.inspirenxe.pulse.network.pc.handler.PacketHandlers;
@@ -60,7 +60,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Network extends TickingElement implements ServerListener, SessionListener {
     private static final int TPS = 20;
-    private static final boolean VERIFY_USERS = true;
+    private static final boolean VERIFY_USERS = false;
     private static final Proxy AUTH_PROXY = Proxy.NO_PROXY;
 
     private final PacketHandlerInvoker handlerInvoker = new PacketHandlerInvoker(new PacketHandlers());

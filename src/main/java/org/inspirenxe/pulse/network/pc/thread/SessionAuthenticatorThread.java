@@ -3,7 +3,7 @@ package org.inspirenxe.pulse.network.pc.thread;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.inspirenxe.pulse.network.SessionFlags;
-import org.inspirenxe.pulse.network.pc.PCProtocol;
+import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.auth.exception.request.RequestException;
 import org.spacehq.mc.auth.service.SessionService;

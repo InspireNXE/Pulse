@@ -1,5 +1,6 @@
-package org.inspirenxe.pulse.network.pc;
+package org.inspirenxe.pulse.network.pc.protocol;
 
+import org.inspirenxe.pulse.network.pc.protocol.ingame.v190.server.ServerJoinGame190Packet;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.auth.exception.request.RequestException;
 import org.spacehq.mc.auth.service.AuthenticationService;
@@ -143,6 +144,8 @@ public final class PCProtocol extends PacketProtocol {
     private AESEncryption encrypt;
     private GameProfile profile;
     private String accessToken;
+    // TODO Protocol versioning
+    public boolean is19 = false;
 
     private PCProtocol() {
         this.subProtocol = SubProtocol.HANDSHAKE;
@@ -325,7 +328,11 @@ public final class PCProtocol extends PacketProtocol {
         this.registerOutgoing(32, ServerChunkDataPacket.class);
         this.registerOutgoing(33, ServerPlayEffectPacket.class);
         this.registerOutgoing(34, ServerSpawnParticlePacket.class);
-        this.registerOutgoing(35, ServerJoinGamePacket.class);
+        if (is19) {
+            this.registerOutgoing(35, ServerJoinGame190Packet.class);
+        } else {
+            this.registerOutgoing(35, ServerJoinGamePacket.class);
+        }
         this.registerOutgoing(36, ServerMapDataPacket.class);
         this.registerOutgoing(37, ServerEntityPositionPacket.class);
         this.registerOutgoing(38, ServerEntityPositionRotationPacket.class);

@@ -1,22 +1,45 @@
 package org.inspirenxe.pulse.network.pc.handler;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
+import org.inspirenxe.pulse.SpongeGame;
 import org.inspirenxe.pulse.network.PacketHandler;
 import org.inspirenxe.pulse.network.SessionFlags;
-import org.inspirenxe.pulse.network.pc.PCProtocol;
 import org.inspirenxe.pulse.network.pc.PCSession;
+import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
+import org.inspirenxe.pulse.network.pc.protocol.ingame.v190.server.ServerJoinGame190Packet;
 import org.inspirenxe.pulse.network.pc.thread.SessionAuthenticatorThread;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.protocol.MinecraftConstants;
 import org.spacehq.mc.protocol.data.SubProtocol;
+import org.spacehq.mc.protocol.data.game.MessageType;
+import org.spacehq.mc.protocol.data.game.PlayerListEntry;
+import org.spacehq.mc.protocol.data.game.PlayerListEntryAction;
+import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
+import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
+import org.spacehq.mc.protocol.data.game.setting.Difficulty;
+import org.spacehq.mc.protocol.data.game.world.WorldType;
+import org.spacehq.mc.protocol.data.message.TextMessage;
 import org.spacehq.mc.protocol.packet.handshake.client.HandshakePacket;
+import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientKeepAlivePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerJoinGamePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerPluginMessagePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.world.ServerSpawnPositionPacket;
 import org.spacehq.mc.protocol.packet.login.client.EncryptionResponsePacket;
 import org.spacehq.mc.protocol.packet.login.client.LoginStartPacket;
 import org.spacehq.mc.protocol.packet.login.server.EncryptionRequestPacket;
 import org.spacehq.mc.protocol.packet.login.server.LoginSetCompressionPacket;
 import org.spacehq.mc.protocol.packet.login.server.LoginSuccessPacket;
 import org.spacehq.mc.protocol.util.CryptUtil;
+import org.spacehq.packetlib.Session;
+import org.spacehq.packetlib.tcp.io.ByteBufNetOutput;
 
+import java.io.IOException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.util.Arrays;
@@ -35,9 +58,11 @@ public final class PacketHandlers  {
             case LOGIN:
                 protocol.setSubProtocol(SubProtocol.LOGIN);
                 if (packet.getProtocolVersion() > 109) {
-                    session.disconnect("Outdated server! I am still on 1.9.2.");
-                } else if (packet.getProtocolVersion() < 109) {
-                    session.disconnect("Outdated client! Please use 1.9.2.");
+                    session.disconnect("Outdated server! I am still on 1.9.x.");
+                } else if (packet.getProtocolVersion() < 107) {
+                    session.disconnect("Outdated client! Please use 1.9.x.");
+                } else if (packet.getProtocolVersion() == 107) {
+                    protocol.is19 = true;
                 }
                 break;
             case STATUS:
@@ -69,6 +94,40 @@ public final class PacketHandlers  {
             session.send(new LoginSuccessPacket(profile));
             session.setFlag(MinecraftConstants.PROFILE_KEY, profile);
             session.getPacketProtocol().setSubProtocol(SubProtocol.GAME);
+
+
+            if (!session.getPacketProtocol().is19) {
+                session.send(new ServerJoinGamePacket(0, true, GameMode.SURVIVAL, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
+            } else {
+                session.send(new ServerJoinGame190Packet(0, true, GameMode.SURVIVAL, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
+            }
+            final ByteBuf buffer = Unpooled.buffer();
+            final ByteBufNetOutput adapter = new ByteBufNetOutput(buffer);
+            try {
+                adapter.writeString(SpongeGame.ECOSYSTEM_NAME);
+            } catch (IOException e) {
+                SpongeGame.logger.error(e.toString());
+            }
+            session.send(new ServerPluginMessagePacket("MC|Brand", buffer.array()));
+            session.send(new ServerSpawnPositionPacket(new Position(0, 64, 0)));
+            session.send(new ServerPlayerAbilitiesPacket(false, false, false, true, 0.05f, 0.1f));
+            session.send(new ServerPlayerPositionRotationPacket(0, 64, 0, 0, 0, 0));
+
+
+            for (Session activeSession : SpongeGame.instance.getServer().getNetwork().getSessions()) {
+                activeSession
+                        .send(new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(profile,
+                                GameMode.CREATIVE, 10, new TextMessage(profile.getName()))}));
+
+                if (activeSession != session) {
+                    final GameProfile otherProfile = activeSession.getFlag(MinecraftConstants.PROFILE_KEY);
+                    session.send(
+                            new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(otherProfile,
+                                    GameMode.CREATIVE, 10, new TextMessage(otherProfile.getName()))}));
+                }
+
+                activeSession.send(new ServerChatPacket(profile.getName() + " has joined the game."));
+            }
         }
     }
 
@@ -92,34 +151,24 @@ public final class PacketHandlers  {
         }
     }
 
+    @PacketHandler
+    public void onServerChat(PCSession session, ClientChatPacket packet) {
+        final String mesaage = packet.getMessage();
+        final GameProfile profile = session.getFlag(MinecraftConstants.PROFILE_KEY);
+        boolean command = mesaage.startsWith("/");
+        final String outgoing = "<" + profile.getName() + "> " + mesaage;
+        if (!command) {
+            for (Session activeSession : SpongeGame.instance.getServer().getNetwork().getSessions()) {
+                activeSession.send(new ServerChatPacket(outgoing, MessageType.CHAT));
+            }
+        } else {
+            session.send(new ServerChatPacket(outgoing, MessageType.CHAT));
+        }
 
-//        final GameProfile profile = session.getFlag(MinecraftConstants.PROFILE_KEY);
-//        session.send(new ServerJoinGamePacket(0, true, GameMode.SURVIVAL, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
-//        final ByteBuf buffer = Unpooled.buffer();
-//        final ByteBufNetOutput adapter = new ByteBufNetOutput(buffer);
-//        try {
-//            adapter.writeString(SpongeGame.ECOSYSTEM_NAME);
-//        } catch (IOException e) {
-//            SpongeGame.logger.error(e.toString());
-//        }
-//        session.send(new ServerPluginMessagePacket("MC|Brand", buffer.array()));
-//        session.send(new ServerSpawnPositionPacket(new Position(0, 64, 0)));
-//        session.send(new ServerPlayerAbilitiesPacket(false, false, false, true, 0.05f, 0.1f));
-//        session.send(new ServerPlayerPositionRotationPacket(0, 64, 0, 0, 0, 0));
-////        for (Session activeSession : sessions) {
-////            activeSession
-////                    .send(new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(profile,
-////                            GameMode.CREATIVE, 10, new TextMessage(profile.getName()))}));
-////
-////            if (activeSession != session) {
-////                final GameProfile otherProfile = activeSession.getFlag(MinecraftConstants.PROFILE_KEY);
-////                session.send(
-////                        new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(otherProfile,
-////                                GameMode.CREATIVE, 10, new TextMessage(otherProfile.getName()))}));
-////            }
-////
-////            activeSession.send(new ServerChatPacket(profile.getName() + " has joined the game."));
-////        }
-//
-
+        if (command) {
+            SpongeGame.logger.info("{} issued command: {}", profile.getName(), mesaage);
+        } else {
+            SpongeGame.logger.info(outgoing);
+        }
+    }
 }
