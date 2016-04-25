@@ -47,12 +47,14 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 public class SpongeServer extends TickingElement implements Server {
-    private static final int TPS = 20;
+    private final SpongeGame game;
     private final Console console = new Console();
-    private final Network network = new Network();
+    private final Network network;
 
-    public SpongeServer() {
-        super("main", TPS);
+    public SpongeServer(SpongeGame game) {
+        super("main", game.getConfiguration().getTickRate());
+        this.game = game;
+        this.network = new Network(this);
     }
 
     public void onStart() {
@@ -67,6 +69,10 @@ public class SpongeServer extends TickingElement implements Server {
     public void onStop() {
         SpongeGame.logger.info("Stopping game, please wait a moment");
         network.stop();
+    }
+
+    public SpongeGame getGame() {
+        return this.game;
     }
 
     public Network getNetwork() {

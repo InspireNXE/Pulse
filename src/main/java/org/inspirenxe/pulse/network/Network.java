@@ -24,6 +24,7 @@
 package org.inspirenxe.pulse.network;
 
 import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.SpongeServer;
 import org.inspirenxe.pulse.network.pc.PCSession;
 import org.inspirenxe.pulse.network.pc.PCSessionFactory;
 import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
@@ -33,11 +34,6 @@ import org.inspirenxe.pulse.util.TickingElement;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.protocol.MinecraftConstants;
 import org.spacehq.mc.protocol.data.game.MessageType;
-import org.spacehq.mc.protocol.data.message.TextMessage;
-import org.spacehq.mc.protocol.data.status.PlayerInfo;
-import org.spacehq.mc.protocol.data.status.ServerStatusInfo;
-import org.spacehq.mc.protocol.data.status.VersionInfo;
-import org.spacehq.mc.protocol.data.status.handler.ServerInfoBuilder;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerDisconnectPacket;
 import org.spacehq.packetlib.Server;
@@ -61,34 +57,33 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public final class Network extends TickingElement implements ServerListener, SessionListener {
-    private static final int TPS = 20;
-    private static final boolean VERIFY_USERS = false;
     private static final Proxy AUTH_PROXY = Proxy.NO_PROXY;
 
+    private final SpongeServer server;
+    private final Server listener;
     private final Queue<PacketReceivedEvent> incomingNetworkEvents = new ConcurrentLinkedQueue<>();
-    private final Server server;
 
-    public Network() {
-        super("network", TPS);
-        this.server = new Server("0.0.0.0", 25565, PCProtocol.class, new PCSessionFactory());
-        this.server.setGlobalFlag(MinecraftConstants.AUTH_PROXY_KEY, AUTH_PROXY);
-        this.server.setGlobalFlag(MinecraftConstants.VERIFY_USERS_KEY, VERIFY_USERS);
-        this.server.setGlobalFlag(MinecraftConstants.SERVER_COMPRESSION_THRESHOLD, 100);
+    public Network(SpongeServer server) {
+        super("network", server.getGame().getConfiguration().getTickRate());
+        this.server = server;
+
+        this.listener = new Server(server.getGame().getConfiguration().getAddress(), server.getGame().getConfiguration().getPort(), PCProtocol.class,
+                new PCSessionFactory());
+        this.listener.setGlobalFlag(MinecraftConstants.AUTH_PROXY_KEY, AUTH_PROXY);
+        this.listener.setGlobalFlag(MinecraftConstants.VERIFY_USERS_KEY, server.getGame().getConfiguration().isAuthenticateSessions());
+        this.listener.setGlobalFlag(MinecraftConstants.SERVER_COMPRESSION_THRESHOLD, 100);
     }
 
     @Override
     public void onStart() {
         SpongeGame.logger.info("Starting network");
 
-        this.server.addListener(this);
-        this.server.bind();
+        if (!this.server.getGame().getConfiguration().isAuthenticateSessions()) {
+            SpongeGame.logger.warn("**** SERVER IS NOT AUTHENTICATING SESSIONS ****");
+        }
 
-        this.server.setGlobalFlag(MinecraftConstants.SERVER_INFO_BUILDER_KEY,
-                (ServerInfoBuilder) session -> new ServerStatusInfo(
-                        new VersionInfo(MinecraftConstants.GAME_VERSION, MinecraftConstants.PROTOCOL_VERSION),
-                        new PlayerInfo(100, 0, new GameProfile[0]), new TextMessage("Hello world!"), null));
-
-        new KeepAliveThread().start();
+        this.listener.addListener(this);
+        this.listener.bind(true);
     }
 
     @Override
@@ -136,7 +131,7 @@ public final class Network extends TickingElement implements ServerListener, Ses
 
             SpongeGame.logger.info(message);
 
-            this.server.getSessions().stream().filter(Session::isConnected).forEach(session -> {
+            this.listener.getSessions().stream().filter(Session::isConnected).forEach(session -> {
                 session.send(new ServerChatPacket(message, MessageType.SYSTEM));
             });
         }
@@ -146,6 +141,8 @@ public final class Network extends TickingElement implements ServerListener, Ses
     public void serverBound(ServerBoundEvent serverBoundEvent) {
         SpongeGame.logger.info("Listening for connections on [{}:{}].", serverBoundEvent.getServer().getHost(), serverBoundEvent.getServer()
                 .getPort());
+
+        new KeepAliveThread().start();
     }
 
     @Override
@@ -173,7 +170,7 @@ public final class Network extends TickingElement implements ServerListener, Ses
     }
 
     public List<Session> getSessions() {
-        return this.server.getSessions();
+        return this.listener.getSessions();
     }
 }
 

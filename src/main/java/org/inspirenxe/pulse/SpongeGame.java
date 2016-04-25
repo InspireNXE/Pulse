@@ -51,13 +51,24 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class SpongeGame implements Game {
     public static final String ECOSYSTEM_NAME = Sponge.class.getSimpleName();
     public static final String ECOSYSTEM_IDENTIFIER = ECOSYSTEM_NAME.toLowerCase(Locale.ENGLISH);
-    public static final String VERSION = SpongeGame.class.getPackage().getImplementationVersion();
+    public static final String METADATA_VERSION = SpongeGame.class.getPackage().getImplementationVersion();
+    public static final String VERSION = METADATA_VERSION == null ? "dev" : METADATA_VERSION;
     public static final Logger logger = LoggerFactory.getLogger(ECOSYSTEM_NAME);
     public static SpongeGame instance;
-    private final SpongeServer server = new SpongeServer();
+    private final Configuration configuration;
+    private final SpongeServer server;
     // A semaphore with no permits, so that the first acquire() call blocks
     private final Semaphore semaphore = new Semaphore(0);
     private final AtomicBoolean running = new AtomicBoolean(false);
+
+    public SpongeGame(Configuration configuration) {
+        this.configuration = configuration;
+        this.server = new SpongeServer(this);
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
     /**
      * Starts the game and causes the current thread to wait until the {@link #close()} method is called. When this happens, the thread resumes and

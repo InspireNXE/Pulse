@@ -23,30 +23,33 @@
  */
 package org.inspirenxe.pulse;
 
+import ninja.leaping.configurate.commented.CommentedConfigurationNode;
+import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
+import ninja.leaping.configurate.loader.ConfigurationLoader;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class Main {
-    private static final Path CONFIG_PATH = Paths.get("config");
-    private static final Path SETTINGS_PATH = Paths.get(CONFIG_PATH.toString(), "settings.conf");
-    private static final Path WORLDS_PATH = Paths.get("saves");
+public final class Main {
+    private static final String RESOURCE_PATH_JAR = "/config/settings.conf";
+    private static final Path SETTINGS_PATH = Paths.get("settings.conf");
+
+    private Main () {}
 
     public static void main(String[] args) throws Exception {
-        deploy();
-        final SpongeGame game = new SpongeGame();
+        final SpongeGame game = new SpongeGame(deploy());
         game.launch();
     }
 
-    public static void deploy() throws Exception {
-        if (Files.notExists(CONFIG_PATH)) {
-            Files.createDirectories(CONFIG_PATH);
-        }
+    private static Configuration deploy() throws Exception {
         if (Files.notExists(SETTINGS_PATH)) {
-            Files.copy(Main.class.getResourceAsStream("/config/settings.conf"), SETTINGS_PATH);
+            Files.copy(Main.class.getResourceAsStream(RESOURCE_PATH_JAR), SETTINGS_PATH);
         }
-        if (Files.notExists(WORLDS_PATH)) {
-            Files.createDirectories(WORLDS_PATH);
-        }
+
+        final ConfigurationLoader<CommentedConfigurationNode> loader = HoconConfigurationLoader.builder()
+                .setPath(SETTINGS_PATH)
+                .build();
+        return new Configuration(loader.load());
     }
 }

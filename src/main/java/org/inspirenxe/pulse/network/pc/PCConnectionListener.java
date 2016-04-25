@@ -42,6 +42,7 @@ import org.spacehq.packetlib.tcp.TcpPacketCodec;
 import org.spacehq.packetlib.tcp.TcpPacketEncryptor;
 import org.spacehq.packetlib.tcp.TcpPacketSizer;
 
+import java.net.BindException;
 import java.net.InetSocketAddress;
 
 public final class PCConnectionListener implements ConnectionListener {
@@ -87,8 +88,7 @@ public final class PCConnectionListener implements ConnectionListener {
     public void bind(boolean wait, Runnable callback) {
         if (this.group == null && this.channel == null) {
             this.group = new NioEventLoopGroup();
-            ChannelFuture
-                    future = (new ServerBootstrap()).channel(NioServerSocketChannel.class)
+            final ChannelFuture future = (new ServerBootstrap()).channel(NioServerSocketChannel.class)
                     .childHandler(new ChannelInitializer() {
                         public void initChannel(Channel channel) throws Exception {
                             final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
@@ -108,29 +108,37 @@ public final class PCConnectionListener implements ConnectionListener {
                             pipeline.addLast("manager", session);
                         }
                     }).group(this.group).localAddress(this.host, this.port).bind();
-            if (wait) {
-                try {
-                    future.sync();
-                } catch (InterruptedException ignored) {
-                }
 
-                this.channel = future.channel();
-                if (callback != null) {
-                    callback.run();
-                }
-            } else {
-                future.addListener(new ChannelFutureListener() {
-                    public void operationComplete(ChannelFuture future) throws Exception {
-                        if (future.isSuccess()) {
-                            PCConnectionListener.this.channel = future.channel();
-                            if (callback != null) {
-                                callback.run();
-                            }
-                        } else {
-                            SpongeGame.logger.error("Failed to asynchronously bind connection listener!", future.cause());
+            if (future != null) {
+                if (wait) {
+                    try {
+                        future.sync();
+                    } catch (Exception ex) {
+                        if (ex instanceof BindException) {
+                            SpongeGame.logger.error("Failed to bind to [{}:{}]! Is there another server running on this port?", host, port);
                         }
+
+                        return;
                     }
-                });
+                    this.channel = future.channel();
+
+                    if (callback != null) {
+                        callback.run();
+                    }
+                } else {
+                    future.addListener(new ChannelFutureListener() {
+                        public void operationComplete(ChannelFuture future) throws Exception {
+                            if (future.isSuccess()) {
+                                PCConnectionListener.this.channel = future.channel();
+                                if (callback != null) {
+                                    callback.run();
+                                }
+                            } else {
+                                SpongeGame.logger.error("Failed to bind to [{}:{}]! Is there another server running on this port?", host, port);
+                            }
+                        }
+                    });
+                }
             }
         }
     }
