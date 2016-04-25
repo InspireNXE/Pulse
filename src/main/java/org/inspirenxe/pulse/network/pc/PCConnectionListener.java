@@ -93,6 +93,8 @@ public final class PCConnectionListener implements ConnectionListener {
                         public void initChannel(Channel channel) throws Exception {
                             final InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
                             final PCProtocol protocol = (PCProtocol) PCConnectionListener.this.server.createPacketProtocol();
+
+                            // TODO PE Support
                             final PCSession session = new PCSession(PCConnectionListener.this.server, address.getHostName(), address
                                     .getPort(), protocol);
                             session.getPacketProtocol().newServerSession(PCConnectionListener.this.server, session);

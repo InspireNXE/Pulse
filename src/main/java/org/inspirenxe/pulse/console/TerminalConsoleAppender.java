@@ -160,7 +160,7 @@ public class TerminalConsoleAppender extends AbstractAppender {
 
         if (reader != null) {
             try {
-                Writer out = reader.getOutput();
+                final Writer out = reader.getOutput();
                 out.write(RESET_LINE);
                 out.write(formatEvent(event));
 
@@ -174,7 +174,7 @@ public class TerminalConsoleAppender extends AbstractAppender {
     }
 
     protected String formatEvent(LogEvent event) {
-        String formatted = formatter.apply(getLayout().toSerializable(event).toString());
+        final String formatted = formatter.apply(getLayout().toSerializable(event).toString());
         if (reader != null) {
             // Colorize log messages if supported
             final int level = event.getLevel().intLevel();
@@ -186,5 +186,4 @@ public class TerminalConsoleAppender extends AbstractAppender {
         }
         return formatted;
     }
-
 }

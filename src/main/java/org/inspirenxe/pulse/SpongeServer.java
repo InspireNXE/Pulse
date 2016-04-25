@@ -23,38 +23,49 @@
  */
 package org.inspirenxe.pulse;
 
-import org.inspirenxe.pulse.console.Console;
+import jline.console.ConsoleReader;
+import org.inspirenxe.pulse.console.TerminalConsoleAppender;
 import org.inspirenxe.pulse.network.Network;
 import org.inspirenxe.pulse.util.TickingElement;
 import org.spongepowered.api.Server;
+import org.spongepowered.api.command.CommandSource;
 import org.spongepowered.api.command.source.ConsoleSource;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.profile.GameProfileManager;
 import org.spongepowered.api.resourcepack.ResourcePack;
 import org.spongepowered.api.scoreboard.Scoreboard;
+import org.spongepowered.api.service.context.Context;
+import org.spongepowered.api.service.permission.Subject;
+import org.spongepowered.api.service.permission.SubjectCollection;
+import org.spongepowered.api.service.permission.SubjectData;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
+import org.spongepowered.api.util.Tristate;
 import org.spongepowered.api.world.ChunkTicketManager;
 import org.spongepowered.api.world.World;
 import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.storage.ChunkLayout;
 import org.spongepowered.api.world.storage.WorldProperties;
 
+import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
-public class SpongeServer extends TickingElement implements Server {
+public final class SpongeServer extends TickingElement implements Server, ConsoleSource {
     private final SpongeGame game;
-    private final Console console = new Console();
     private final Network network;
+    private final ConsoleReader reader;
 
     public SpongeServer(SpongeGame game) {
-        super("main", game.getConfiguration().getTickRate());
+        super("server", game.getConfiguration().getTickRate());
         this.game = game;
         this.network = new Network(this);
+        this.reader = TerminalConsoleAppender.getReader();
     }
 
     public void onStart() {
@@ -63,7 +74,21 @@ public class SpongeServer extends TickingElement implements Server {
     }
 
     public void onTick(long dt) {
+        // TODO Split off into another thread that runs less than the server tick rate?
+        String line = null;
+        try {
+            line = reader.readLine("> ");
+        } catch (IOException ex) {
+            SpongeGame.logger.error("Exception handling console input", ex);
+        }
 
+        if (line != null) {
+            line = line.trim();
+
+            if (!line.isEmpty()) {
+                SpongeGame.logger.info("Testing console input. Entered [{}]", line);
+            }
+        }
     }
 
     public void onStop() {
@@ -231,7 +256,7 @@ public class SpongeServer extends TickingElement implements Server {
 
     @Override
     public boolean getOnlineMode() {
-        return false;
+        return this.game.getConfiguration().isAuthenticateSessions();
     }
 
     @Override
@@ -251,7 +276,7 @@ public class SpongeServer extends TickingElement implements Server {
 
     @Override
     public ConsoleSource getConsole() {
-        return console;
+        return this;
     }
 
     @Override
@@ -271,6 +296,63 @@ public class SpongeServer extends TickingElement implements Server {
 
     @Override
     public Optional<ResourcePack> getDefaultResourcePack() {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return SpongeGame.ECOSYSTEM_NAME;
+    }
+
+    @Override public String getIdentifier() {
+        return SpongeGame.ECOSYSTEM_IDENTIFIER;
+    }
+
+    @Override public Set<Context> getActiveContexts() {
+        return null;
+    }
+
+    @Override public void sendMessage(Text message) {
+
+    }
+
+    @Override public MessageChannel getMessageChannel() {
+        return null;
+    }
+
+    @Override public void setMessageChannel(MessageChannel channel) {
+
+    }
+
+    @Override public Optional<CommandSource> getCommandSource() {
+        return null;
+    }
+
+    @Override public SubjectCollection getContainingCollection() {
+        return null;
+    }
+
+    @Override public SubjectData getSubjectData() {
+        return null;
+    }
+
+    @Override public SubjectData getTransientSubjectData() {
+        return null;
+    }
+
+    @Override public boolean hasPermission(Set<Context> contexts, String permission) {
+        return false;
+    }
+
+    @Override public Tristate getPermissionValue(Set<Context> contexts, String permission) {
+        return null;
+    }
+
+    @Override public boolean isChildOf(Set<Context> contexts, Subject parent) {
+        return false;
+    }
+
+    @Override public List<Subject> getParents(Set<Context> contexts) {
         return null;
     }
 }

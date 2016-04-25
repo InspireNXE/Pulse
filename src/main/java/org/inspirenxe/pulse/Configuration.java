@@ -38,8 +38,8 @@ public final class Configuration {
     private final long seed;
 
     public Configuration(CommentedConfigurationNode node) {
-        this.address = node.getNode("address").getString("0.0.0.0");
-        this.port = node.getNode("port").getInt(25565);
+        this.address = node.getNode("server", "pc", "address").getString("0.0.0.0");
+        this.port = node.getNode("server", "pc", "port").getInt(25565);
         this.configPath = Paths.get(node.getNode("config-path").getString("config"));
         this.savesPath = Paths.get(node.getNode("saves-path").getString("saves"));
         this.authenticateSessions = node.getNode("authenticate-sessions").getBoolean(true);
