@@ -23,8 +23,7 @@
  */
 package org.inspirenxe.pulse;
 
-import jline.console.ConsoleReader;
-import org.inspirenxe.pulse.console.TerminalConsoleAppender;
+import org.inspirenxe.pulse.console.Console;
 import org.inspirenxe.pulse.network.Network;
 import org.inspirenxe.pulse.util.TickingElement;
 import org.spongepowered.api.Server;
@@ -47,7 +46,6 @@ import org.spongepowered.api.world.WorldCreationSettings;
 import org.spongepowered.api.world.storage.ChunkLayout;
 import org.spongepowered.api.world.storage.WorldProperties;
 
-import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Collection;
 import java.util.List;
@@ -58,42 +56,28 @@ import java.util.concurrent.CompletableFuture;
 
 public final class SpongeServer extends TickingElement implements Server, ConsoleSource {
     private final SpongeGame game;
+    private final Console console = new Console();
     private final Network network;
-    private final ConsoleReader reader;
 
     public SpongeServer(SpongeGame game) {
         super("server", game.getConfiguration().getTickRate());
         this.game = game;
         this.network = new Network(this);
-        this.reader = TerminalConsoleAppender.getReader();
     }
 
     public void onStart() {
         SpongeGame.logger.info("Starting server, running version " + SpongeGame.VERSION + ", please wait a moment.");
-        network.start();
+        this.console.start();
+        this.network.start();
     }
 
     public void onTick(long dt) {
-        // TODO Split off into another thread that runs less than the server tick rate?
-        String line = null;
-        try {
-            line = reader.readLine("> ");
-        } catch (IOException ex) {
-            SpongeGame.logger.error("Exception handling console input", ex);
-        }
-
-        if (line != null) {
-            line = line.trim();
-
-            if (!line.isEmpty()) {
-                SpongeGame.logger.info("Testing console input. Entered [{}]", line);
-            }
-        }
     }
 
     public void onStop() {
         SpongeGame.logger.info("Stopping game, please wait a moment");
-        network.stop();
+        this.console.stop();
+        this.network.stop();
     }
 
     public SpongeGame getGame() {
