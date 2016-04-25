@@ -56,7 +56,7 @@ public class SpongeServer extends TickingElement implements Server {
     }
 
     public void onStart() {
-        SpongeGame.logger.info("Starting game, running version " + SpongeGame.VERSION + ", please wait a moment");
+        SpongeGame.logger.info("Starting server, running version " + SpongeGame.VERSION + ", please wait a moment.");
         network.start();
     }
 

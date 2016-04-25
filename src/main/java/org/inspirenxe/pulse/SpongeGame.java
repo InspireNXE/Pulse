@@ -60,8 +60,9 @@ public final class SpongeGame implements Game {
     private final AtomicBoolean running = new AtomicBoolean(false);
 
     /**
-     * Starts the game and causes the current thread to wait until the {@link #close()} method is called. When this happens, the thread resumes and the game is stopped. Interrupting the thread will
-     * not cause it to close, only calling {@link #close()} will. Calls to {@link #close()} before open() are not counted.
+     * Starts the game and causes the current thread to wait until the {@link #close()} method is called. When this happens, the thread resumes and
+     * the game is stopped. Interrupting the thread will not cause it to close, only calling {@link #close()} will. Calls to {@link #close()}
+     * before open() are not counted.
      */
     public void launch() {
         // Only start the game if running has a value of false, in which case it's set to true and the if statement passes
@@ -78,7 +79,8 @@ public final class SpongeGame implements Game {
     }
 
     /**
-     * Wakes up the thread that has opened the game (by having called {@link #open()}) and allows it to resume it's activity to trigger the end of the game.
+     * Wakes up the thread that has opened the game (by having called {@link #launch()}) and allows it to resume it's activity to trigger the end
+     * of the game.
      */
     public void close() {
         // Only stop the game if running has a value of true, in which case it's set to false and the if statement passes

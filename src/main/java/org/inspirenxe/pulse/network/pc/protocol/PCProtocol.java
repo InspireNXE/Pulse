@@ -1,10 +1,8 @@
 package org.inspirenxe.pulse.network.pc.protocol;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import org.inspirenxe.pulse.network.pc.protocol.ingame.v190.server.ServerJoinGame190Packet;
-import org.spacehq.mc.auth.data.GameProfile;
-import org.spacehq.mc.auth.exception.request.RequestException;
-import org.spacehq.mc.auth.service.AuthenticationService;
-import org.spacehq.mc.protocol.data.SubProtocol;
 import org.spacehq.mc.protocol.packet.handshake.client.HandshakePacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientKeepAlivePacket;
@@ -132,73 +130,21 @@ import org.spacehq.packetlib.packet.DefaultPacketHeader;
 import org.spacehq.packetlib.packet.PacketHeader;
 import org.spacehq.packetlib.packet.PacketProtocol;
 
-import java.net.Proxy;
 import java.security.GeneralSecurityException;
 import java.security.Key;
-import java.util.UUID;
 
 public final class PCProtocol extends PacketProtocol {
 
-    private SubProtocol subProtocol;
+    private ProtocolPhase protocolPhase;
     private PacketHeader header;
     private AESEncryption encrypt;
-    private GameProfile profile;
-    private String accessToken;
+
     // TODO Protocol versioning
     public boolean is19 = false;
 
     private PCProtocol() {
-        this.subProtocol = SubProtocol.HANDSHAKE;
+        this.protocolPhase = ProtocolPhase.HANDSHAKE;
         this.header = new DefaultPacketHeader();
-        this.accessToken = "";
-    }
-
-    public PCProtocol(SubProtocol subProtocol) {
-        this();
-        if (subProtocol != SubProtocol.LOGIN && subProtocol != SubProtocol.STATUS) {
-            throw new IllegalArgumentException("Only login and status modes are permitted.");
-        } else {
-            this.subProtocol = subProtocol;
-            if (subProtocol == SubProtocol.LOGIN) {
-                this.profile = new GameProfile((UUID) null, "Player");
-            }
-
-        }
-    }
-
-    public PCProtocol(String username) {
-        this(SubProtocol.LOGIN);
-        this.profile = new GameProfile((UUID) null, username);
-    }
-
-    public PCProtocol(String username, String password) throws RequestException {
-        this(username, password, false);
-    }
-
-    public PCProtocol(String username, String using, boolean token) throws RequestException {
-        this(username, using, token, Proxy.NO_PROXY);
-    }
-
-    public PCProtocol(String username, String using, boolean token, Proxy authProxy) throws RequestException {
-        this(SubProtocol.LOGIN);
-        String clientToken = UUID.randomUUID().toString();
-        AuthenticationService auth = new AuthenticationService(clientToken, authProxy);
-        auth.setUsername(username);
-        if (token) {
-            auth.setAccessToken(using);
-        } else {
-            auth.setPassword(using);
-        }
-
-        auth.login();
-        this.profile = auth.getSelectedProfile();
-        this.accessToken = auth.getAccessToken();
-    }
-
-    public PCProtocol(GameProfile profile, String accessToken) {
-        this(SubProtocol.LOGIN);
-        this.profile = profile;
-        this.accessToken = accessToken;
     }
 
     @Override
@@ -223,30 +169,31 @@ public final class PCProtocol extends PacketProtocol {
 
     @Override
     public void newServerSession(Server server, Session session) {
-        this.setSubProtocol(SubProtocol.HANDSHAKE);
+        this.setProtocolPhase(ProtocolPhase.HANDSHAKE);
     }
 
-    public SubProtocol getSubProtocol() {
-        return this.subProtocol;
+    public ProtocolPhase getProtocolPhase() {
+        return this.protocolPhase;
     }
 
-    public void setSubProtocol(SubProtocol subProtocol) {
+    public void setProtocolPhase(ProtocolPhase protocolPhase) {
+        checkNotNull(protocolPhase);
         this.clearPackets();
-        switch (subProtocol) {
+        switch (protocolPhase) {
             case HANDSHAKE:
                 this.initServerHandshake();
                 break;
             case LOGIN:
                 this.initServerLogin();
                 break;
-            case GAME:
+            case INGAME:
                 this.initServerGame();
                 break;
             case STATUS:
                 this.initServerStatus();
                 break;
         }
-        this.subProtocol = subProtocol;
+        this.protocolPhase = protocolPhase;
     }
 
     private void initServerHandshake() {

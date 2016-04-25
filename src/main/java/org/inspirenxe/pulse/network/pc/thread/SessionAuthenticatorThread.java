@@ -4,11 +4,11 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import org.inspirenxe.pulse.network.SessionFlags;
 import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
+import org.inspirenxe.pulse.network.pc.protocol.ProtocolPhase;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.auth.exception.request.RequestException;
 import org.spacehq.mc.auth.service.SessionService;
 import org.spacehq.mc.protocol.MinecraftConstants;
-import org.spacehq.mc.protocol.data.SubProtocol;
 import org.spacehq.mc.protocol.packet.login.server.LoginSetCompressionPacket;
 import org.spacehq.mc.protocol.packet.login.server.LoginSuccessPacket;
 import org.spacehq.mc.protocol.util.CryptUtil;
@@ -35,6 +35,7 @@ public final class SessionAuthenticatorThread extends Thread {
         this.secretKey = secretKey;
         this.keyPair = keyPair;
         this.serverId = serverId;
+        setDaemon(true);
     }
 
     @Override
@@ -68,6 +69,6 @@ public final class SessionAuthenticatorThread extends Thread {
         }
         this.session.send(new LoginSuccessPacket(profile));
         this.session.setFlag(MinecraftConstants.PROFILE_KEY, profile);
-        ((PCProtocol)this.session.getPacketProtocol()).setSubProtocol(SubProtocol.GAME);
+        ((PCProtocol)this.session.getPacketProtocol()).setProtocolPhase(ProtocolPhase.INGAME);
     }
 }

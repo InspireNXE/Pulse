@@ -252,21 +252,25 @@ public final class PCSession extends SimpleChannelInboundHandler<Packet> impleme
         if (!disconnected) {
             disconnected = true;
 
-            if (cause != null) {
+            if (cause != null && cause.getMessage() != null && !cause.getMessage().startsWith("An existing connection was forcibly closed by the "
+                    + "remote host")) {
                 SpongeGame.logger.error("Exception caught for session [{}]: {}", this, reason, cause);
             }
 
-
-            if (this.channel != null && this.channel.isOpen()) {
-                this.callEvent(new DisconnectingEvent(this, reason, cause));
-                final ChannelFuture future = this.channel.flush().close().addListener(
-                        future1 -> PCSession.this.callEvent(new DisconnectedEvent(PCSession.this, reason != null ? reason :
-                                "Connection closed.", cause)));
-                if (wait) {
-                    try {
-                        future.await();
-                    } catch (InterruptedException ignored) {
+            if (this.channel != null) {
+                if (this.channel.isOpen()) {
+                    this.callEvent(new DisconnectingEvent(this, reason, cause));
+                    final ChannelFuture future = this.channel.flush().close().addListener(
+                            future1 -> PCSession.this.callEvent(new DisconnectedEvent(PCSession.this, reason != null ? reason :
+                                    "Connection closed.", cause)));
+                    if (wait) {
+                        try {
+                            future.await();
+                        } catch (InterruptedException ignored) {
+                        }
                     }
+                } else {
+                    this.callEvent(new DisconnectedEvent(this, reason != null ? reason : "Connection closed.", cause));
                 }
             } else {
                 this.callEvent(new DisconnectedEvent(this, reason != null ? reason : "Connection closed.", cause));
@@ -290,20 +294,16 @@ public final class PCSession extends SimpleChannelInboundHandler<Packet> impleme
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         if (ctx.channel() == this.channel) {
-            this.server.removeSession(this);
             this.disconnect("Connection closed.");
+            this.server.removeSession(this);
         }
-
     }
 
     @Override
     protected void messageReceived(ChannelHandlerContext ctx, Packet packet) {
+        // Priority packets already invoke received events upstream
         if (!packet.isPriority()) {
-            try {
-                this.callEvent(new PacketReceivedEvent(this, packet));
-            } catch (Throwable t) {
-                this.exceptionCaught(ctx, t);
-            }
+            this.callEvent(new PacketReceivedEvent(this, packet));
         }
     }
 

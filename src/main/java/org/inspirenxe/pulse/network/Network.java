@@ -24,20 +24,22 @@
 package org.inspirenxe.pulse.network;
 
 import org.inspirenxe.pulse.SpongeGame;
-import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
 import org.inspirenxe.pulse.network.pc.PCSession;
 import org.inspirenxe.pulse.network.pc.PCSessionFactory;
-import org.inspirenxe.pulse.network.pc.handler.PacketHandlers;
+import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
+import org.inspirenxe.pulse.network.pc.protocol.ProtocolPhase;
 import org.inspirenxe.pulse.network.pc.thread.KeepAliveThread;
 import org.inspirenxe.pulse.util.TickingElement;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.protocol.MinecraftConstants;
+import org.spacehq.mc.protocol.data.game.MessageType;
 import org.spacehq.mc.protocol.data.message.TextMessage;
 import org.spacehq.mc.protocol.data.status.PlayerInfo;
 import org.spacehq.mc.protocol.data.status.ServerStatusInfo;
 import org.spacehq.mc.protocol.data.status.VersionInfo;
 import org.spacehq.mc.protocol.data.status.handler.ServerInfoBuilder;
-import org.spacehq.mc.protocol.packet.ingame.server.ServerKeepAlivePacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.ServerDisconnectPacket;
 import org.spacehq.packetlib.Server;
 import org.spacehq.packetlib.Session;
 import org.spacehq.packetlib.event.server.ServerBoundEvent;
@@ -63,7 +65,6 @@ public final class Network extends TickingElement implements ServerListener, Ses
     private static final boolean VERIFY_USERS = false;
     private static final Proxy AUTH_PROXY = Proxy.NO_PROXY;
 
-    private final PacketHandlerInvoker handlerInvoker = new PacketHandlerInvoker(new PacketHandlers());
     private final Queue<PacketReceivedEvent> incomingNetworkEvents = new ConcurrentLinkedQueue<>();
     private final Server server;
 
@@ -94,7 +95,8 @@ public final class Network extends TickingElement implements ServerListener, Ses
     public void onTick(long l) {
         PacketReceivedEvent incomingNetworkEvent;
         while ((incomingNetworkEvent = incomingNetworkEvents.poll()) != null) {
-            this.handlerInvoker.handle((PCSession) incomingNetworkEvent.getSession(), incomingNetworkEvent.getPacket());
+            final PCSession pcSession = (PCSession) incomingNetworkEvent.getSession();
+            pcSession.getPacketProtocol().getProtocolPhase().getHandlerInvoker().handle(pcSession, incomingNetworkEvent.getPacket());
         }
     }
 
@@ -105,10 +107,9 @@ public final class Network extends TickingElement implements ServerListener, Ses
 
     @Override
     public void packetReceived(PacketReceivedEvent event) {
-        SpongeGame.logger.error("[INCOMING] " + event.getPacket().toString());
-
         if (event.getPacket().isPriority()) {
-            handlerInvoker.handle((PCSession) event.getSession(), event.getPacket());
+            final PCSession pcSession = (PCSession) event.getSession();
+            pcSession.getPacketProtocol().getProtocolPhase().getHandlerInvoker().handle(pcSession, event.getPacket());
         } else {
             incomingNetworkEvents.add(event);
         }
@@ -116,9 +117,6 @@ public final class Network extends TickingElement implements ServerListener, Ses
 
     @Override
     public void packetSent(PacketSentEvent event) {
-        if (!(event.getPacket() instanceof ServerKeepAlivePacket)) {
-            SpongeGame.logger.error("[OUTGOING] " + event.getPacket().toString());
-        }
     }
 
     @Override
@@ -126,13 +124,22 @@ public final class Network extends TickingElement implements ServerListener, Ses
     }
 
     @Override
-    public void disconnecting(DisconnectingEvent disconnectingEvent) {
-
+    public void disconnecting(DisconnectingEvent event) {
+        event.getSession().send(new ServerDisconnectPacket(event.getReason()));
     }
 
     @Override
-    public void disconnected(DisconnectedEvent disconnectedEvent) {
+    public void disconnected(DisconnectedEvent event) {
+        if (((PCSession) event.getSession()).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME) {
+            final GameProfile profile = event.getSession().getFlag(MinecraftConstants.PROFILE_KEY);
+            final String message = profile.getName() + " has left the game.";
 
+            SpongeGame.logger.info(message);
+
+            this.server.getSessions().stream().filter(Session::isConnected).forEach(session -> {
+                session.send(new ServerChatPacket(message, MessageType.SYSTEM));
+            });
+        }
     }
 
     @Override
