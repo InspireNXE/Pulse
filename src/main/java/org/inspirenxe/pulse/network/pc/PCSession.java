@@ -24,6 +24,7 @@
 package org.inspirenxe.pulse.network.pc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -36,6 +37,7 @@ import io.netty.handler.timeout.ReadTimeoutHandler;
 import io.netty.handler.timeout.WriteTimeoutException;
 import io.netty.handler.timeout.WriteTimeoutHandler;
 import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.entity.Entity;
 import org.inspirenxe.pulse.network.pc.protocol.PCProtocol;
 import org.spacehq.packetlib.Server;
 import org.spacehq.packetlib.Session;
@@ -79,6 +81,8 @@ public final class PCSession extends SimpleChannelInboundHandler<Packet> impleme
     // Ping
     private long lastPingTime = 0L;
     private long lastPingId = 0L;
+
+    private Entity entity;
 
     public PCSession(Server server, String host, int port, PCProtocol protocol) {
         this.server = server;
@@ -401,5 +405,15 @@ public final class PCSession extends SimpleChannelInboundHandler<Packet> impleme
 
     public void setLastPingTime(long lastPingTime) {
         this.lastPingTime = lastPingTime;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public void setEntity(Entity entity) {
+        checkNotNull(entity);
+        checkState(this.entity == null);
+        this.entity = entity;
     }
 }

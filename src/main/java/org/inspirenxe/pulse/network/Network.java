@@ -76,7 +76,7 @@ public final class Network extends TickingElement implements ServerListener, Ses
 
     @Override
     public void onStart() {
-        SpongeGame.logger.info("Starting network");
+        SpongeGame.logger.info("Starting network.");
 
         if (!this.server.getGame().getConfiguration().isAuthenticateSessions()) {
             SpongeGame.logger.warn("**** SERVER IS NOT AUTHENTICATING SESSIONS ****");

@@ -25,41 +25,49 @@ package org.inspirenxe.pulse.console;
 
 import jline.console.ConsoleReader;
 import org.inspirenxe.pulse.SpongeGame;
-import org.inspirenxe.pulse.util.TickingElement;
 
 import java.io.IOException;
 
-public final class Console extends TickingElement {
+public final class Console {
+    private final ReaderThread readerThread = new ReaderThread();
     private ConsoleReader reader;
 
-    public Console() {
-        super("console", 1);
-    }
-
-    @Override
-    public void onStart() {
+    public void start() {
+        SpongeGame.logger.info("Starting console.");
         this.reader = TerminalConsoleAppender.getReader();
+        this.readerThread.start();
     }
 
-    @Override
-    public void onTick(long dt) {
-        String line = null;
-        try {
-            line = reader.readLine("> ");
-        } catch (IOException ex) {
-            SpongeGame.logger.error("Exception handling console input", ex);
+    public void stop() {
+        SpongeGame.logger.info("Stopping console.");
+        this.reader = TerminalConsoleAppender.getReader();
+        this.readerThread.interrupt();
+    }
+
+    private class ReaderThread extends Thread {
+        protected ReaderThread() {
+            setName("console");
+            setDaemon(true);
         }
 
-        if (line != null) {
-            line = line.trim();
+        @Override
+        public void run() {
+            String line = null;
+            while (!this.isInterrupted()) {
+                try {
+                    line = Console.this.reader.readLine("\r> ");
+                } catch (IOException ex) {
+                    SpongeGame.logger.error("Exception handling console input", ex);
+                }
 
-            if (!line.isEmpty()) {
-                SpongeGame.logger.info("Testing console input. Entered [{}]", line);
+                if (line != null) {
+                    line = line.trim();
+
+                    if (!line.isEmpty()) {
+                        SpongeGame.logger.info("Testing console input. Entered [{}]", line);
+                    }
+                }
             }
         }
-    }
-
-    @Override
-    public void onStop() {
     }
 }

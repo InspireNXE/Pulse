@@ -26,6 +26,7 @@ package org.inspirenxe.pulse.network.pc.handler;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.entity.Entity;
 import org.inspirenxe.pulse.network.PacketHandler;
 import org.inspirenxe.pulse.network.SessionFlags;
 import org.inspirenxe.pulse.network.pc.PCSession;
@@ -38,6 +39,8 @@ import org.spacehq.mc.protocol.data.game.PlayerListEntry;
 import org.spacehq.mc.protocol.data.game.PlayerListEntryAction;
 import org.spacehq.mc.protocol.data.game.chunk.Chunk;
 import org.spacehq.mc.protocol.data.game.chunk.Column;
+import org.spacehq.mc.protocol.data.game.entity.metadata.EntityMetadata;
+import org.spacehq.mc.protocol.data.game.entity.metadata.MetadataType;
 import org.spacehq.mc.protocol.data.game.entity.metadata.Position;
 import org.spacehq.mc.protocol.data.game.entity.player.GameMode;
 import org.spacehq.mc.protocol.data.game.setting.Difficulty;
@@ -50,6 +53,7 @@ import org.spacehq.mc.protocol.packet.ingame.server.ServerPlayerListEntryPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerPluginMessagePacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerAbilitiesPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.entity.player.ServerPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.spawn.ServerSpawnPlayerPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerChunkDataPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.world.ServerSpawnPositionPacket;
 import org.spacehq.mc.protocol.packet.login.client.EncryptionResponsePacket;
@@ -91,6 +95,12 @@ public final class LoginHandlers {
                     continue;
                 }
                 final GameProfile otherProfile = activeSession.getFlag(MinecraftConstants.PROFILE_KEY);
+
+                // Session is being added before we have a GameProfile (early session initialization). We need to ignore this race.
+                if (otherProfile == null) {
+                    continue;
+                }
+
                 if (profile.getId().equals(otherProfile.getId())) {
                     activeSession.disconnect("Logged in from another location!");
                     break;
@@ -122,32 +132,70 @@ public final class LoginHandlers {
                 SpongeGame.logger.error(e.toString());
             }
             session.send(new ServerPluginMessagePacket("MC|Brand", buffer.array()));
+            final Entity entity = new Entity(profile.getId());
+            entity.x = 0;
+            entity.y = 64;
+            entity.z = 0;
             session.send(new ServerSpawnPositionPacket(new Position(0, 64, 0)));
             session.send(new ServerPlayerAbilitiesPacket(false, false, true, true, 0.05f, 0.1f));
-            session.send(new ServerPlayerPositionRotationPacket(0, 64, 0, 0, 0, 0));
+            session.send(new ServerPlayerPositionRotationPacket((int) entity.x, (int) entity.y, (int) entity.z, 0, 0, 0));
 
+            SpongeGame.instance.getServer().getNetwork().getSessions().stream()
+                    .filter(otherSession -> ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME)
+                    .forEach(otherSession -> {
+                        otherSession
+                                .send(new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER,
+                                        new PlayerListEntry[]{new PlayerListEntry(profile,
+                                                GameMode.CREATIVE, 10, new TextMessage(profile.getName()))}));
 
-            for (Session activeSession : SpongeGame.instance.getServer().getNetwork().getSessions()) {
-                activeSession
-                        .send(new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER, new PlayerListEntry[]{new PlayerListEntry(profile,
-                                GameMode.CREATIVE, 10, new TextMessage(profile.getName()))}));
+                        if (otherSession != session) {
+                            final GameProfile otherProfile = otherSession.getFlag(MinecraftConstants.PROFILE_KEY);
+                            if (otherProfile.getName() != null) {
+                                session.send(
+                                        new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER,
+                                                new PlayerListEntry[]{new PlayerListEntry(otherProfile,
+                                                        GameMode.CREATIVE, 10, new TextMessage(otherProfile.getName()))}));
+                            }
+                        }
 
-                if (activeSession != session) {
-                    final GameProfile otherProfile = activeSession.getFlag(MinecraftConstants.PROFILE_KEY);
-                    if (otherProfile.getName() != null) {
-                        session.send(
-                                new ServerPlayerListEntryPacket(PlayerListEntryAction.ADD_PLAYER,
-                                        new PlayerListEntry[]{new PlayerListEntry(otherProfile,
-                                                GameMode.CREATIVE, 10, new TextMessage(otherProfile.getName()))}));
-                    }
-                }
+                        otherSession.send(new ServerChatPacket(profile.getName() + " has joined the game."));
+                    });
 
-                activeSession.send(new ServerChatPacket(profile.getName() + " has joined the game."));
-            }
+            session.setEntity(entity);
 
             SpongeGame.logger.info("{} has joined the game.", profile.getName());
 
-            final BlockState stone = new BlockState(1, 0);
+            EntityMetadata[] metadata = new EntityMetadata[1];
+            metadata[0] = new EntityMetadata(2, MetadataType.STRING, profile.getName());
+
+            // Send your entity to other sessions
+            SpongeGame.instance.getServer().getNetwork().getSessions().stream()
+                    .filter(otherSession -> ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME)
+                    .forEach(otherSession -> {
+                        if (session != otherSession) {
+                            otherSession
+                                    .send(new ServerSpawnPlayerPacket(entity.id, entity.uniqueId, (int) entity.x, (int) entity.y, (int) entity.z, 0,
+                                            0, metadata));
+                        }
+                    });
+
+            // Send other session entities to you
+            SpongeGame.instance.getServer().getNetwork().getSessions().stream()
+                    .filter(otherSession -> ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME &&
+                            ((PCSession) otherSession).getEntity() != null)
+                    .forEach(otherSession -> {
+                        if (session != otherSession) {
+                            final GameProfile otherProfile = otherSession.getFlag(MinecraftConstants.PROFILE_KEY);
+                            if (otherProfile != null) {
+                                final Entity otherEntity = ((PCSession) otherSession).getEntity();
+                                metadata[0] = new EntityMetadata(2, MetadataType.STRING, otherProfile.getName());
+                                session
+                                        .send(new ServerSpawnPlayerPacket(otherEntity.id, otherEntity.uniqueId, (int) otherEntity.x, (int) otherEntity.y, (int) otherEntity.z,
+                                                0, 0, metadata));
+                            }
+                        }
+                    });
+
             final List<Column> columns = new ArrayList<>();
             for (int cx = -5; cx < 5; cx++) {
                 for (int cz = -5; cz < 5; cz++) {
@@ -160,9 +208,17 @@ public final class LoginHandlers {
                         for (int x = 0; x < 16; x++) {
                             for (int z = 0; z < 16; z++) {
                                 for (int y = 0; y < 16; y++) {
-                                    if (baseY + y <= 64) {
-                                        if (new Random().nextFloat() > 0.3) {
-                                            chunk.getBlocks().set(x, y, z, stone);
+                                    if (baseY == 0) {
+                                        if (y == 0) {
+                                            chunk.getBlocks().set(x, y, z, new BlockState(7, 0));
+                                        } else if (y == 1) {
+                                            if (new Random().nextFloat() > 0.3) {
+                                                chunk.getBlocks().set(x, y, z, new BlockState(7, 0));
+                                            }
+                                        } else if (y == 2) {
+                                            if (new Random().nextFloat() > 0.6) {
+                                                chunk.getBlocks().set(x, y, z, new BlockState(7, 0));
+                                            }
                                         }
                                     }
                                 }
@@ -186,6 +242,7 @@ public final class LoginHandlers {
             for (Column column : columns) {
                 session.send(new ServerChunkDataPacket(column));
             }
+
         }
     }
 

@@ -32,14 +32,15 @@ import java.nio.file.Paths;
 public final class Configuration {
 
     private final String address;
-    private final int port, tickRate;
+    private final int port, tickRate, maxSessions;
     private final Path configPath, savesPath;
     private final boolean authenticateSessions;
     private final long seed;
+    private final String motd;
 
     public Configuration(CommentedConfigurationNode node) {
-        this.address = node.getNode("server", "pc", "address").getString("0.0.0.0");
-        this.port = node.getNode("server", "pc", "port").getInt(25565);
+        this.address = node.getNode("listener", "pc", "address").getString("0.0.0.0");
+        this.port = node.getNode("listener", "pc", "port").getInt(25565);
         this.configPath = Paths.get(node.getNode("config-path").getString("config"));
         this.savesPath = Paths.get(node.getNode("saves-path").getString("saves"));
         this.authenticateSessions = node.getNode("authenticate-sessions").getBoolean(true);
@@ -52,33 +53,43 @@ public final class Configuration {
             this.seed = seedNode.getString().hashCode();
         }
         this.tickRate = node.getNode("tick-rate").getInt(20);
+        this.maxSessions = node.getNode("max-sessions").getInt(20);
+        this.motd = node.getNode("motd").getString("A Pulse Server");
     }
 
     public String getAddress() {
-        return address;
+        return this.address;
     }
 
     public int getPort() {
-        return port;
-    }
-
-    public int getTickRate() {
-        return tickRate;
+        return this.port;
     }
 
     public Path getConfigPath() {
-        return configPath;
+        return this.configPath;
     }
 
     public Path getSavesPath() {
-        return savesPath;
+        return this.savesPath;
     }
 
     public boolean isAuthenticateSessions() {
-        return authenticateSessions;
+        return this.authenticateSessions;
     }
 
     public long getSeed() {
-        return seed;
+        return this.seed;
+    }
+
+    public int getTickRate() {
+        return this.tickRate;
+    }
+
+    public int getMaxSessions() {
+        return this.maxSessions;
+    }
+
+    public String getMotd() {
+        return motd;
     }
 }
