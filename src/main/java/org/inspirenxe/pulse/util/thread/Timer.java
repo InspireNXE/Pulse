@@ -33,7 +33,7 @@ import java.util.Arrays;
  * <br>
  * Based on LWJGL's implementation of LWJGL sync.
  */
-public class Timer {
+public final class Timer {
     // Time to sleep or yield before next tick
     private long nextTick = -1;
     // Last 10 running averages for sleeps and yields

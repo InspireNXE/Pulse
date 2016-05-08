@@ -118,11 +118,11 @@ public final class LoginHandlers {
             session.setFlag(MinecraftConstants.PROFILE_KEY, profile);
             session.getPacketProtocol().setProtocolPhase(ProtocolPhase.INGAME);
 
-
+            final Entity entity = new Entity(profile.getId());
             if (!session.getPacketProtocol().is19) {
-                session.send(new ServerJoinGamePacket(0, true, GameMode.CREATIVE, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
+                session.send(new ServerJoinGamePacket(entity.id, true, GameMode.CREATIVE, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
             } else {
-                session.send(new ServerJoinGame190Packet(0, true, GameMode.CREATIVE, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
+                session.send(new ServerJoinGame190Packet(entity.id, true, GameMode.CREATIVE, 0, Difficulty.PEACEFUL, 10, WorldType.DEFAULT, false));
             }
             final ByteBuf buffer = Unpooled.buffer();
             final ByteBufNetOutput adapter = new ByteBufNetOutput(buffer);
@@ -132,7 +132,6 @@ public final class LoginHandlers {
                 SpongeGame.logger.error(e.toString());
             }
             session.send(new ServerPluginMessagePacket("MC|Brand", buffer.array()));
-            final Entity entity = new Entity(profile.getId());
             entity.x = 0;
             entity.y = 64;
             entity.z = 0;

@@ -24,25 +24,26 @@
 package org.inspirenxe.pulse.util.thread;
 
 import org.inspirenxe.pulse.util.TickingElement;
+import org.slf4j.Logger;
 
 /**
  * Represents a thread that runs at a specific TPS until terminated.
  */
-public class TPSLimitedThread extends Thread {
+public final class TPSLimitedThread extends Thread {
+    private final Logger logger;
     private final TickingElement element;
     private final Timer timer;
     private volatile boolean running = false;
 
-    public TPSLimitedThread(String name, TickingElement element, int tps) {
-        super(name);
-        this.element = element;
-        timer = new Timer(tps);
+    public TPSLimitedThread(Logger logger, String name, TickingElement element, int tps) {
+        this(logger, null, name, element, tps);
     }
 
-    public TPSLimitedThread(ThreadGroup group, String name, TickingElement element, int tps) {
+    public TPSLimitedThread(Logger logger, ThreadGroup group, String name, TickingElement element, int tps) {
         super(group, name);
+        this.logger = logger;
         this.element = element;
-        timer = new Timer(tps);
+        this.timer = new Timer(tps);
     }
 
     @Override
@@ -57,9 +58,7 @@ public class TPSLimitedThread extends Thread {
                 lastTime = currentTime;
                 timer.sync();
             } catch (Exception ex) {
-                System.err.println("Exception in ticking thread, stopping");
-                ex.printStackTrace();
-                System.out.println("Attempting to stop normally");
+                this.logger.error("Exception in thread [{}], attempting to stop normally.", this.getName(), ex);
                 element.onStop();
                 return;
             }

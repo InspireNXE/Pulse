@@ -23,15 +23,24 @@
  */
 package org.inspirenxe.pulse.network.pc.handler;
 
+import com.flowpowered.math.GenericMath;
 import org.inspirenxe.pulse.SpongeGame;
+import org.inspirenxe.pulse.entity.Entity;
 import org.inspirenxe.pulse.network.PacketHandler;
 import org.inspirenxe.pulse.network.pc.PCSession;
+import org.inspirenxe.pulse.network.pc.protocol.ProtocolPhase;
 import org.spacehq.mc.auth.data.GameProfile;
 import org.spacehq.mc.protocol.MinecraftConstants;
 import org.spacehq.mc.protocol.data.game.MessageType;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientChatPacket;
 import org.spacehq.mc.protocol.packet.ingame.client.ClientKeepAlivePacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.client.player.ClientPlayerRotationPacket;
 import org.spacehq.mc.protocol.packet.ingame.server.ServerChatPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityHeadLookPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityPositionRotationPacket;
+import org.spacehq.mc.protocol.packet.ingame.server.entity.ServerEntityRotationPacket;
 import org.spacehq.packetlib.Session;
 
 public final class IngameHandlers {
@@ -62,5 +71,77 @@ public final class IngameHandlers {
         } else {
             SpongeGame.logger.info(outgoing);
         }
+    }
+
+    @PacketHandler
+    public void onClientPlayerPosition(PCSession session, ClientPlayerPositionPacket packet) {
+        final Entity entity = session.getEntity();
+        final double deltaX = packet.getX() - entity.x;
+        final double deltaY = packet.getY() - entity.y;
+        final double deltaZ = packet.getZ() - entity.z;
+
+        entity.x = packet.getX();
+        entity.y = packet.getY();
+        entity.z = packet.getZ();
+        entity.yaw = packet.getYaw();
+        entity.headYaw = entity.yaw;
+        entity.pitch = packet.getPitch();
+
+        SpongeGame.instance.getServer().getNetwork().getSessions().stream().filter(otherSession -> otherSession.isConnected()
+                && ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME).forEach(otherSession -> {
+                    if (otherSession != session) {
+                        otherSession.send(new ServerEntityPositionRotationPacket(entity.id, deltaX, deltaY, deltaZ, GenericMath.floor(packet.getYaw()
+                                * 256.0F / 360.0F), GenericMath.floor(packet.getPitch() * 256.0F / 360.0F), false));
+
+                        otherSession.send(new ServerEntityHeadLookPacket(entity.id, GenericMath.floor(entity.headYaw * 256.0F / 360.0F)));
+                    }
+                }
+        );
+    }
+
+    @PacketHandler
+    public void onClientPlayerRotation(PCSession session, ClientPlayerRotationPacket packet) {
+        final Entity entity = session.getEntity();
+        entity.yaw = packet.getYaw();
+        entity.headYaw = entity.yaw;
+        entity.pitch = packet.getPitch();
+
+        SpongeGame.instance.getServer().getNetwork().getSessions().stream().filter(otherSession -> otherSession.isConnected()
+                && ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME).forEach(otherSession -> {
+                    if (otherSession != session) {
+                        otherSession.send(new ServerEntityRotationPacket(entity.id, GenericMath.floor(packet.getYaw() * 256.0F / 360.0F),
+                                GenericMath.floor(packet.getPitch() * 256.0F / 360.0F), false));
+
+                        otherSession.send(new ServerEntityHeadLookPacket(entity.id, GenericMath.floor(entity.headYaw * 256.0F / 360.0F)));
+                    }
+                }
+        );
+    }
+
+    @PacketHandler
+    public void onClientPlayerPositionRotation(PCSession session, ClientPlayerPositionRotationPacket packet) {
+        final Entity entity = session.getEntity();
+
+        final double deltaX = packet.getX() - entity.x;
+        final double deltaY = packet.getY() - entity.y;
+        final double deltaZ = packet.getZ() - entity.z;
+
+        entity.x = packet.getX();
+        entity.y = packet.getY();
+        entity.z = packet.getZ();
+        entity.yaw = packet.getYaw();
+        entity.headYaw = entity.yaw;
+        entity.pitch = packet.getPitch();
+
+        SpongeGame.instance.getServer().getNetwork().getSessions().stream().filter(otherSession -> otherSession.isConnected()
+                && ((PCSession) otherSession).getPacketProtocol().getProtocolPhase() == ProtocolPhase.INGAME).forEach(otherSession -> {
+                    if (otherSession != session) {
+                        otherSession.send(new ServerEntityPositionRotationPacket(entity.id, deltaX, deltaY, deltaZ, GenericMath.floor(packet.getYaw()
+                                * 256.0F / 360.0F), GenericMath.floor(packet.getPitch() * 256.0F / 360.0F), false));
+
+                        otherSession.send(new ServerEntityHeadLookPacket(entity.id, GenericMath.floor(entity.headYaw * 256.0F / 360.0F)));
+                    }
+                }
+        );
     }
 }

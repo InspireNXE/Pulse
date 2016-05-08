@@ -24,7 +24,6 @@
 package org.inspirenxe.pulse;
 
 import org.inspirenxe.pulse.console.Console;
-import org.inspirenxe.pulse.entity.Entity;
 import org.inspirenxe.pulse.network.Network;
 import org.inspirenxe.pulse.util.TickingElement;
 import org.spongepowered.api.Server;
@@ -48,7 +47,6 @@ import org.spongepowered.api.world.storage.ChunkLayout;
 import org.spongepowered.api.world.storage.WorldProperties;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -60,10 +58,9 @@ public final class SpongeServer extends TickingElement implements Server, Consol
     private final SpongeGame game;
     private final Console console = new Console();
     private final Network network;
-    private final List<Entity> entities = new ArrayList<>();
 
     public SpongeServer(SpongeGame game) {
-        super("server", game.getConfiguration().getTickRate());
+        super(SpongeGame.logger, "server", game.getConfiguration().getTickRate());
         this.game = game;
         this.network = new Network(this);
     }

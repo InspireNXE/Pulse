@@ -64,7 +64,7 @@ public final class Network extends TickingElement implements ServerListener, Ses
     private final Queue<PacketReceivedEvent> incomingNetworkEvents = new ConcurrentLinkedQueue<>();
 
     public Network(SpongeServer server) {
-        super("network", server.getGame().getConfiguration().getTickRate());
+        super(SpongeGame.logger, "network", server.getGame().getConfiguration().getTickRate());
         this.server = server;
 
         this.listener = new Server(server.getGame().getConfiguration().getAddress(), server.getGame().getConfiguration().getPort(), PCProtocol.class,

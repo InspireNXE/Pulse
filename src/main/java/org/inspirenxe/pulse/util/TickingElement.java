@@ -24,17 +24,20 @@
 package org.inspirenxe.pulse.util;
 
 import org.inspirenxe.pulse.util.thread.TPSLimitedThread;
+import org.slf4j.Logger;
 
 /**
  * Represents an element that ticks at a specific TPS.
  */
 public abstract class TickingElement {
+    private final Logger logger;
     private final String name;
     private final int tps;
     private final ThreadGroup group;
     private volatile TPSLimitedThread thread;
 
-    public TickingElement(String name, int tps) {
+    public TickingElement(Logger logger, String name, int tps) {
+        this.logger = logger;
         this.name = name;
         this.tps = tps;
         this.group = new ThreadGroup(name + " ThreadGroup");
@@ -42,32 +45,32 @@ public abstract class TickingElement {
 
     public final void start() {
         synchronized (this) {
-            if (thread == null) {
-                thread = new TPSLimitedThread(group, name, this, tps);
-                thread.start();
+            if (this.thread == null) {
+                this.thread = new TPSLimitedThread(this.logger, this.group, this.name, this, this.tps);
+                this.thread.start();
             }
         }
     }
 
     public final void stop() {
         synchronized (this) {
-            if (thread != null) {
-                thread.terminate();
-                thread = null;
+            if (this.thread != null) {
+                this.thread.terminate();
+                this.thread = null;
             }
         }
     }
 
     public final boolean isRunning() {
-        return thread != null && thread.isRunning();
+        return this.thread != null && this.thread.isRunning();
     }
 
     public TPSLimitedThread getThread() {
-        return thread;
+        return this.thread;
     }
 
     public ThreadGroup getGroup() {
-        return group;
+        return this.group;
     }
 
     public abstract void onStart();
